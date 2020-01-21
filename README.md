@@ -10,7 +10,7 @@ User also gets to chose his favorite trimmer between:
 * Trim-galore
 * Trimmomatic
 
-Please do take note that genome indexing isn't performed in this pipeline. If you don't have a genome index for the software you chose, it won't perform. An additional script `compute_indexes.sh` is provided if you need to build it.
+Please do take note that genome indexing isn't performed in this pipeline. If you don't have a genome index for the software you chose, it won't perform. An additional script `compute_indexes.sh` is provided if you need to build it, in the `Tools` directory.
 
 ## Installation
 
