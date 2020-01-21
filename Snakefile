@@ -214,8 +214,7 @@ if config["Quantification_with"] == "kallisto" :
         output:
             QUANTIF+"/{sample}/quantif.txt"
         params:
-            QUANTIF+"/{sample}",
-            GTF
+            QUANTIF+"/{sample}"
         script:
             "quant_for_kallisto.R"
     

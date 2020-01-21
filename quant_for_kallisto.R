@@ -17,12 +17,11 @@ suppressMessages({
 })
 snakemake@params[[1]] %>% setwd()
 
-
-txdb = GenomicFeatures::makeTxDbFromGFF(snakemake@params[[2]])
-
-k = keys(txdb, keytype = "TXNAME")
-tx2gene = select(txdb, k, "GENEID", "TXNAME")
-txi = tximport::tximport("abundance.h5", type = "kallisto", txIn = TRUE, tx2gene = tx2gene, ignoreTxVersion = TRUE)
-table <- txi$counts %>% round(4) %>% as.data.frame() %>% tibble::rownames_to_column()
-names(table)[1]="Gene" 
-table  %>% write_tsv("quantif.txt", quote=F)
+src <- src_organism("TxDb.Hsapiens.UCSC.hg38.knownGene")
+src <- src_ucsc("Homo sapiens")
+k <- keys(src, keytype = "tx_id")
+tx2gene<- select(src, keys = k, columns = c("tx_name","symbol"), keytype = "entrez")
+tx2gene<-tx2gene[,-1]
+txi <- tximport("abundance.h5", type = "kallisto", tx2gene = tx2gene, txIn=TRUE)
+txi_data<-as.data.frame(cbind(Gene=rownames(txi[[1]]), txi[[1]]))
+write.table(txi_data, "quantif.txt", sep="\t", quote=F, row.names = F)
