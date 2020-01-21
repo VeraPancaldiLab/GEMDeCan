@@ -332,7 +332,7 @@ elif config["Quantification_with"] == "STAR":
             "Running HTseq-count ..."
         shell:
             "htseq-count -f bam "
-            "-s reverse -r pos "
+            "-s reverse -r pos -i gene_name "
             "{input.BAM} "
             "{input.GTF} "
             "> {output}"
