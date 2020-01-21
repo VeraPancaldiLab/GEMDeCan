@@ -1,0 +1,4 @@
+channels:
+    - dranew
+dependencies:
+    - bcl2fastq =2.19.0
