@@ -1,4 +1,4 @@
-# Pipline for lungProject RNA-seq analysis
+# Pipline for lungPredict RNA-seq analysis
 
 ## What am I looking at ?
 This pipeline goes from converting raw Illumina data to quantification with user-chosen software between :
