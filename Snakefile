@@ -40,7 +40,7 @@ OUTfastqc2 = OUTDIR+"/fastqc_cutadapter"
 OUTmultiqc = OUTDIR+"/multiqc_raw"
 OUTmultiqc2 = OUTDIR+"/multiqc_after_cutadapter"
 OUTcut = OUTDIR+"/data_after_cutadapter"
-QUANTIF = OUTDIR+"Quantification"
+QUANTIF = OUTDIR+"/Quantification"
 
 ## Outputs
 rule all:
