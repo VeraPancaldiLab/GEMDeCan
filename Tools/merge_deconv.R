@@ -1,0 +1,11 @@
+sample = read.table(snakemake@input[[1]], sep="\t", header=TRUE)
+
+if (!file.exists(snakemake@params[[1]])){
+merge = data.frame(sample)
+  } else{
+  merge = read.table(snakemake@params[[1]], sep="\t", header=TRUE)  
+  merge = cbind(merge, sample[,2, drop=FALSE])
+}
+
+write.table(merge, snakemake@params[[1]], sep= "\t", quote=F, row.names = F)
+save.image()

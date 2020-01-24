@@ -1,0 +1,4 @@
+channels:
+    - bioconda
+dependencies:
+    - r-immunedeconv =2.0.1

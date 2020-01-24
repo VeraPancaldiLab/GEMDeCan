@@ -45,9 +45,10 @@ QUANTIF = OUTDIR+"/Quantification"
 ## Outputs
 rule all:
     input:
-        OUTmultiqc+"/multiqc_report.html",
-        OUTmultiqc2+"/multiqc_report.html",
-        expand(QUANTIF+"/{samples}/quantif.txt", samples=config["Samples"])
+        expand(OUTmultiqc+"/{sample}_multiqc_report.html", sample=config["Samples"]),
+        expand(OUTmultiqc2+"/{sample}_multiqc_report.html", sample=config["Samples"]),
+        expand(QUANTIF+"/{sample}.done", sample=config["Samples"])
+        #OUTDIR+"/all_samples_deconvolute.txt"
 
 ## Converts base call (.BCL) files into FASTQ
 if config["Convert_bcl2fastq"] == "yes" :
@@ -83,7 +84,7 @@ rule merging:
     message:
         "Merging files from lanes"
     shell:
-        "bash merge_those_fastq.sh {params.OUT}"
+        "Tools/bash merge_those_fastq.sh {params.OUT}"
 
 ## Quality control for raw fastq data
 rule fastqc1:
@@ -102,10 +103,10 @@ rule fastqc1:
 
 rule multiqc1:
     input:
-        expand(OUTfastqc+"/{sample}_R1_fastqc.html", sample=config["Samples"]),
-        expand(OUTfastqc+"/{sample}_R2_fastqc.html", sample=config["Samples"])
+        OUTfastqc+"/{sample}_R1_fastqc.html",
+        OUTfastqc+"/{sample}_R2_fastqc.html"
     output:
-        MainOut = OUTmultiqc+"/multiqc_report.html"
+        MainOut = OUTmultiqc+"/{sample}_multiqc_report.html"
     wrapper:
         "0.47.0/bio/multiqc"
 
@@ -135,8 +136,7 @@ elif config["Trim_with"] == "Trimgalore" :
     ## Read trimming by Trim-galore (Paired-end)
     rule trimgalore:
         input:
-            [expand(OUTmerge+"/{sample}_R1.fastq.gz", sample=config["Samples"]),
-            expand(OUTmerge+"/{sample}_R2.fastq.gz", sample=config["Samples"])]
+            [OUTmerge+"/{sample}_R1.fastq.gz", OUTmerge+"/{sample}_R2.fastq.gz"]
         output:
             OUTcut+"/{sample}_R1_val_1.fq.gz",
             OUTcut+"/{sample}_R1.fastq.gz_trimming_report.txt",
@@ -152,8 +152,8 @@ elif config["Trim_with"] == "Trimgalore" :
 
     rule rename:
         input:
-            R1 = expand(OUTcut+"/{sample}_R1_val_1.fq.gz", sample=config["Samples"]),
-            R2 = expand(OUTcut+"/{sample}_R2_val_2.fq.gz", sample=config["Samples"])
+            R1 = OUTcut+"/{sample}_R1_val_1.fq.gz",
+            R2 = OUTcut+"/{sample}_R2_val_2.fq.gz"
         output:
             R1out = OUTcut+"/{sample}_R1.fastq.gz",
             R2out = OUTcut+"/{sample}_R2.fastq.gz"
@@ -179,10 +179,10 @@ rule fastqc2:
         "0.47.0/bio/fastqc"
 rule multiqc2:
     input:
-        expand(OUTfastqc2+"/{sample}_R1_fastqc.html", sample=config["Samples"]),
-        expand(OUTfastqc2+"/{sample}_R2_fastqc.html", sample=config["Samples"])
+        OUTfastqc2+"/{sample}_R1_fastqc.html",
+        OUTfastqc2+"/{sample}_R2_fastqc.html"
     output:
-        OUTmultiqc2+"/multiqc_report.html"
+        OUTmultiqc2+"/{sample}_multiqc_report.html"
     wrapper:
         "0.47.0/bio/multiqc"
 
@@ -190,8 +190,8 @@ rule multiqc2:
 if config["Quantification_with"] == "kallisto" :
     rule kallisto_quant:
         input:
-            R1 = expand(OUTcut+"/{sample}_R1.fastq.gz", sample=config["Samples"]),
-            R2 = expand(OUTcut+"/{sample}_R2.fastq.gz", sample=config["Samples"]),
+            R1 = OUTcut+"/{sample}_R1.fastq.gz",
+            R2 = OUTcut+"/{sample}_R2.fastq.gz",
             INDEXK = INDEXK,
         threads: THREADS
         output:
@@ -216,13 +216,13 @@ if config["Quantification_with"] == "kallisto" :
         params:
             QUANTIF+"/{sample}"
         script:
-            "quant_for_kallisto.R"
+            "Tools/quant_for_kallisto.R"
     
 elif config["Quantification_with"] == "salmon" :
     rule salmon:
         input:
-            r1 = expand(OUTcut+"/{sample}_R1.fastq.gz", sample=config["Samples"]),
-            r2 = expand(OUTcut+"/{sample}_R2.fastq.gz", sample=config["Samples"]),
+            r1 = OUTcut+"/{sample}_R1.fastq.gz",
+            r2 = OUTcut+"/{sample}_R2.fastq.gz",
             index = INDEXS
         output:
             quant = QUANTIF+"/{sample}/quant.sf",
@@ -250,13 +250,13 @@ elif config["Quantification_with"] == "salmon" :
         params:
             QUANTIF+"/{sample}"
         script:
-            "quant_for_salmon.R"
+            "Tools/quant_for_salmon.R"
 
 elif config["Quantification_with"] == "STAR":
     rule star_map_reads:
         input:
-            fq1 = expand(OUTcut+"/{sample}_R1.fastq.gz", sample=config["Samples"]),
-            fq2 = expand(OUTcut+"/{sample}_R2.fastq.gz", sample=config["Samples"])
+            fq1 = OUTcut+"/{sample}_R1.fastq.gz",
+            fq2 = OUTcut+"/{sample}_R2.fastq.gz"
         output:
             "star/sam/{sample}/Aligned.out.sam"
         params:
@@ -332,7 +332,31 @@ elif config["Quantification_with"] == "STAR":
             "Running HTseq-count ..."
         shell:
             "htseq-count -f bam "
-            "-s reverse -r pos -i gene_name "
+            "-s reverse -r pos "
             "{input.BAM} "
             "{input.GTF} "
             "> {output}"
+
+rule quantiseq:
+    input:
+        QUANTIF+"/{sample}/quantif.txt"
+    output:
+        QUANTIF+"/{sample}_deconv.txt"
+    params:
+        QUANTIF+"/{sample}"
+    message:
+        "Running deconvolution"
+    conda:
+        "Tools/deconv.yaml"
+    script:
+        "Tools/deconvolution_quantiseq.R"
+
+rule merge_deconv:
+    input:
+        QUANTIF+"/{sample}_deconv.txt"
+    output:
+        touch(QUANTIF+"/{sample}.done")
+    params:
+        OUTDIR+"/all_samples_deconvolute.txt"
+    script:
+        "Tools/merge_deconv.R"

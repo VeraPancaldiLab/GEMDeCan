@@ -1,5 +1,3 @@
-Samples: 
-  Test-Cong-A
 Output_Directory:
   outputs
 Input_Directory:
@@ -24,5 +22,8 @@ Index_salmon:
   data/genome/salmon_index
 Index_STAR:
   data/star
-Convert_bcl2fastq: # yes or no
+Convert_bcl2fastq: # yes or no, don't forget the ""
   "no"
+Samples:
+  - Test-Cong-A
+  - Test-Cong-B
