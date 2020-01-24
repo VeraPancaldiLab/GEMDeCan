@@ -38,7 +38,7 @@ The snakefile shouldn't be modified. A provided `config.yaml` file takes as inpu
  * **Trim_with** : chose between one of the two trimmer
  * **Quantification_with** : STAR, Kallisto or Salmon to be used for quantification analysis.
  * **Index** : index location for named software
- * **Convert_bcl2fastq** : do you need to convert `.bcl` to `.fastq` ? "yes" or "no"
+ * **Convert_bcl2fastq** : do you need to convert `.bcl` to `.fastq` ? "yes" or "no". If no, please put all your fastq files in a directory called `<output>/bcl2raw` with `<output>` being the directory of your choice in the config file.
 
 ## Usage
 Once everything is configured and installed, open a terminal on the `snakefile` location and launch the pipeline using a single bash line :
