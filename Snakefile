@@ -215,6 +215,8 @@ if config["Quantification_with"] == "kallisto" :
             QUANTIF+"/{sample}/quantif.txt"
         params:
             QUANTIF+"/{sample}"
+        conda:
+            "Tools/quantif.yaml"
         script:
             "Tools/quant_for_kallisto.R"
     
@@ -249,6 +251,8 @@ elif config["Quantification_with"] == "salmon" :
             QUANTIF+"/{sample}/quantif.txt"
         params:
             QUANTIF+"/{sample}"
+        conda:
+            "Tools/quantif.yaml"
         script:
             "Tools/quant_for_salmon.R"
 
