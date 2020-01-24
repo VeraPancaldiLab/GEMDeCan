@@ -1,24 +1,4 @@
 suppressMessages({
-  if(!require(BiocManager)){
-    install.packages("BiocManager")
-  }
-})
-suppressMessages({
-  if(!require(tximport)){
-    BiocManager::install("tximport")
-  }
-  if(!require(org.Hs.eg.db)){
-    BiocManager::install("org.Hs.eg.db")
-  }
-  if(!require(TxDb.Hsapiens.UCSC.hg38.knownGene)){
-    BiocManager::install("TxDb.Hsapiens.UCSC.hg38.knownGene")
-  }
-  if(!require(Organism.dplyr)){
-    BiocManager::install("Organism.dplyr")
-  }
-  if(!require(rhdf5)){
-    BiocManager::install("rhdf5")
-  }
   require(tximport)
   require(org.Hs.eg.db)
   require(TxDb.Hsapiens.UCSC.hg38.knownGene)
