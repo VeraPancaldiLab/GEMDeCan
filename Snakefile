@@ -32,6 +32,8 @@ INDEXSTAR = config["Index_STAR"]
 GENOME = config["Genome"]
 GTF = config["GTF"]
 ADAPTER = config["Adapter"]
+GENES = config["Genes_signature"]
+PROBESETs = config["Probesets"]
 
 OUTbcl = OUTDIR+"/bcl2raw"
 OUTmerge = OUTDIR+"/raw2merge"
@@ -84,7 +86,7 @@ rule merging:
     message:
         "Merging files from lanes"
     shell:
-        "Tools/bash merge_those_fastq.sh {params.OUT}"
+        "bash Tools/merge_those_fastq.sh {params.OUT}"
 
 ## Quality control for raw fastq data
 rule fastqc1:
@@ -341,19 +343,52 @@ elif config["Quantification_with"] == "STAR":
             "{input.GTF} "
             "> {output}"
 
-rule quantiseq:
-    input:
-        QUANTIF+"/{sample}/quantif.txt"
-    output:
-        QUANTIF+"/{sample}_deconv.txt"
-    params:
-        QUANTIF+"/{sample}"
-    message:
-        "Running deconvolution"
-    conda:
-        "Tools/deconv.yaml"
-    script:
-        "Tools/deconvolution_quantiseq.R"
+if config["Deconvolution_method"] == "quantiseq":
+    rule quantiseq:
+        input:
+            QUANTIF+"/{sample}/quantif.txt"
+        output:
+            QUANTIF+"/{sample}_deconv.txt"
+        params:
+            QUANTIF+"/{sample}"
+        message:
+            "Running deconvolution"
+        conda:
+            "Tools/immunedeconv.yaml"
+        script:
+            "Tools/deconvolution_quantiseq.R"
+
+elif config["Deconvolution_method"] == "mcpcounter":
+    rule mcpcounter:
+        input:
+            QUANTIF+"/{sample}/quantif.txt"
+        output:
+            QUANTIF+"/{sample}_deconv.txt"
+        params:
+            QUANTIF+"/{sample}",
+            GENES,
+            PROBESETs
+        message:
+            "Running deconvolution"
+        conda:
+            "Tools/immunedeconv.yaml"
+        script:
+            "Tools/deconvolution_mcpcounter.R"
+
+elif config["Deconvolution_method"] == "deconRNAseq":
+    rule deconRNAseq:
+        input:
+            QUANTIF+"/{sample}/quantif.txt"
+        output:
+            QUANTIF+"/{sample}_deconv.txt"
+        params:
+            QUANTIF+"/{sample}"
+        message:
+            "Running deconvolution"
+        conda:
+            "Tools/RNAdeconv.yaml"
+        script:
+            "Tools/deconvolution_deconrnaseq.R"
 
 rule merge_deconv:
     input:

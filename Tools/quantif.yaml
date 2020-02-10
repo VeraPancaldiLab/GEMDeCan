@@ -5,5 +5,5 @@ dependencies:
     - bioconductor-rhdf5= 2.30.0
     - bioconductor-organism.dplyr= 1.14.0
     - bioconductor-org.hs.eg.db= 3.10.0
-    - bioconda bioconductor-txdb.hsapiens.ucsc.hg38.knowngene= 3.10.0
+    - bioconductor-txdb.hsapiens.ucsc.hg38.knowngene= 3.10.0
     

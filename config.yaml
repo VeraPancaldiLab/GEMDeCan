@@ -8,6 +8,10 @@ Adapter:
   data/TruSeqAdapt.fa
 Genome:
   data/genome/homo_dna.fasta
+Genes_signature:
+  data/signature/genes.txt
+Probesets:
+  data/signature/probesets.txt
 GTF: # must be full path for R
   /home/julien/Documents/lungProject/data/genome/homo.gtf.gz
 THREADS: 
@@ -24,6 +28,16 @@ Index_STAR:
   data/star
 Convert_bcl2fastq: # yes or no, don't forget the ""
   "no"
+Deconvolution_method: # quantiseq, deconRNAseq or mcpcounter
+  quantiseq
 Samples:
   - Test-Cong-A
   - Test-Cong-B
+  - Test-Cong-C
+  - Test-Cong-D
+  - Test-Cong-E
+  - Test-Cong-F
+  - Test-Cong-G
+  - Test-Cong-H
+  - Test-Cong-I
+  - Test-Cong-J
