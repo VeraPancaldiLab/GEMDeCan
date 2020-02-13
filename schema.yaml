@@ -1,0 +1,157 @@
+
+definitions: {}
+$schema: http://json-schema.org/draft-07/schema#
+$id: http://example.com/root.json
+type: object
+title: The Root Schema
+required:
+- Samples
+- Output_Directory
+- Input_Directory
+- Adapter
+- THREADS
+- Trim_with
+- Quantification_with
+- Index_kallisto
+- Index_STAR
+- Index_salmon
+- Genome
+- GTF
+- Convert_bcl2fastq
+properties:
+  Output_Directory:
+    $id: '#/properties/Output_Directory'
+    type: string
+    title: The Output_Directory Schema
+    default: ''
+    examples:
+    - /outputs
+    pattern: ^(.*)$
+  Input_Directory:
+    $id: '#/properties/Input_Directory'
+    type: string
+    title: The Input_Directory Schema
+    default: ''
+    examples:
+    - /data
+    pattern: ^(.*)$
+  Sample_Sheet:
+    $id: '#/properties/Sample_Sheet'
+    type: string
+    title: The Sample_Sheet Schema
+    default: ''
+    examples:
+    - /data/samplesheet_Cong.csv
+    pattern: ^(.*)$
+  THREADS:
+    $id: '#/properties/THREADS'
+    type: integer
+    title: The THREADS Schema
+    default: ''
+    examples:
+    - 8
+    pattern: ^(.*)$
+  Trim_with:
+    $id: '#/properties/Trim_with'
+    type: string
+    title: The Trim_with Schema
+    default: ''
+    examples:
+    - Trimmomatic
+    - Trimgalore
+    pattern: ^(.*)$
+  Quantification_with:
+    $id: '#/properties/Quantification_with'
+    type: string
+    title: The Quantification_with Schema
+    default: ''
+    examples:
+    - Kallisto
+    - Salmon
+    - STAR
+    pattern: ^(.*)$
+  Index_kallisto:
+    $id: '#/properties/Index_kallisto'
+    type: string
+    title: The Index_kallisto Schema
+    default: ''
+    examples:
+    - data/genome/transcript.idx
+    pattern: ^(.*)$ 
+  Index_salmon:
+    $id: '#/properties/Index_salmon'
+    type: string
+    title: The Index_salmon Schema
+    default: ''
+    examples:
+    - data/genome/salmon_index
+    pattern: ^(.*)$ 
+  Index_STAR:
+    $id: '#/properties/Index_STAR'
+    type: string
+    title: The Index_STAR Schema
+    default: ''
+    examples:
+    - data/star
+    pattern: ^(.*)$  
+  Samples:
+    $id: '#properties/Samples'
+    oneOf:
+      - type: string
+      - type: array
+    title: Samples list
+    default: ''
+    examples:
+    - Test-Cong-A
+  Genome:
+    $id: '#properties/genome'
+    type: string
+    title: Path to genome
+    default: ''
+    examples:
+    - /data/genome/homo_dna.fasta
+  GTF:
+    $id: '#properties/GTF'
+    type: string
+    title: Path to GTF
+    default: ''
+    examples:
+    - /data/genome/homo.gtf.gz 
+  Adapter:
+    $id: '#properties/Adapter'
+    type: string
+    title: Path to Adapter
+    default: ''
+    examples:
+    - /data/TruSeqAdapt.fa 
+  Convert_bcl2fastq:
+    $id: '#properties/Convert_bcl2fastq'
+    type: string
+    title: Path to Convert_bcl2fastq
+    default: ''
+    examples:
+    - "yes"
+  Deconvolution_method:
+    $id: '#properties/deconv'
+    type: string
+    title: Deconv method to use
+    default: ''
+    examples:
+    - quantiseq
+  Probesets:
+    $id: '#properties/Probesets'
+    type: string
+    title: Probesets for signature
+    default: ''
+  Genes_signature:
+    $id: '#properties/Genes_signature'
+    type: string
+    title: Genes set for signature
+    default: ''
+  Signature:
+    $id: '#properties/signature'
+    type: string
+    title: regular signature
+    default: ''
+    
+additionalProperties: false

@@ -34,6 +34,8 @@ GTF = config["GTF"]
 ADAPTER = config["Adapter"]
 GENES = config["Genes_signature"]
 PROBESETs = config["Probesets"]
+sampledir = config["Samples"]
+SIGNATURE = config["Signature"]
 
 OUTbcl = OUTDIR+"/bcl2raw"
 OUTmerge = OUTDIR+"/raw2merge"
@@ -44,11 +46,13 @@ OUTmultiqc2 = OUTDIR+"/multiqc_after_cutadapter"
 OUTcut = OUTDIR+"/data_after_cutadapter"
 QUANTIF = OUTDIR+"/Quantification"
 
+SAMPLES = list(open(sampledir).read().splitlines())
+
 ## Outputs
 rule all:
     input:
-        expand(OUTmultiqc+"/{sample}_multiqc_report.html", sample=config["Samples"]),
-        expand(OUTmultiqc2+"/{sample}_multiqc_report.html", sample=config["Samples"]),
+        expand(OUTmultiqc+"/{sample}_multiqc_report.html", sample=SAMPLES),
+        expand(OUTmultiqc2+"/{sample}_multiqc_report.html", sample=SAMPLES),
         expand(QUANTIF+"/{sample}.done", sample=config["Samples"])
         #OUTDIR+"/all_samples_deconvolute.txt"
 
@@ -383,6 +387,7 @@ elif config["Deconvolution_method"] == "deconRNAseq":
             QUANTIF+"/{sample}_deconv.txt"
         params:
             QUANTIF+"/{sample}"
+            SIGNATURE
         message:
             "Running deconvolution"
         conda:

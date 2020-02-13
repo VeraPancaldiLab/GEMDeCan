@@ -8,8 +8,10 @@ Adapter:
   data/TruSeqAdapt.fa
 Genome:
   data/genome/homo_dna.fasta
-Genes_signature:
+Genes_signature: # marker based signature for MCPCounter ONLY
   data/signature/genes.txt
+Signature: # regular signature for deconRNAseq
+  data/signature/TIL10.txt
 Probesets:
   data/signature/probesets.txt
 GTF: # must be full path for R
@@ -31,13 +33,19 @@ Convert_bcl2fastq: # yes or no, don't forget the ""
 Deconvolution_method: # quantiseq, deconRNAseq or mcpcounter
   quantiseq
 Samples:
-  - Test-Cong-A
-  - Test-Cong-B
-  - Test-Cong-C
-  - Test-Cong-D
-  - Test-Cong-E
-  - Test-Cong-F
-  - Test-Cong-G
-  - Test-Cong-H
-  - Test-Cong-I
-  - Test-Cong-J
+  data/samples.txt
+
+
+
+
+  
+  # - Test-Cong-A
+  # - Test-Cong-B
+  # - Test-Cong-C
+  # - Test-Cong-D
+  # - Test-Cong-E
+  # - Test-Cong-F
+  # - Test-Cong-G
+  # - Test-Cong-H
+  # - Test-Cong-I
+  # - Test-Cong-J
