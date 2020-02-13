@@ -30,7 +30,7 @@ You may also need to install bash function `rename` to use the BCL to fastq conv
 `sudo apt install rename`
 ## Configure your workspace
 The snakefile shouldn't be modified. A provided `config.yaml` file takes as input all needed directories and files.
- * **Samples** is the list of all samples to be analysed
+ * **Samples** is the list of all samples to be analysed. It should be a path to a `.txt` file with a list. A dedicated script in the `Tools` directory, `sample_parser.py` can generate it from Illumina files.
  * **Input directory** : if you change this, please also change all other paths starting with `data` to the corresponding new path
  * **Sample_sheet** results from illumina sequecing. It is needed for Illumina `.bcl` to `.fastq` conversion
  * **Adapter** : adapter used for illumina sequecing that is to be trimmed. Required for Trimmomatic, but not for Trim-galore.
@@ -41,11 +41,16 @@ The snakefile shouldn't be modified. A provided `config.yaml` file takes as inpu
  * **Quantification_with** : STAR, Kallisto or Salmon to be used for quantification analysis
  * **Index** : index location for named software
  * **Convert_bcl2fastq** : do you need to convert `.bcl` to `.fastq` ? "yes" or "no"
- * **Deconvolution_method** : run the deconvolution with QuantiSeq, deconRNAseq or MCPCounter. In the last case, you need to provide signature files. See the [MCPCounter doc](https://github.com/ebecht/MCPcounter) for more information.
+ * **Deconvolution_method** : run the deconvolution with QuantiSeq, deconRNAseq or MCPCounter. In the last case, you need to provide signature files. See the [MCPCounter doc](https://github.com/ebecht/MCPcounter) for more information
+ * **Genes_signature** : a marker based signature file to use with MCPCounter
+ * **Signature** : a regular signature to use with deconRNAseq
 
 ## Usage
 Once everything is configured and installed, open a terminal on the `snakefile` location and launch the pipeline using a single bash line :
 `snakemake -j <number_of_threads> --use-conda`
+
+For the sample parser tool, you simply have to use it like a regular python script, with the path to your illumina files as an argument :
+`python3 sample_parser.py <path_to_files> `
 
 ## Deconvolution
 Last part of the pipeline runs a deconvolution algorithm on the quantified samples. 
