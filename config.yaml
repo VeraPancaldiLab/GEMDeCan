@@ -12,8 +12,6 @@ Genes_signature: # marker based signature for MCPCounter ONLY
   data/signature/genes.txt
 Signature: # regular signature for deconRNAseq
   data/signature/TIL10.txt
-Probesets:
-  data/signature/probesets.txt
 GTF: # must be full path for R
   /home/julien/Documents/lungProject/data/genome/homo.gtf.gz
 THREADS: 
@@ -34,11 +32,7 @@ Deconvolution_method: # quantiseq, deconRNAseq or mcpcounter
   quantiseq
 Samples:
   data/samples.txt
-
-
-
-
-  
+# or it can be list like that :  
   # - Test-Cong-A
   # - Test-Cong-B
   # - Test-Cong-C

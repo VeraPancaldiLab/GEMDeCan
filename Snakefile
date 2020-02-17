@@ -370,8 +370,7 @@ elif config["Deconvolution_method"] == "mcpcounter":
             QUANTIF+"/{sample}_deconv.txt"
         params:
             QUANTIF+"/{sample}",
-            GENES,
-            PROBESETs
+            GENES
         message:
             "Running deconvolution"
         conda:
