@@ -373,8 +373,6 @@ elif config["Deconvolution_method"] == "mcpcounter":
             GENES
         message:
             "Running deconvolution"
-        conda:
-            "Tools/immunedeconv.yaml"
         script:
             "Tools/deconvolution_mcpcounter.R"
 
