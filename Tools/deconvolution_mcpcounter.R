@@ -1,11 +1,13 @@
-require(immunedeconv)
+install.packages(c("devtools","curl"))
+require(devtools)
+install_github("ebecht/MCPcounter",ref="master", subdir="Source")
+require(MCPcounter)
 
 t1 = as.matrix(read.table(snakemake@input[[1]], header = TRUE, row.names = 1))
 sample = basename(snakemake@params[[1]])
-# replace mcp counter with snakemake@params
-res = deconvolute(t1, "mcp_counter", feature_types="HUGO_symbols", 
-                  probesets=read.table(snakemake@params[[2]],sep="\t",stringsAsFactors=FALSE,colClasses="character"), 
-                  genes=read.table(snakemake@params[[3]], sep="\t",stringsAsFactors=FALSE,header=TRUE,colClasses="character",check.names=FALSE))
-colnames(res) = c("cell_type", sample)
-res[,2] = round(res[,2], 2)
-write.table(res, snakemake@output[[1]], sep="\t", quote=F, row.names = F)
+res_mcp = MCPcounter.estimate(t1, featuresType = "HUGO_symbols",
+                              genes=read.table(snakemake@params[[2]],sep="\t",stringsAsFactors=FALSE,header=TRUE,colClasses="character",check.names=FALSE))
+res_mcp[] = round(res_mcp[], 3)
+res_mcp=t(res_mcp)
+res_mcp= rbind(Sample=colnames(res_mcp), res_mcp)
+write.table(res_mcp, "mcp_blueprint.txt", sep="\t", quote=F, row.names = T, col.names = F)
