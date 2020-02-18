@@ -148,5 +148,14 @@ properties:
     type: string
     title: regular signature
     default: ''
-    
+  Do_deconv:
+    $id: '#properties/dodeconv'
+    type: string
+    title: choice for deconv
+    default: ''
+  Do_rnaseq:
+    $id: '#properties/dornaseq'
+    type: string
+    title: choice for rnaseq
+    default: ''
 additionalProperties: false

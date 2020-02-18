@@ -33,7 +33,6 @@ GENOME = config["Genome"]
 GTF = config["GTF"]
 ADAPTER = config["Adapter"]
 GENES = config["Genes_signature"]
-PROBESETs = config["Probesets"]
 sampledir = config["Samples"]
 SIGNATURE = config["Signature"]
 
@@ -49,355 +48,367 @@ QUANTIF = OUTDIR+"/Quantification"
 SAMPLES = list(open(sampledir).read().splitlines())
 
 ## Outputs
-rule all:
-    input:
-        expand(OUTmultiqc+"/{sample}_multiqc_report.html", sample=SAMPLES),
-        expand(OUTmultiqc2+"/{sample}_multiqc_report.html", sample=SAMPLES),
-        expand(QUANTIF+"/{sample}.done", sample=config["Samples"])
-        #OUTDIR+"/all_samples_deconvolute.txt"
-
-## Converts base call (.BCL) files into FASTQ
-if config["Convert_bcl2fastq"] == "yes" :
-    rule bcl2fastq:
+if config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "yes":
+    rule all:
         input:
-            INDIR = INDIR,
-            SHEET = SAMPLESHEET
-        output:
-            touch("bcl2fastq.done")
+            expand(OUTmultiqc+"/{sample}_multiqc_report.html", sample=SAMPLES),
+            expand(OUTmultiqc2+"/{sample}_multiqc_report.html", sample=SAMPLES),
+            expand(QUANTIF+"/{sample}.done", sample=SAMPLES)
+elif config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "no":
+    rule all:
+        input:
+            expand(QUANTIF+"/{sample}.done", sample=SAMPLES)
+elif config["Do_deconv"] == "no" and config["Do_rnaseq"] == "yes":
+    rule all:
+        input:
+            expand(OUTmultiqc+"/{sample}_multiqc_report.html", sample=SAMPLES),
+            expand(OUTmultiqc2+"/{sample}_multiqc_report.html", sample=SAMPLES),
+            expand(QUANTIF+"/{sample}/quantif.txt", sample=SAMPLES)
+
+if config["Do_rnaseq"] == "yes" :
+    ## Converts base call (.BCL) files into FASTQ
+    if config["Convert_bcl2fastq"] == "yes" :
+        rule bcl2fastq:
+            input:
+                INDIR = INDIR,
+                SHEET = SAMPLESHEET
+            output:
+                touch("bcl2fastq.done")
+            params:
+                OUTbcl
+            message:
+                "Converting BCL2 Illumina files to fastQ"
+            conda:
+                "Tools/bcl2fastq.yaml"
+            threads: THREADS
+            shell:
+                """
+                bcl2fastq -w {threads} -R {input.INDIR} -o {params} --sample-sheet {input.SHEET}
+                rm {params}/Undetermined*
+                rename "s/_S[0-9]+//" {params}/*.fastq.gz
+                """
+
+    ##  Merge into one fastq file from different lanes
+    rule merging:
+        input:
+            "bcl2fastq.done"
+        output: 
+            OUTmerge+"/{samples}_R1.fastq.gz",
+            OUTmerge+"/{samples}_R2.fastq.gz"
         params:
-            OUTbcl
+            OUT = OUTDIR
         message:
-            "Converting BCL2 Illumina files to fastQ"
-        conda:
-            "Tools/bcl2fastq.yaml"
-        threads: THREADS
+            "Merging files from lanes"
         shell:
-            """
-            bcl2fastq -w {threads} -R {input.INDIR} -o {params} --sample-sheet {input.SHEET}
-            rm {params}/Undetermined*
-            rename "s/_S[0-9]+//" {params}/*.fastq.gz
-            """
+            "bash Tools/merge_those_fastq.sh {params.OUT}"
 
-##  Merge into one fastq file from different lanes
-rule merging:
-    input:
-        "bcl2fastq.done"
-    output: 
-        OUTmerge+"/{samples}_R1.fastq.gz",
-        OUTmerge+"/{samples}_R2.fastq.gz"
-    params:
-        OUT = OUTDIR
-    message:
-        "Merging files from lanes"
-    shell:
-        "bash Tools/merge_those_fastq.sh {params.OUT}"
-
-## Quality control for raw fastq data
-rule fastqc1:
-    input:
-        OUTmerge+"/{samples}.fastq.gz"
-    output:
-        html = OUTfastqc+"/{samples}_fastqc.html",
-        zip = OUTfastqc+"/{samples}_fastqc.zip"
-    threads: THREADS
-    message:
-        "Quality control before trimming"
-    params:
-        "-t 8"
-    wrapper:
-        "0.47.0/bio/fastqc"
-
-rule multiqc1:
-    input:
-        OUTfastqc+"/{sample}_R1_fastqc.html",
-        OUTfastqc+"/{sample}_R2_fastqc.html"
-    output:
-        MainOut = OUTmultiqc+"/{sample}_multiqc_report.html"
-    wrapper:
-        "0.47.0/bio/multiqc"
-
-
-if config["Trim_with"] == "Trimmomatic" :
-    ## Read trimming by Trimmomatic (Paired-End)
-    rule Trimmomatic:
+    ## Quality control for raw fastq data
+    rule fastqc1:
         input:
-            r1 = OUTmerge+"/{samples}_R1.fastq.gz",
-            r2 = OUTmerge+"/{samples}_R2.fastq.gz"
+            OUTmerge+"/{samples}.fastq.gz"
         output:
-            r1 = OUTcut+"/{samples}_R1.fastq.gz",
-            r1_unpaired = OUTcut+"/{samples}_R1.unpaired.fastq.gz",
-            r2 = OUTcut+"/{samples}_R2.fastq.gz",
-            r2_unpaired = OUTcut+"/{samples}_R2.unpaired.fastq.gz"
+            html = OUTfastqc+"/{samples}_fastqc.html",
+            zip = OUTfastqc+"/{samples}_fastqc.zip"
         threads: THREADS
         message:
-            "Trimming using Trimmomatic"
+            "Quality control before trimming"
         params:
-            trimmer = ["TRAILING:20", "LEADING:20", "MINLEN:36", "CROP:10000", "ILLUMINACLIP:"+ADAPTER+":2:30:10"],
-            compression_level="-9",
-            extra = "-phred33"
+            "-t 8"
         wrapper:
-            "0.47.0/bio/trimmomatic/pe"
+            "0.47.0/bio/fastqc"
 
-elif config["Trim_with"] == "Trimgalore" :
-    ## Read trimming by Trim-galore (Paired-end)
-    rule trimgalore:
+    rule multiqc1:
         input:
-            [OUTmerge+"/{sample}_R1.fastq.gz", OUTmerge+"/{sample}_R2.fastq.gz"]
+            OUTfastqc+"/{sample}_R1_fastqc.html",
+            OUTfastqc+"/{sample}_R2_fastqc.html"
         output:
-            OUTcut+"/{sample}_R1_val_1.fq.gz",
-            OUTcut+"/{sample}_R1.fastq.gz_trimming_report.txt",
-            OUTcut+"/{sample}_R2_val_2.fq.gz",
-            OUTcut+"/{sample}_R2.fastq.gz_trimming_report.txt"
-        params:
-            extra= '--phred33 --illumina --paired --quality 20 --length 36'
+            MainOut = OUTmultiqc+"/{sample}_multiqc_report.html"
+        wrapper:
+            "0.47.0/bio/multiqc"
+
+
+    if config["Trim_with"] == "Trimmomatic" :
+        ## Read trimming by Trimmomatic (Paired-End)
+        rule Trimmomatic:
+            input:
+                r1 = OUTmerge+"/{samples}_R1.fastq.gz",
+                r2 = OUTmerge+"/{samples}_R2.fastq.gz"
+            output:
+                r1 = OUTcut+"/{samples}_R1.fastq.gz",
+                r1_unpaired = OUTcut+"/{samples}_R1.unpaired.fastq.gz",
+                r2 = OUTcut+"/{samples}_R2.fastq.gz",
+                r2_unpaired = OUTcut+"/{samples}_R2.unpaired.fastq.gz"
+            threads: THREADS
+            message:
+                "Trimming using Trimmomatic"
+            params:
+                trimmer = ["TRAILING:20", "LEADING:20", "MINLEN:36", "CROP:10000", "ILLUMINACLIP:"+ADAPTER+":2:30:10"],
+                compression_level="-9",
+                extra = "-phred33"
+            wrapper:
+                "0.47.0/bio/trimmomatic/pe"
+
+    elif config["Trim_with"] == "Trimgalore" :
+        ## Read trimming by Trim-galore (Paired-end)
+        rule trimgalore:
+            input:
+                [OUTmerge+"/{sample}_R1.fastq.gz", OUTmerge+"/{sample}_R2.fastq.gz"]
+            output:
+                OUTcut+"/{sample}_R1_val_1.fq.gz",
+                OUTcut+"/{sample}_R1.fastq.gz_trimming_report.txt",
+                OUTcut+"/{sample}_R2_val_2.fq.gz",
+                OUTcut+"/{sample}_R2.fastq.gz_trimming_report.txt"
+            params:
+                extra= '--phred33 --illumina --paired --quality 20 --length 36'
+            threads: THREADS
+            message:
+                "Trimming using Trim-Galore"
+            wrapper:
+                "0.47.0/bio/trim_galore/pe"
+
+        rule rename:
+            input:
+                R1 = OUTcut+"/{sample}_R1_val_1.fq.gz",
+                R2 = OUTcut+"/{sample}_R2_val_2.fq.gz"
+            output:
+                R1out = OUTcut+"/{sample}_R1.fastq.gz",
+                R2out = OUTcut+"/{sample}_R2.fastq.gz"
+            shell:
+                """
+                mv -f {input.R1} {output.R1out}
+                mv -f {input.R2} {output.R2out}
+                """
+
+    ## Quality control after trimming
+    rule fastqc2:
+        input:
+            OUTcut+"/{samples}.fastq.gz"
+        output:
+            html = OUTfastqc2+"/{samples}_fastqc.html",
+            zip = OUTfastqc2+"/{samples}_fastqc.zip"
         threads: THREADS
         message:
-            "Trimming using Trim-Galore"
+            "Quality control after trimming"
+        params:
+            "-t 8"
         wrapper:
-            "0.47.0/bio/trim_galore/pe"
-
-    rule rename:
+            "0.47.0/bio/fastqc"
+    rule multiqc2:
         input:
-            R1 = OUTcut+"/{sample}_R1_val_1.fq.gz",
-            R2 = OUTcut+"/{sample}_R2_val_2.fq.gz"
+            OUTfastqc2+"/{sample}_R1_fastqc.html",
+            OUTfastqc2+"/{sample}_R2_fastqc.html"
         output:
-            R1out = OUTcut+"/{sample}_R1.fastq.gz",
-            R2out = OUTcut+"/{sample}_R2.fastq.gz"
-        shell:
-            """
-            mv -f {input.R1} {output.R1out}
-            mv -f {input.R2} {output.R2out}
-            """
-
-## Quality control after trimming
-rule fastqc2:
-    input:
-        OUTcut+"/{samples}.fastq.gz"
-    output:
-        html = OUTfastqc2+"/{samples}_fastqc.html",
-        zip = OUTfastqc2+"/{samples}_fastqc.zip"
-    threads: THREADS
-    message:
-        "Quality control after trimming"
-    params:
-        "-t 8"
-    wrapper:
-        "0.47.0/bio/fastqc"
-rule multiqc2:
-    input:
-        OUTfastqc2+"/{sample}_R1_fastqc.html",
-        OUTfastqc2+"/{sample}_R2_fastqc.html"
-    output:
-        OUTmultiqc2+"/{sample}_multiqc_report.html"
-    wrapper:
-        "0.47.0/bio/multiqc"
-
-# Quantification
-if config["Quantification_with"] == "kallisto" :
-    rule kallisto_quant:
-        input:
-            R1 = OUTcut+"/{sample}_R1.fastq.gz",
-            R2 = OUTcut+"/{sample}_R2.fastq.gz",
-            INDEXK = INDEXK,
-        threads: THREADS
-        output:
-            QUANTIF+"/{sample}/abundance.tsv",
-            QUANTIF+"/{sample}/abundance.h5"
-        params:
-            OUTDIRE = QUANTIF+"/{sample}"
-        message:
-            "Quantification with Kallisto"
-        conda:
-            "Tools/kallisto.yaml"
-        shell:
-            "kallisto quant -t {threads} -i {input.INDEXK} -b 30 "
-            "-o {params.OUTDIRE} "
-            "{input.R1} {input.R2}"
-
-    rule quant_to_gene:
-        input:
-            QUANTIF+"/{sample}/abundance.h5"
-        output:
-            QUANTIF+"/{sample}/quantif.txt"
-        params:
-            QUANTIF+"/{sample}"
-        conda:
-            "Tools/quantif.yaml"
-        script:
-            "Tools/quant_for_kallisto.R"
-    
-elif config["Quantification_with"] == "salmon" :
-    rule salmon:
-        input:
-            r1 = OUTcut+"/{sample}_R1.fastq.gz",
-            r2 = OUTcut+"/{sample}_R2.fastq.gz",
-            index = INDEXS
-        output:
-            quant = QUANTIF+"/{sample}/quant.sf",
-            lib = QUANTIF+"/{sample}/lib_format_counts.json"
-        params:
-            DIR = QUANTIF+"/{sample}",
-            libtype ="A",
-            extra=" --validateMappings"
-        threads: THREADS
-        message:
-            "Quantification with Salmon"
-        conda:
-            "Tools/salmon.yaml"
-        shell:
-            "salmon quant -i {input.index} -l {params.libtype} "
-            "-1 {input.r1} -2 {input.r2} "
-            "-o {params.DIR} "
-            "-p {threads} --validateMappings"
-    
-    rule salmon_quant:
-        input:
-            QUANTIF+"/{sample}/quant.sf"
-        output:
-            QUANTIF+"/{sample}/quantif.txt"
-        params:
-            QUANTIF+"/{sample}"
-        conda:
-            "Tools/quantif.yaml"
-        script:
-            "Tools/quant_for_salmon.R"
-
-elif config["Quantification_with"] == "STAR":
-    rule star_map_reads:
-        input:
-            fq1 = OUTcut+"/{sample}_R1.fastq.gz",
-            fq2 = OUTcut+"/{sample}_R2.fastq.gz"
-        output:
-            "star/sam/{sample}/Aligned.out.sam"
-        params:
-            index= INDEXSTAR,
-            extra=""
-        threads: THREADS
-        message:
-            "Quantification with STAR"
+            OUTmultiqc2+"/{sample}_multiqc_report.html"
         wrapper:
-            "0.47.0/bio/star/align"
+            "0.47.0/bio/multiqc"
 
-    rule samtools_faidx:
-        input:
-            GENOME
-        output:
-            GENOME+".fai"
-        params: ""
-        message:
-            "Samtools faidx ..."
-        wrapper:
-            "0.47.0/bio/samtools/faidx"
+    # Quantification
+    if config["Quantification_with"] == "kallisto" :
+        rule kallisto_quant:
+            input:
+                R1 = OUTcut+"/{sample}_R1.fastq.gz",
+                R2 = OUTcut+"/{sample}_R2.fastq.gz",
+                INDEXK = INDEXK,
+            threads: THREADS
+            output:
+                QUANTIF+"/{sample}/abundance.tsv",
+                QUANTIF+"/{sample}/abundance.h5"
+            params:
+                OUTDIRE = QUANTIF+"/{sample}"
+            message:
+                "Quantification with Kallisto"
+            conda:
+                "Tools/kallisto.yaml"
+            shell:
+                "kallisto quant -t {threads} -i {input.INDEXK} -b 30 "
+                "-o {params.OUTDIRE} "
+                "{input.R1} {input.R2}"
 
-    rule samtools_view:
-        input:
-            "star/sam/{sample}/Aligned.out.sam",
-            BT = GENOME+".fai"
-        output:
-            "star/bam/{sample}/Aligned.out.bam"
-        threads: THREADS
-        message:
-            "Samtools view ..."
-        params:
-            "-bt "+GENOME+".fai -@ 12"
-        wrapper:
-            "0.47.0/bio/samtools/view"
+        rule quant_to_gene:
+            input:
+                QUANTIF+"/{sample}/abundance.h5"
+            output:
+                QUANTIF+"/{sample}/quantif.txt"
+            params:
+                QUANTIF+"/{sample}"
+            conda:
+                "Tools/quantif.yaml"
+            script:
+                "Tools/quant_for_kallisto.R"
+        
+    elif config["Quantification_with"] == "salmon" :
+        rule salmon:
+            input:
+                r1 = OUTcut+"/{sample}_R1.fastq.gz",
+                r2 = OUTcut+"/{sample}_R2.fastq.gz",
+                index = INDEXS
+            output:
+                quant = QUANTIF+"/{sample}/quant.sf",
+                lib = QUANTIF+"/{sample}/lib_format_counts.json"
+            params:
+                DIR = QUANTIF+"/{sample}",
+                libtype ="A",
+                extra=" --validateMappings"
+            threads: THREADS
+            message:
+                "Quantification with Salmon"
+            conda:
+                "Tools/salmon.yaml"
+            shell:
+                "salmon quant -i {input.index} -l {params.libtype} "
+                "-1 {input.r1} -2 {input.r2} "
+                "-o {params.DIR} "
+                "-p {threads} --validateMappings"
+        
+        rule salmon_quant:
+            input:
+                QUANTIF+"/{sample}/quant.sf"
+            output:
+                QUANTIF+"/{sample}/quantif.txt"
+            params:
+                QUANTIF+"/{sample}"
+            conda:
+                "Tools/quantif.yaml"
+            script:
+                "Tools/quant_for_salmon.R"
 
-    rule samtools_sort:
-        input:
-            "star/bam/{sample}/Aligned.out.bam"
-        output:
-            "star/bam/{sample}/Aligned.out.sorted.bam"
-        params:
-            ""
-        threads:  THREADS
-        message:
-            "Samtools sort ..."
-        wrapper:
-            "0.47.0/bio/samtools/sort"
+    elif config["Quantification_with"] == "STAR":
+        rule star_map_reads:
+            input:
+                fq1 = OUTcut+"/{sample}_R1.fastq.gz",
+                fq2 = OUTcut+"/{sample}_R2.fastq.gz"
+            output:
+                "star/sam/{sample}/Aligned.out.sam"
+            params:
+                index= INDEXSTAR,
+                extra=""
+            threads: THREADS
+            message:
+                "Quantification with STAR"
+            wrapper:
+                "0.47.0/bio/star/align"
 
-    rule samtools_index:
-        input:
-            "star/bam/{sample}/Aligned.out.sorted.bam"
-        output:
-            "star/bam/{sample}/Aligned.out.sorted.bam.bai"
-        threads: THREADS
-        message:
-            "Samtools index ..."
-        params:
-            "-@ 12"
-        wrapper:
-            "0.47.0/bio/samtools/index"
+        rule samtools_faidx:
+            input:
+                GENOME
+            output:
+                GENOME+".fai"
+            params: ""
+            message:
+                "Samtools faidx ..."
+            wrapper:
+                "0.47.0/bio/samtools/faidx"
 
-    rule htseqcount:
-        input:
-            BAM = "star/bam/{sample}/Aligned.out.sorted.bam",
-            GTF = GTF,
-            BAI ="star/bam/{sample}/Aligned.out.sorted.bam.bai"
-        output:
-            QUANTIF+"/{sample}/quantif.txt"
-        conda:
-            "Tools/htseq.yaml"
-        message:
-            "Running HTseq-count ..."
-        shell:
-            "htseq-count -f bam "
-            "-s reverse -r pos "
-            "{input.BAM} "
-            "{input.GTF} "
-            "> {output}"
+        rule samtools_view:
+            input:
+                "star/sam/{sample}/Aligned.out.sam",
+                BT = GENOME+".fai"
+            output:
+                "star/bam/{sample}/Aligned.out.bam"
+            threads: THREADS
+            message:
+                "Samtools view ..."
+            params:
+                "-bt "+GENOME+".fai -@ 12"
+            wrapper:
+                "0.47.0/bio/samtools/view"
 
-if config["Deconvolution_method"] == "quantiseq":
-    rule quantiseq:
+        rule samtools_sort:
+            input:
+                "star/bam/{sample}/Aligned.out.bam"
+            output:
+                "star/bam/{sample}/Aligned.out.sorted.bam"
+            params:
+                ""
+            threads:  THREADS
+            message:
+                "Samtools sort ..."
+            wrapper:
+                "0.47.0/bio/samtools/sort"
+
+        rule samtools_index:
+            input:
+                "star/bam/{sample}/Aligned.out.sorted.bam"
+            output:
+                "star/bam/{sample}/Aligned.out.sorted.bam.bai"
+            threads: THREADS
+            message:
+                "Samtools index ..."
+            params:
+                "-@ 12"
+            wrapper:
+                "0.47.0/bio/samtools/index"
+
+        rule htseqcount:
+            input:
+                BAM = "star/bam/{sample}/Aligned.out.sorted.bam",
+                GTF = GTF,
+                BAI ="star/bam/{sample}/Aligned.out.sorted.bam.bai"
+            output:
+                QUANTIF+"/{sample}/quantif.txt"
+            conda:
+                "Tools/htseq.yaml"
+            message:
+                "Running HTseq-count ..."
+            shell:
+                "htseq-count -f bam "
+                "-s reverse -r pos "
+                "{input.BAM} "
+                "{input.GTF} "
+                "> {output}"
+
+if config["Do_deconv"] == "yes":
+    if config["Deconvolution_method"] == "quantiseq":
+        rule quantiseq:
+            input:
+                QUANTIF+"/{sample}/quantif.txt"
+            output:
+                QUANTIF+"/{sample}_deconv.txt"
+            params:
+                QUANTIF+"/{sample}"
+            message:
+                "Running deconvolution"
+            conda:
+                "Tools/immunedeconv.yaml"
+            script:
+                "Tools/deconvolution_quantiseq.R"
+
+    elif config["Deconvolution_method"] == "mcpcounter":
+        rule mcpcounter:
+            input:
+                QUANTIF+"/{sample}/quantif.txt"
+            output:
+                QUANTIF+"/{sample}_deconv.txt"
+            params:
+                QUANTIF+"/{sample}",
+                GENES
+            message:
+                "Running deconvolution"
+            script:
+                "Tools/deconvolution_mcpcounter.R"
+
+    elif config["Deconvolution_method"] == "deconRNAseq":
+        rule deconRNAseq:
+            input:
+                QUANTIF+"/{sample}/quantif.txt"
+            output:
+                QUANTIF+"/{sample}_deconv.txt"
+            params:
+                QUANTIF+"/{sample}",
+                SIGNATURE
+            message:
+                "Running deconvolution"
+            conda:
+                "Tools/RNAdeconv.yaml"
+            script:
+                "Tools/deconvolution_deconrnaseq.R"
+
+    rule merge_deconv:
         input:
-            QUANTIF+"/{sample}/quantif.txt"
-        output:
             QUANTIF+"/{sample}_deconv.txt"
-        params:
-            QUANTIF+"/{sample}"
-        message:
-            "Running deconvolution"
-        conda:
-            "Tools/immunedeconv.yaml"
-        script:
-            "Tools/deconvolution_quantiseq.R"
-
-elif config["Deconvolution_method"] == "mcpcounter":
-    rule mcpcounter:
-        input:
-            QUANTIF+"/{sample}/quantif.txt"
         output:
-            QUANTIF+"/{sample}_deconv.txt"
+            touch(QUANTIF+"/{sample}.done")
         params:
-            QUANTIF+"/{sample}",
-            GENES
-        message:
-            "Running deconvolution"
+            OUTDIR+"/all_samples_deconvolute.txt"
         script:
-            "Tools/deconvolution_mcpcounter.R"
-
-elif config["Deconvolution_method"] == "deconRNAseq":
-    rule deconRNAseq:
-        input:
-            QUANTIF+"/{sample}/quantif.txt"
-        output:
-            QUANTIF+"/{sample}_deconv.txt"
-        params:
-            QUANTIF+"/{sample}"
-            SIGNATURE
-        message:
-            "Running deconvolution"
-        conda:
-            "Tools/RNAdeconv.yaml"
-        script:
-            "Tools/deconvolution_deconrnaseq.R"
-
-rule merge_deconv:
-    input:
-        QUANTIF+"/{sample}_deconv.txt"
-    output:
-        touch(QUANTIF+"/{sample}.done")
-    params:
-        OUTDIR+"/all_samples_deconvolute.txt"
-    script:
-        "Tools/merge_deconv.R"
+            "Tools/merge_deconv.R"

@@ -30,16 +30,9 @@ Convert_bcl2fastq: # yes or no, don't forget the ""
   "no"
 Deconvolution_method: # quantiseq, deconRNAseq or mcpcounter
   quantiseq
+Do_deconv: # yes or no, don't forget the ""
+  "yes"
+Do_rnaseq: # yes or no, don't forget the ""
+  "yes"
 Samples:
   data/samples.txt
-# or it can be list like that :  
-  # - Test-Cong-A
-  # - Test-Cong-B
-  # - Test-Cong-C
-  # - Test-Cong-D
-  # - Test-Cong-E
-  # - Test-Cong-F
-  # - Test-Cong-G
-  # - Test-Cong-H
-  # - Test-Cong-I
-  # - Test-Cong-J

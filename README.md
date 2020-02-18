@@ -1,12 +1,15 @@
-readme
+README
 
 # Pipeline for lungProject RNA-seq analysis
 
 ## What am I looking at ?
-This pipeline goes from converting raw Illumina data to quantification with user-chosen software between :
+This pipeline goes from converting raw Illumina data to quantification and deconvolution with user-chosen software between :
 * Kallisto
 * STAR + HTseq-count
 * Salmon
+* QuantiSeq
+* MCP Counter
+* deconRNAseq
 
 User also gets to chose his favorite trimmer between:
 * Trim-galore
