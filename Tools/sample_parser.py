@@ -15,6 +15,6 @@ for name in LIST_FILE:  # Regex magic to get the sample names, only works for il
         LIST_NAME.append(name)
 LIST_NAME = list(set(LIST_NAME)) # make it all pretty
 # write the magic into a txt
-with open('../data/samples.txt', 'w') as f:
+with open('samples.txt', 'w') as f:
     for item in LIST_NAME:
         f.write("%s\n" % item)
