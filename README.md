@@ -35,8 +35,8 @@ You may also need to install bash function `rename` to use the BCL to fastq conv
 The snakefile shouldn't be modified. A provided `config.yaml` file takes as input all needed directories and files.
  * **Samples** is the list of all samples to be analysed. It should be a path to a `.txt` file with a list. A dedicated script in the `Tools` directory, `sample_parser.py` can generate it from Illumina files.
  * **Input directory** : if you change this, please also change all other paths starting with `data` to the corresponding new path
- * **Sample_sheet** results from illumina sequecing. It is needed for Illumina `.bcl` to `.fastq` conversion
- * **Adapter** : adapter used for illumina sequecing that is to be trimmed. Required for Trimmomatic, but not for Trim-galore.
+ * **Sample_sheet** results from illumina sequencing. It is needed for Illumina `.bcl` to `.fastq` conversion
+ * **Adapter** : adapter used for illumina sequencing that is to be trimmed. Required for Trimmomatic, but not for Trim-galore.
  * **Genome** file in fasta format
  * **GTF** file in absolute path (mendatory !). Can be compressed or not.
  * **Threads** : number of threads allowed for the rules 
