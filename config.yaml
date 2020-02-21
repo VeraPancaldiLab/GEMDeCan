@@ -1,10 +1,10 @@
 Output_Directory:
   outputs
-Input_Directory:
+Input_Directory: # location of your data
   data
 Sample_Sheet:
   data/samplesheet_Cong.csv
-Adapter:
+Adapter: # illumina adapter
   data/TruSeqAdapt.fa
 Genome:
   data/genome/homo_dna.fasta
@@ -20,19 +20,21 @@ Trim_with: # Trimmomatic or Trimgalore
   Trimmomatic
 Quantification_with: # kallisto or salmon or STAR
   kallisto
-Index_kallisto:
+Index_kallisto: # kallisto index file location
   data/genome/transcript.idx
-Index_salmon:
+Index_salmon: # salmon index files location
   data/genome/salmon_index
-Index_STAR:
+Index_STAR: # STAR index files location
   data/star
-Convert_bcl2fastq: # yes or no, don't forget the ""
+Convert_bcl2fastq: # Do you need to convert from raw illumina bcl to fastq ?  "yes" or "no", don't forget the ""
   "no"
+Need_merging: #if above condition is no, then do you need to merge experimental lanes into one file ?
+  "yes"
 Deconvolution_method: # quantiseq, deconRNAseq or mcpcounter
   quantiseq
-Do_deconv: # yes or no, don't forget the ""
+Do_deconv: # run the deconvolution ? "yes" or "no", don't forget the ""
   "yes"
-Do_rnaseq: # yes or no, don't forget the ""
+Do_rnaseq: # run the rna-seq pipeline ? "yes" or "no", don't forget the ""
   "yes"
-Samples:
+Samples: # link to file containing the list of samples / conditions
   data/samples.txt

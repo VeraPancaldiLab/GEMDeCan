@@ -87,20 +87,33 @@ if config["Do_rnaseq"] == "yes" :
                 rm {params}/Undetermined*
                 rename "s/_S[0-9]+//" {params}/*.fastq.gz
                 """
+        ##  Merge into one fastq file from different lanes
+        rule merging:
+            input:
+                "bcl2fastq.done"
+            output: 
+                OUTmerge+"/{samples}_R1.fastq.gz",
+                OUTmerge+"/{samples}_R2.fastq.gz"
+            params:
+                OUT = OUTDIR
+            message:
+                "Merging files from lanes"
+            shell:
+                "bash Tools/merge_those_fastq.sh {params.OUT} {params.OUT}/bcl2raw"
 
-    ##  Merge into one fastq file from different lanes
-    rule merging:
-        input:
-            "bcl2fastq.done"
-        output: 
-            OUTmerge+"/{samples}_R1.fastq.gz",
-            OUTmerge+"/{samples}_R2.fastq.gz"
-        params:
-            OUT = OUTDIR
-        message:
-            "Merging files from lanes"
-        shell:
-            "bash Tools/merge_those_fastq.sh {params.OUT}"
+    if config["Convert_bcl2fastq"] == "no" and config["Need_merging"] == "yes":
+        rule merge_fastq:
+            input:
+                INDIR
+            output:
+                OUTmerge+"/{samples}_R1.fastq.gz",
+                OUTmerge+"/{samples}_R2.fastq.gz"
+            params:
+                    OUT = OUTDIR
+            message:
+                "Merging files from lanes"
+            shell:
+                "bash Tools/merge_those_fastq.sh {params.OUT} {input}"
 
     ## Quality control for raw fastq data
     rule fastqc1:
@@ -353,6 +366,7 @@ if config["Do_rnaseq"] == "yes" :
             shell:
                 "htseq-count -f bam "
                 "-s reverse -r pos "
+                "-i gene_name"
                 "{input.BAM} "
                 "{input.GTF} "
                 "> {output}"

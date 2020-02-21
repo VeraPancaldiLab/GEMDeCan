@@ -158,4 +158,9 @@ properties:
     type: string
     title: choice for rnaseq
     default: ''
+  Need_merging:
+    $id: '#properties/merging'
+    type: string
+    title: to merge or not to merge
+    default: ''
 additionalProperties: false
