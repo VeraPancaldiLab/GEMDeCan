@@ -1,7 +1,7 @@
 Output_Directory:
   outputs
 Input_Directory: # location of your data
-  data
+  /home/julien/Documents/lungProject/outputs/bcl2raw
 Sample_Sheet:
   data/samplesheet_Cong.csv
 Adapter: # illumina adapter
@@ -33,7 +33,7 @@ Need_merging: #if above condition is no, then do you need to merge experimental 
 Deconvolution_method: # quantiseq, deconRNAseq or mcpcounter
   quantiseq
 Do_deconv: # run the deconvolution ? "yes" or "no", don't forget the ""
-  "yes"
+  "no"
 Do_rnaseq: # run the rna-seq pipeline ? "yes" or "no", don't forget the ""
   "yes"
 Samples: # link to file containing the list of samples / conditions
