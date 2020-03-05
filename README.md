@@ -27,6 +27,10 @@ Note that if you don't use Conda, this pipeline won't work. In case you need it,
 * [Windows](https://docs.conda.io/projects/conda/en/latest/user-guide/install/windows.html)
 * [MacOS](https://docs.conda.io/projects/conda/en/latest/user-guide/install/macos.html)
 
+Once the snakemake environment is activated, you need to add the following channels :
+* `conda config --add channels bioconda`
+* `conda config --add channels conda-forge`
+
 Note that officialy only Linux is supported for this pipeline.
 
 You may also need to install bash function `rename` to use the BCL to fastq conversion part :
@@ -47,6 +51,8 @@ The snakefile shouldn't be modified. A provided `config.yaml` file takes as inpu
  * **Deconvolution_method** : run the deconvolution with QuantiSeq, deconRNAseq or MCPCounter. In the last case, you need to provide signature files. See the [MCPCounter doc](https://github.com/ebecht/MCPcounter) for more information
  * **Genes_signature** : a marker based signature file to use with MCPCounter
  * **Signature** : a regular signature to use with deconRNAseq
+ * **Gene length file** : if using STAR to compute deconvolution, you need to provide a file with the length of every gene in order to convert from gene counts to TPM
+ * **Mean fragment length** : like above, for STAR with deconvolution you need to provide the mean length of the sequenced reads (in bp)
 
 ## Usage
 Once everything is configured and installed, open a terminal on the `snakefile` location and launch the pipeline using a single bash line :
@@ -54,6 +60,8 @@ Once everything is configured and installed, open a terminal on the `snakefile` 
 
 For the sample parser tool, you simply have to use it like a regular python script, with the path to your illumina files as an argument :
 `python3 sample_parser.py <path_to_files> `
+
+If you really need to use STAR before running the deconvolution, you need to provide aditionnal informations described above. The gene length can be obtained by parsing a GTF annotation. An exemple script to make such a file is provided in the `Tools` directory.
 
 ## Deconvolution
 Last part of the pipeline runs a deconvolution algorithm on the quantified samples. 
