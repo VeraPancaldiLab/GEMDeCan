@@ -163,4 +163,14 @@ properties:
     type: string
     title: to merge or not to merge
     default: ''
+  Mean_fragment_length:
+    $id: '#properties/Mean_fragment_length'
+    type: integer
+    title: fragment length
+    default: ''
+  Gene_length_file:
+    $id: '#properties/length_file'
+    type: string
+    title: file containing gene length
+    default: ''
 additionalProperties: false

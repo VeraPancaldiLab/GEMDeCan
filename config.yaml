@@ -14,12 +14,16 @@ Signature: # regular signature for deconRNAseq
   data/signature/TIL10.txt
 GTF: # must be full path for R
   /home/julien/Documents/lungProject/data/genome/homo.gtf.gz
+Gene_length_file: # in full path for R
+  /home/julien/Documents/lungProject/data/gene_length.txt
+Mean_fragment_length:
+  200
 THREADS: 
   12
 Trim_with: # Trimmomatic or Trimgalore
   Trimmomatic
 Quantification_with: # kallisto or salmon or STAR
-  kallisto
+  STAR
 Index_kallisto: # kallisto index file location
   data/genome/transcript.idx
 Index_salmon: # salmon index files location

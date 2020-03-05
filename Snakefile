@@ -35,6 +35,8 @@ ADAPTER = config["Adapter"]
 GENES = config["Genes_signature"]
 sampledir = config["Samples"]
 SIGNATURE = config["Signature"]
+GENELENGTH = config["Gene_length_file"]
+MEANLENGTH = config["Mean_fragment_length"]
 
 OUTbcl = OUTDIR+"/bcl2raw"
 OUTmerge = OUTDIR+"/raw2merge"
@@ -358,7 +360,7 @@ if config["Do_rnaseq"] == "yes" :
                 GTF = GTF,
                 BAI ="star/bam/{sample}/Aligned.out.sorted.bam.bai"
             output:
-                QUANTIF+"/{sample}/quantif.txt"
+                QUANTIF+"/{sample}/count_quantif.txt"
             conda:
                 "Tools/htseq.yaml"
             message:
@@ -366,10 +368,22 @@ if config["Do_rnaseq"] == "yes" :
             shell:
                 "htseq-count -f bam "
                 "-s reverse -r pos "
-                "-i gene_name"
+                "-i gene_name "
                 "{input.BAM} "
                 "{input.GTF} "
                 "> {output}"
+        
+        rule count_to_tpm:
+            input:
+                QUANTIF+"/{sample}/count_quantif.txt"
+            output:
+                QUANTIF+"/{sample}/quantif.txt"
+            params:
+                QUANTIF+"/{sample}",
+                GENELENGTH,
+                MEANLENGTH
+            script:
+                "Tools/count_to_tpm.R"
 
 if config["Do_deconv"] == "yes":
     if config["Deconvolution_method"] == "quantiseq":
