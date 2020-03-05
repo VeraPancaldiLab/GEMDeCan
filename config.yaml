@@ -2,6 +2,8 @@ Output_Directory:
   outputs
 Input_Directory: # location of your data
   /home/julien/Documents/lungProject/outputs/bcl2raw
+THREADS: # number of threads to use
+  12
 Sample_Sheet:
   data/samplesheet_Cong.csv
 Adapter: # illumina adapter
@@ -18,8 +20,6 @@ Gene_length_file: # in full path for R
   /home/julien/Documents/lungProject/data/gene_length.txt
 Mean_fragment_length:
   200
-THREADS: 
-  12
 Trim_with: # Trimmomatic or Trimgalore
   Trimmomatic
 Quantification_with: # kallisto or salmon or STAR
