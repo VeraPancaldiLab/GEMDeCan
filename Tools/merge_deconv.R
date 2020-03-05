@@ -8,4 +8,3 @@ merge = data.frame(t(sample))
 }
 
 write.table(merge, snakemake@params[[1]], sep= "\t", quote=F, row.names = F)
-save.image()
