@@ -392,6 +392,10 @@ if config["Do_rnaseq"] == "yes" :
             "Tools/merge_quantif.R"
 
 if config["Do_deconv"] == "yes":
+    if config["Do_rnaseq"] == "yes" :
+        DECONV_INPUT = QUANTIF+"/all_sample_quantified.txt"
+    else:
+        DECONV_INPUT = INDIR
     if config["Deconvolution_method"] == "quantiseq":
         rule quantiseq:
             input:
@@ -421,7 +425,7 @@ if config["Do_deconv"] == "yes":
     elif config["Deconvolution_method"] == "deconRNAseq":
         rule deconRNAseq:
             input:
-                QUANTIF+"/all_sample_quantified.txt"
+                DECONV_INPUT
             output:
                 OUTDIR+"/deconvolution.txt"
             params:
