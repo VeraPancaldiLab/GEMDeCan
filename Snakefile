@@ -396,10 +396,11 @@ if config["Do_deconv"] == "yes":
         DECONV_INPUT = QUANTIF+"/all_sample_quantified.txt"
     else:
         DECONV_INPUT = INDIR
+    
     if config["Deconvolution_method"] == "quantiseq":
         rule quantiseq:
             input:
-                QUANTIF+"/all_sample_quantified.txt"
+                DECONV_INPUT
             output:
                 OUTDIR+"/deconvolution.txt"
             message:
@@ -412,7 +413,7 @@ if config["Do_deconv"] == "yes":
     elif config["Deconvolution_method"] == "mcpcounter":
         rule mcpcounter:
             input:
-                QUANTIF+"/all_sample_quantified.txt"
+                DECONV_INPUT
             output:
                 OUTDIR+"/deconvolution.txt"
             params:
