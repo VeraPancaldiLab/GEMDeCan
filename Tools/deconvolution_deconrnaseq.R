@@ -1,10 +1,9 @@
 require(DeconRNASeq)
 
-signature = read.table(snakemake@params[[2]], header = TRUE)
+signature = read.table(snakemake@params[[1]], header = TRUE, row.names = 1)
 t1 = read.table(snakemake@input[[1]], header = TRUE, row.names = 1)
 # signature need to be formated to the correct input format for deconrna, as it is picky
-rownames(signature)= signature[,1]
-res = DeconRNASeq(t1, signature[,-1])
+res = DeconRNASeq(t1, signature)
 Fres = as.data.frame(res$out.all)
 Fres= cbind(Cell_type=colnames(t1), Fres)
 Fres[,-1] = round(Fres[,-1], 3)

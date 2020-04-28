@@ -4,9 +4,8 @@ install_github("ebecht/MCPcounter",ref="master", subdir="Source")
 require(MCPcounter)
 
 t1 = as.matrix(read.table(snakemake@input[[1]], header = TRUE, row.names = 1))
-sample = basename(snakemake@params[[1]])
 res_mcp = MCPcounter.estimate(t1, featuresType = "HUGO_symbols",
-                              genes=read.table(snakemake@params[[2]],sep="\t",stringsAsFactors=FALSE,header=TRUE,colClasses="character",check.names=FALSE))
+                              genes=read.table(snakemake@params[[1]],sep="\t",stringsAsFactors=FALSE,header=TRUE,colClasses="character",check.names=FALSE))
 res_mcp[] = round(res_mcp[], 3)
 res_mcp=t(res_mcp)
 res_mcp= rbind(Sample=colnames(res_mcp), res_mcp)
