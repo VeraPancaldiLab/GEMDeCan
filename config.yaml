@@ -1,9 +1,9 @@
 Output_Directory:
   outputs
 Input_Directory: # location of your data
-  /home/julien/Documents/lungProject/outputs/bcl2raw
+  /home/julien/Documents/lungProject/data/raw
 THREADS: # number of threads to use
-  12
+  8
 Sample_Sheet:
   data/samplesheet_Cong.csv
 Adapter: # illumina adapter
@@ -13,7 +13,7 @@ Genome:
 Genes_signature: # marker based signature for MCPCounter ONLY
   data/signature/genes.txt
 Signature: # regular signature for deconRNAseq
-  data/signature/TIL10.txt
+  data/signature/Final.CD226_signature.txt
 GTF: # must be full path for R
   /home/julien/Documents/lungProject/data/genome/homo.gtf.gz
 Gene_length_file: # in full path for R
@@ -23,7 +23,7 @@ Mean_fragment_length:
 Trim_with: # Trimmomatic or Trimgalore
   Trimmomatic
 Quantification_with: # kallisto or salmon or STAR
-  STAR
+  salmon
 Index_kallisto: # kallisto index file location
   data/genome/transcript.idx
 Index_salmon: # salmon index files location
@@ -33,12 +33,12 @@ Index_STAR: # STAR index files location
 Convert_bcl2fastq: # Do you need to convert from raw illumina bcl to fastq ?  "yes" or "no", don't forget the ""
   "no"
 Need_merging: #if above condition is no, then do you need to merge experimental lanes into one file ?
-  "yes"
-Deconvolution_method: # quantiseq, deconRNAseq or mcpcounter
-  quantiseq
-Do_deconv: # run the deconvolution ? "yes" or "no", don't forget the ""
   "no"
-Do_rnaseq: # run the rna-seq pipeline ? "yes" or "no", don't forget the ""
+Deconvolution_method: # quantiseq, deconRNAseq or mcpcounter
+  deconRNAseq
+Do_deconv: # run the deconvolution ? "yes" or "no", don't forget the ""
   "yes"
+Do_rnaseq: # run the rna-seq pipeline ? "yes" or "no", don't forget the ""
+  "no"
 Samples: # link to file containing the list of samples / conditions
   data/samples.txt

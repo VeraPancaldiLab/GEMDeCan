@@ -1,6 +1,4 @@
 #######################################
-### Common part for pipeline ###
-#######################################
 # Julien Pernet 2020 for Pancaldi lab - CRCT Team 21 - INSERM
 # This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -55,17 +53,17 @@ if config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "yes":
         input:
             expand(OUTmultiqc+"/{sample}_multiqc_report.html", sample=SAMPLES),
             expand(OUTmultiqc2+"/{sample}_multiqc_report.html", sample=SAMPLES),
-            expand(QUANTIF+"/{sample}.done", sample=SAMPLES)
+            OUTDIR+"/deconvolution.txt"
 elif config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "no":
     rule all:
         input:
-            expand(QUANTIF+"/{sample}.done", sample=SAMPLES)
+            OUTDIR+"/deconvolution.txt"
 elif config["Do_deconv"] == "no" and config["Do_rnaseq"] == "yes":
     rule all:
         input:
             expand(OUTmultiqc+"/{sample}_multiqc_report.html", sample=SAMPLES),
             expand(OUTmultiqc2+"/{sample}_multiqc_report.html", sample=SAMPLES),
-            expand(QUANTIF+"/{sample}/quantif.txt", sample=SAMPLES)
+            QUANTIF+"/all_sample_quantified.txt"  
 
 if config["Do_rnaseq"] == "yes" :
     ## Converts base call (.BCL) files into FASTQ
@@ -385,15 +383,21 @@ if config["Do_rnaseq"] == "yes" :
             script:
                 "Tools/count_to_tpm.R"
 
+    rule merge_quantif:
+        input:
+            expand(QUANTIF+"/{sample}/quantif.txt", sample= SAMPLES)
+        output:
+            QUANTIF+"/all_sample_quantified.txt"
+        script:
+            "Tools/merge_quantif.R"
+
 if config["Do_deconv"] == "yes":
     if config["Deconvolution_method"] == "quantiseq":
         rule quantiseq:
             input:
-                QUANTIF+"/{sample}/quantif.txt"
+                QUANTIF+"/all_sample_quantified.txt"
             output:
-                QUANTIF+"/{sample}_deconv.txt"
-            params:
-                QUANTIF+"/{sample}"
+                OUTDIR+"/deconvolution.txt"
             message:
                 "Running deconvolution"
             conda:
@@ -404,11 +408,10 @@ if config["Do_deconv"] == "yes":
     elif config["Deconvolution_method"] == "mcpcounter":
         rule mcpcounter:
             input:
-                QUANTIF+"/{sample}/quantif.txt"
+                QUANTIF+"/all_sample_quantified.txt"
             output:
-                QUANTIF+"/{sample}_deconv.txt"
+                OUTDIR+"/deconvolution.txt"
             params:
-                QUANTIF+"/{sample}",
                 GENES
             message:
                 "Running deconvolution"
@@ -418,11 +421,10 @@ if config["Do_deconv"] == "yes":
     elif config["Deconvolution_method"] == "deconRNAseq":
         rule deconRNAseq:
             input:
-                QUANTIF+"/{sample}/quantif.txt"
+                QUANTIF+"/all_sample_quantified.txt"
             output:
-                QUANTIF+"/{sample}_deconv.txt"
+                OUTDIR+"/deconvolution.txt"
             params:
-                QUANTIF+"/{sample}",
                 SIGNATURE
             message:
                 "Running deconvolution"
@@ -430,13 +432,3 @@ if config["Do_deconv"] == "yes":
                 "Tools/RNAdeconv.yaml"
             script:
                 "Tools/deconvolution_deconrnaseq.R"
-
-    rule merge_deconv:
-        input:
-            QUANTIF+"/{sample}_deconv.txt"
-        output:
-            touch(QUANTIF+"/{sample}.done")
-        params:
-            OUTDIR+"/all_samples_deconvolute.txt"
-        script:
-            "Tools/merge_deconv.R"
