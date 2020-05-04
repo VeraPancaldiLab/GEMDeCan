@@ -437,3 +437,18 @@ if config["Do_deconv"] == "yes":
                 "Tools/RNAdeconv.yaml"
             script:
                 "Tools/deconvolution_deconrnaseq.R"
+
+    elif config["Deconvolution_method"] == "epidish":
+        rule epidish:
+            input:
+                DECONV_INPUT
+            output:
+                OUTDIR+"/deconvolution.txt"
+            params:
+                SIGNATURE
+            message:
+                "Running deconvolution"
+            conda:
+                "Tools/epidish.yaml"
+            script:
+                "Tools/deconvolution_epidish.R"
