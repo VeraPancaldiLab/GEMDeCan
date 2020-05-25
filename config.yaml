@@ -1,44 +1,54 @@
+# General info
 Output_Directory:
   outputs
 Input_Directory: # location of your data
-  /home/julien/Documents/lungProject/data/raw
+  /home/julien/Documents/data_stage/totalRNAseq_model_CD4
 THREADS: # number of threads to use
-  8
+  10
 Sample_Sheet:
   data/samplesheet_Cong.csv
 Adapter: # illumina adapter
   data/TruSeqAdapt.fa
-Genome:
-  data/genome/homo_dna.fasta
-Genes_signature: # marker based signature for MCPCounter ONLY
-  data/signature/genes.txt
-Signature: # regular signature for deconRNAseq
-  data/signature/Final.CD226_signature.txt
-GTF: # must be full path for R
-  /home/julien/Documents/lungProject/data/genome/homo.gtf.gz
-Gene_length_file: # in full path for R
-  /home/julien/Documents/lungProject/data/gene_length.txt
-Mean_fragment_length:
-  200
+Samples: # link to file containing the list of samples / conditions
+  data/samples.txt
+
+# Options
 Trim_with: # Trimmomatic or Trimgalore
   Trimmomatic
-Quantification_with: # kallisto or salmon or STAR
-  salmon
-Index_kallisto: # kallisto index file location
-  data/genome/transcript.idx
-Index_salmon: # salmon index files location
-  data/genome/salmon_index
-Index_STAR: # STAR index files location
-  data/star
+Do_deconv: # run the deconvolution ? "yes" or "no", don't forget the ""
+  "yes"
+Do_rnaseq: # run the rna-seq pipeline ? "yes" or "no", don't forget the ""
+  "yes"
 Convert_bcl2fastq: # Do you need to convert from raw illumina bcl to fastq ?  "yes" or "no", don't forget the ""
   "no"
 Need_merging: #if above condition is no, then do you need to merge experimental lanes into one file ?
   "no"
-Deconvolution_method: # quantiseq, deconRNAseq or mcpcounter
-  deconRNAseq
-Do_deconv: # run the deconvolution ? "yes" or "no", don't forget the ""
-  "yes"
-Do_rnaseq: # run the rna-seq pipeline ? "yes" or "no", don't forget the ""
-  "no"
-Samples: # link to file containing the list of samples / conditions
-  data/samples.txt
+
+# Quantification
+Quantification_with: # kallisto or salmon or STAR
+  kallisto
+Index_kallisto: # kallisto index file location
+  data/genome/transcript_hg18.idx
+Index_salmon: # salmon index files location
+  data/genome/salmon_index
+
+# Deconvolution
+Genes_signature: # marker based signature for MCPCounter ONLY
+  data/signature/genes.txt
+Signature: # regular signature for deconRNAseq and epidish
+  data/signature/Final.CD226_signature.txt
+Deconvolution_method: # quantiseq, deconRNAseq, epidish or mcpcounter
+  quantiseq
+
+
+################################# STAR specific files ###############
+GTF: # must be full path for R
+  /home/julien/Documents/lungProject/data/genome/homo.gtf.gz
+Gene_length_file: # in full path for R
+  /home/julien/Documents/lungProject/data/gene_length.txt
+Genome: # 
+  data/genome/homo_dna.fasta
+Index_STAR: # STAR index files location
+  data/star
+Mean_fragment_length:
+  75

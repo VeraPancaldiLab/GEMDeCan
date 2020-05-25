@@ -115,14 +115,21 @@ if config["Do_rnaseq"] == "yes" :
             shell:
                 "bash Tools/merge_those_fastq.sh {params.OUT} {input}"
 
+    if config["Need_merging"] == "yes":
+        QCINPUT = OUTmerge+"/{samples}.fastq.gz"
+    else:
+        QCINPUT = INDIR
+
     ## Quality control for raw fastq data
     rule fastqc1:
         input:
-            OUTmerge+"/{samples}.fastq.gz"
+            QCINPUT
         output:
             html = OUTfastqc+"/{samples}_fastqc.html",
             zip = OUTfastqc+"/{samples}_fastqc.zip"
         threads: THREADS
+        benchmark:
+            "benchmarks/benchmark.fastqc1_{samples}.txt"
         message:
             "Quality control before trimming"
         params:
@@ -132,10 +139,12 @@ if config["Do_rnaseq"] == "yes" :
 
     rule multiqc1:
         input:
-            OUTfastqc+"/{sample}_R1_fastqc.html",
-            OUTfastqc+"/{sample}_R2_fastqc.html"
+            OUTfastqc+"/{samples}_R1_fastqc.html",
+            OUTfastqc+"/{samples}_R2_fastqc.html"
+        benchmark:
+            "benchmarks/benchmark.multiqc1_{samples}.txt"
         output:
-            MainOut = OUTmultiqc+"/{sample}_multiqc_report.html"
+            MainOut = OUTmultiqc+"/{samples}_multiqc_report.html"
         wrapper:
             "0.47.0/bio/multiqc"
 
@@ -144,8 +153,8 @@ if config["Do_rnaseq"] == "yes" :
         ## Read trimming by Trimmomatic (Paired-End)
         rule Trimmomatic:
             input:
-                r1 = OUTmerge+"/{samples}_R1.fastq.gz",
-                r2 = OUTmerge+"/{samples}_R2.fastq.gz"
+                r1 = QCINPUT+"/{samples}_R1.fastq.gz",
+                r2 = QCINPUT+"/{samples}_R2.fastq.gz"
             output:
                 r1 = OUTcut+"/{samples}_R1.fastq.gz",
                 r1_unpaired = OUTcut+"/{samples}_R1.unpaired.fastq.gz",
@@ -154,6 +163,8 @@ if config["Do_rnaseq"] == "yes" :
             threads: THREADS
             message:
                 "Trimming using Trimmomatic"
+            benchmark:
+                "benchmarks/benchmark.trimmomatic_{samples}.txt"
             params:
                 trimmer = ["TRAILING:20", "LEADING:20", "MINLEN:36", "CROP:10000", "ILLUMINACLIP:"+ADAPTER+":2:30:10"],
                 compression_level="-9",
@@ -176,6 +187,8 @@ if config["Do_rnaseq"] == "yes" :
             threads: THREADS
             message:
                 "Trimming using Trim-Galore"
+            benchmark:
+                "benchmarks/benchmark.trimgalore_{samples}.txt"
             wrapper:
                 "0.47.0/bio/trim_galore/pe"
 
@@ -186,6 +199,8 @@ if config["Do_rnaseq"] == "yes" :
             output:
                 R1out = OUTcut+"/{sample}_R1.fastq.gz",
                 R2out = OUTcut+"/{sample}_R2.fastq.gz"
+            benchmark:
+                "benchmarks/benchmark.rename_{samples}.txt"
             shell:
                 """
                 mv -f {input.R1} {output.R1out}
@@ -202,16 +217,20 @@ if config["Do_rnaseq"] == "yes" :
         threads: THREADS
         message:
             "Quality control after trimming"
+        benchmark:
+            "benchmarks/benchmark.fastqc2_{samples}.txt"
         params:
             "-t 8"
         wrapper:
             "0.47.0/bio/fastqc"
     rule multiqc2:
         input:
-            OUTfastqc2+"/{sample}_R1_fastqc.html",
-            OUTfastqc2+"/{sample}_R2_fastqc.html"
+            OUTfastqc2+"/{samples}_R1_fastqc.html",
+            OUTfastqc2+"/{samples}_R2_fastqc.html"
         output:
-            OUTmultiqc2+"/{sample}_multiqc_report.html"
+            OUTmultiqc2+"/{samples}_multiqc_report.html"
+        benchmark:
+            "benchmarks/benchmark.multiqc2_{samples}.txt"
         wrapper:
             "0.47.0/bio/multiqc"
 
@@ -219,17 +238,19 @@ if config["Do_rnaseq"] == "yes" :
     if config["Quantification_with"] == "kallisto" :
         rule kallisto_quant:
             input:
-                R1 = OUTcut+"/{sample}_R1.fastq.gz",
-                R2 = OUTcut+"/{sample}_R2.fastq.gz",
+                R1 = OUTcut+"/{samples}_R1.fastq.gz",
+                R2 = OUTcut+"/{samples}_R2.fastq.gz",
                 INDEXK = INDEXK,
             threads: THREADS
             output:
-                QUANTIF+"/{sample}/abundance.tsv",
-                QUANTIF+"/{sample}/abundance.h5"
+                QUANTIF+"/{samples}/abundance.tsv",
+                QUANTIF+"/{samples}/abundance.h5"
             params:
-                OUTDIRE = QUANTIF+"/{sample}"
+                OUTDIRE = QUANTIF+"/{samples}"
             message:
                 "Quantification with Kallisto"
+            benchmark:
+                "benchmarks/benchmark.kallisto_{samples}.txt"
             conda:
                 "Tools/kallisto.yaml"
             shell:
@@ -239,11 +260,13 @@ if config["Do_rnaseq"] == "yes" :
 
         rule quant_to_gene:
             input:
-                QUANTIF+"/{sample}/abundance.h5"
+                QUANTIF+"/{samples}/abundance.h5"
             output:
-                QUANTIF+"/{sample}/quantif.txt"
+                QUANTIF+"/{samples}/quantif.txt"
             params:
-                QUANTIF+"/{sample}"
+                QUANTIF+"/{samples}"
+            benchmark:
+                "benchmarks/benchmark.quant_to_gene_{samples}.txt"
             conda:
                 "Tools/quantif.yaml"
             script:
@@ -252,19 +275,21 @@ if config["Do_rnaseq"] == "yes" :
     elif config["Quantification_with"] == "salmon" :
         rule salmon:
             input:
-                r1 = OUTcut+"/{sample}_R1.fastq.gz",
-                r2 = OUTcut+"/{sample}_R2.fastq.gz",
+                r1 = OUTcut+"/{samples}_R1.fastq.gz",
+                r2 = OUTcut+"/{samples}_R2.fastq.gz",
                 index = INDEXS
             output:
-                quant = QUANTIF+"/{sample}/quant.sf",
-                lib = QUANTIF+"/{sample}/lib_format_counts.json"
+                quant = QUANTIF+"/{samples}/quant.sf",
+                lib = QUANTIF+"/{samples}/lib_format_counts.json"
             params:
-                DIR = QUANTIF+"/{sample}",
+                DIR = QUANTIF+"/{samples}",
                 libtype ="A",
                 extra=" --validateMappings"
             threads: THREADS
             message:
                 "Quantification with Salmon"
+            benchmark:
+                "benchmarks/benchmark.salmon_{samples}.txt"
             conda:
                 "Tools/salmon.yaml"
             shell:
@@ -275,11 +300,13 @@ if config["Do_rnaseq"] == "yes" :
         
         rule salmon_quant:
             input:
-                QUANTIF+"/{sample}/quant.sf"
+                QUANTIF+"/{samples}/quant.sf"
             output:
-                QUANTIF+"/{sample}/quantif.txt"
+                QUANTIF+"/{samples}/quantif.txt"
             params:
-                QUANTIF+"/{sample}"
+                QUANTIF+"/{samples}"
+            benchmark:
+                "benchmarks/benchmark.quant_to_gene_{samples}.txt"
             conda:
                 "Tools/quantif.yaml"
             script:
@@ -288,10 +315,10 @@ if config["Do_rnaseq"] == "yes" :
     elif config["Quantification_with"] == "STAR":
         rule star_map_reads:
             input:
-                fq1 = OUTcut+"/{sample}_R1.fastq.gz",
-                fq2 = OUTcut+"/{sample}_R2.fastq.gz"
+                fq1 = OUTcut+"/{samples}_R1.fastq.gz",
+                fq2 = OUTcut+"/{samples}_R2.fastq.gz"
             output:
-                "star/sam/{sample}/Aligned.out.sam"
+                "star/sam/{samples}/Aligned.out.sam"
             params:
                 index= INDEXSTAR,
                 extra=""
@@ -314,10 +341,10 @@ if config["Do_rnaseq"] == "yes" :
 
         rule samtools_view:
             input:
-                "star/sam/{sample}/Aligned.out.sam",
+                "star/sam/{samples}/Aligned.out.sam",
                 BT = GENOME+".fai"
             output:
-                "star/bam/{sample}/Aligned.out.bam"
+                "star/bam/{samples}/Aligned.out.bam"
             threads: THREADS
             message:
                 "Samtools view ..."
@@ -328,9 +355,9 @@ if config["Do_rnaseq"] == "yes" :
 
         rule samtools_sort:
             input:
-                "star/bam/{sample}/Aligned.out.bam"
+                "star/bam/{samples}/Aligned.out.bam"
             output:
-                "star/bam/{sample}/Aligned.out.sorted.bam"
+                "star/bam/{samples}/Aligned.out.sorted.bam"
             params:
                 ""
             threads:  THREADS
@@ -341,9 +368,9 @@ if config["Do_rnaseq"] == "yes" :
 
         rule samtools_index:
             input:
-                "star/bam/{sample}/Aligned.out.sorted.bam"
+                "star/bam/{samples}/Aligned.out.sorted.bam"
             output:
-                "star/bam/{sample}/Aligned.out.sorted.bam.bai"
+                "star/bam/{samples}/Aligned.out.sorted.bam.bai"
             threads: THREADS
             message:
                 "Samtools index ..."
@@ -354,11 +381,11 @@ if config["Do_rnaseq"] == "yes" :
 
         rule htseqcount:
             input:
-                BAM = "star/bam/{sample}/Aligned.out.sorted.bam",
+                BAM = "star/bam/{samples}/Aligned.out.sorted.bam",
                 GTF = GTF,
-                BAI ="star/bam/{sample}/Aligned.out.sorted.bam.bai"
+                BAI ="star/bam/{samples}/Aligned.out.sorted.bam.bai"
             output:
-                QUANTIF+"/{sample}/count_quantif.txt"
+                QUANTIF+"/{samples}/count_quantif.txt"
             conda:
                 "Tools/htseq.yaml"
             message:
@@ -373,11 +400,11 @@ if config["Do_rnaseq"] == "yes" :
         
         rule count_to_tpm:
             input:
-                QUANTIF+"/{sample}/count_quantif.txt"
+                QUANTIF+"/{samples}/count_quantif.txt"
             output:
-                QUANTIF+"/{sample}/quantif.txt"
+                QUANTIF+"/{samples}/quantif.txt"
             params:
-                QUANTIF+"/{sample}",
+                QUANTIF+"/{samples}",
                 GENELENGTH,
                 MEANLENGTH
             script:
@@ -385,9 +412,11 @@ if config["Do_rnaseq"] == "yes" :
 
     rule merge_quantif:
         input:
-            expand(QUANTIF+"/{sample}/quantif.txt", sample= SAMPLES)
+            expand(QUANTIF+"/{samples}/quantif.txt", samples= SAMPLES)
         output:
             QUANTIF+"/all_sample_quantified.txt"
+        benchmark:
+                "benchmarks/benchmark.merge.txt"
         script:
             "Tools/merge_quantif.R"
 
@@ -405,6 +434,8 @@ if config["Do_deconv"] == "yes":
                 OUTDIR+"/deconvolution.txt"
             message:
                 "Running deconvolution"
+            benchmark:
+                "benchmarks/benchmark.quantiseq.txt"
             conda:
                 "Tools/immunedeconv.yaml"
             script:
@@ -420,6 +451,8 @@ if config["Do_deconv"] == "yes":
                 GENES
             message:
                 "Running deconvolution"
+            benchmark:
+                "benchmarks/benchmark.mcp.txt"
             script:
                 "Tools/deconvolution_mcpcounter.R"
 
@@ -433,6 +466,8 @@ if config["Do_deconv"] == "yes":
                 SIGNATURE
             message:
                 "Running deconvolution"
+            benchmark:
+                "benchmarks/benchmark.deconRNA.txt"
             conda:
                 "Tools/RNAdeconv.yaml"
             script:
@@ -448,6 +483,8 @@ if config["Do_deconv"] == "yes":
                 SIGNATURE
             message:
                 "Running deconvolution"
+            benchmark:
+                "benchmarks/benchmark.epidish.txt"
             conda:
                 "Tools/epidish.yaml"
             script:
