@@ -2,7 +2,7 @@
 Output_Directory:
   outputs
 Input_Directory: # location of your data
-  /home/julien/Documents/data_stage/totalRNAseq_model_CD4
+  /home/julien/Documents/data/lungpredict
 THREADS: # number of threads to use
   10
 Sample_Sheet:
@@ -28,7 +28,7 @@ Need_merging: #if above condition is no, then do you need to merge experimental 
 Quantification_with: # kallisto or salmon or STAR
   kallisto
 Index_kallisto: # kallisto index file location
-  data/genome/transcript_hg18.idx
+  data/genome/transcript.idx
 Index_salmon: # salmon index files location
   data/genome/salmon_index
 

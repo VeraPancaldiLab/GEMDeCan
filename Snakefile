@@ -123,7 +123,7 @@ if config["Do_rnaseq"] == "yes" :
     ## Quality control for raw fastq data
     rule fastqc1:
         input:
-            QCINPUT
+            QCINPUT+"/{samples}.fastq.gz"
         output:
             html = OUTfastqc+"/{samples}_fastqc.html",
             zip = OUTfastqc+"/{samples}_fastqc.zip"
