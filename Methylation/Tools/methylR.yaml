@@ -1,0 +1,14 @@
+channels:
+    - bioconda
+    - conda-forge
+dependencies:
+    - bioconductor-champ =2.16.0
+    - bioconductor-minfi =1.32.0
+    - bioconductor-beclear =2.2.0
+    - r-factoextra =1.0.7
+    - r-zoo =1.8_8
+    - r-dplyr =1.0.0
+    - bioconductor-sva =3.34.0
+    - r-hmisc =4.4_0
+    - r-pheatmap =1.0.12
+    - bioconductor-limma =3.42.0

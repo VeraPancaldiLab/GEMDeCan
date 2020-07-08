@@ -1,0 +1,10 @@
+Phenotype_file:
+  Data/Phenotype.csv
+Data:
+  /home/julien/Documents/lungMethylation/Methylomes_Lucille_Vera/DATA/Rawdata
+Annotation_file:
+  /home/julien/Documents/lungMethylation/Methylomes_Lucille_Vera/MethylationEPIC_v-1-0_B4.csv
+Threads:
+  10
+Signature:
+  Data/Final.Tumor.sig.txt
