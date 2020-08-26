@@ -36,33 +36,51 @@ Note that officialy only Linux is supported for this pipeline.
 
 You may also need to install bash function `rename` to use the BCL to fastq conversion part :
 `sudo apt install rename`
+
 ## Configure your workspace
 The snakefile shouldn't be modified. A provided `config.yaml` file takes as input all needed directories and files.
- * **Samples** is the list of all samples to be analysed. It should be a path to a `.txt` file with a list.
+
+### General informations
+
  * **Input directory** : if you change this, please also change all other paths starting with `data` to the corresponding new path
+ * **Threads** : number of threads allowed for the rules 
  * **Sample_sheet** results from illumina sequencing. It is needed for Illumina `.bcl` to `.fastq` conversion
  * **Adapter** : adapter used for illumina sequencing that is to be trimmed. Required for Trimmomatic, but not for Trim-galore.
+ * **Samples** is the list of all samples to be analysed. It should be a path to a `.txt` file with a list. A dedicated script in the `Tools` directory, `sample_parser.py` can generate it from Illumina files.
+### Options
+ * **Trim_with** : chose between one of the two trimmer 
+ * **Do_deconv** : should the pipeline run a deconvolution method ?
+ * **Do_rnaseq** : should the pipeline run the RNAseq analysis part ?
+ * **Convert_bcl2fastq** : do you need to convert `.bcl` to `.fastq` ? "yes" or "no"
+ * **Need_merging** : do you need to merge the different sequencing lines for each sample ?
+### Quantification
+ * **Quantification_with** : STAR, Kallisto or Salmon to be used for quantification analysis
+ * **Index_kallisto** : index location for Kallisto
+ * **Index_salmon** : index location for Salmon
+ 
+ ### Deconvolution 
+  * **Deconvolution_method** : run the deconvolution with QuantiSeq, deconRNAseq or MCPCounter. In the last case, you need to provide signature files. See the [MCPCounter doc](https://github.com/ebecht/MCPcounter) for more information
+ * **Genes_signature** : a marker based signature file to use with MCPCounter
+ * **Signature** : a regular signature to use with deconRNAseq
+ 
+### STAR spcific files
  * **Genome** file in fasta format
  * **GTF** file in absolute path (mendatory !). Can be compressed or not.
- * **Threads** : number of threads allowed for the rules 
- * **Trim_with** : chose between one of the two trimmer
- * **Quantification_with** : STAR, Kallisto or Salmon to be used for quantification analysis
- * **Index** : index location for named software
- * **Convert_bcl2fastq** : do you need to convert `.bcl` to `.fastq` ? "yes" or "no"
- * **Deconvolution_method** : run the deconvolution with QuantiSeq, deconRNAseq, EpiDish or MCPCounter.
- * **Genes_signature** : a marker based signature file to use with MCPCounter
- * **Signature** : a regular signature to use with deconRNAseq or EpiDish
  * **Gene length file** : if using STAR to compute deconvolution, you need to provide a file with the length of every gene in order to convert from gene counts to TPM
  * **Mean fragment length** : like above, for STAR with deconvolution you need to provide the mean length of the sequenced reads (in bp)
+ * **Index_STAR**: index location for STAR
 
 ## Usage
 Once everything is configured and installed, open a terminal on the `snakefile` location and launch the pipeline using a single bash line :
 `snakemake -j <number_of_threads> --use-conda`
 
-If you really need to use STAR before running the deconvolution, you need to provide aditionnal informations described above. The gene length can be obtained by parsing a GTF annotation. An exemple script to make such a file is provided in the `Tools` directory.
+For the sample parser tool, you simply have to use it like a regular python script, with the path to your illumina files as an argument. You might need to modify it to suit your naming convention.
+`python3 sample_parser.py <path_to_files> `
+
+If you really need to use STAR before running the deconvolution, you need to provide aditionnal informations described above. The gene length can be obtained by parsing a GTF annotation. An exemple script to make such a file is provided in `Tools/compute_geneLength.R`.
 
 ## Deconvolution
 Last part of the pipeline runs a deconvolution algorithm on the quantified samples. 
 We here chose to run QuantiSeq and MCPCounter through the R `immunedeconv` package which wraps several other algorithms.
-Other methods allowing for custom signatures, EpiDish and DeconRNASeq, are also available.
+Another method, DeconRNASeq is also available.
 MCPCounter allows you to use your own signature files, for usage see the link to the official package Git above.
