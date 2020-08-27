@@ -80,7 +80,7 @@ For the sample parser tool, you simply have to use it like a regular python scri
 If you really need to use STAR before running the deconvolution, you need to provide aditionnal informations described above. The gene length can be obtained by parsing a GTF annotation. An exemple script to make such a file is provided in `Tools/compute_geneLength.R`.
 
 ## Deconvolution
-Last part of the pipeline runs a deconvolution algorithm on the quantified samples.\ 
+Last part of the pipeline runs a deconvolution algorithm on the quantified samples.\
 We here chose to run QuantiSeq through the R `immunedeconv` package which wraps several other algorithms.\
 MCPCounter allows you to use your own signature files, for usage see the link to the official package Git above.\
 DeconRNASeq and EpiDish both allow the user to chose his own signature. 
