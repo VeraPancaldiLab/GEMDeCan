@@ -5,19 +5,10 @@ $id: http://example.com/root.json
 type: object
 title: The Root Schema
 required:
-- Samples
 - Output_Directory
 - Input_Directory
-- Adapter
 - THREADS
-- Trim_with
-- Quantification_with
-- Index_kallisto
-- Index_STAR
-- Index_salmon
-- Genome
-- GTF
-- Convert_bcl2fastq
+
 properties:
   Output_Directory:
     $id: '#/properties/Output_Directory'

@@ -15,6 +15,7 @@
 #######################################
 
 from snakemake.utils import validate
+from os.path import basename
 
 configfile: "config.yaml"
 validate(config, "schema.yaml")
@@ -48,17 +49,19 @@ QUANTIF = OUTDIR+"/Quantification"
 
 SAMPLES = list(open(sampledir).read().splitlines())
 
+SIG_name = basename(SIGNATURE)
+
 ## Outputs
 if config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "yes":
     rule all:
         input:
             expand(OUTmultiqc+"/{sample}_multiqc_report.html", sample=SAMPLES),
             expand(OUTmultiqc2+"/{sample}_multiqc_report.html", sample=SAMPLES),
-            OUTDIR+"/deconvolution_"+QUANTIFTOOL+".txt"
+            OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name
 elif config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "no":
     rule all:
         input:
-            OUTDIR+"/deconvolution_"+QUANTIFTOOL+".txt"
+            OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name
 elif config["Do_deconv"] == "no" and config["Do_rnaseq"] == "yes":
     rule all:
         input:
@@ -432,7 +435,7 @@ if config["Do_deconv"] == "yes":
             input:
                 DECONV_INPUT
             output:
-                OUTDIR+"/deconvolution_"+QUANTIFTOOL+".txt"
+                OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name
             message:
                 "Running deconvolution"
             benchmark:
@@ -447,7 +450,7 @@ if config["Do_deconv"] == "yes":
             input:
                 DECONV_INPUT
             output:
-                OUTDIR+"/deconvolution_"+QUANTIFTOOL+".txt"
+                OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name
             params:
                 GENES
             message:
@@ -462,7 +465,7 @@ if config["Do_deconv"] == "yes":
             input:
                 DECONV_INPUT
             output:
-                OUTDIR+"/deconvolution_"+QUANTIFTOOL+".txt"
+                OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name
             params:
                 SIGNATURE
             message:
@@ -479,7 +482,7 @@ if config["Do_deconv"] == "yes":
             input:
                 DECONV_INPUT
             output:
-                OUTDIR+"/deconvolution_"+QUANTIFTOOL+".txt"
+                OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name
             params:
                 SIGNATURE
             message:

@@ -2,7 +2,7 @@
 Output_Directory:
   outputs
 Input_Directory: # location of your data
-  /home/julien/Documents/data/lungpredict
+  /home/julien/Documents/lungProject/data/Thomas_RNAseq_part.txt
 THREADS: # number of threads to use
   10
 Sample_Sheet:
@@ -18,7 +18,7 @@ Trim_with: # Trimmomatic or Trimgalore
 Do_deconv: # run the deconvolution ? "yes" or "no", don't forget the ""
   "yes"
 Do_rnaseq: # run the rna-seq pipeline ? "yes" or "no", don't forget the ""
-  "yes"
+  "no"
 Convert_bcl2fastq: # Do you need to convert from raw illumina bcl to fastq ?  "yes" or "no", don't forget the ""
   "no"
 Need_merging: #if above condition is no, then do you need to merge experimental lanes into one file ?
@@ -36,9 +36,9 @@ Index_salmon: # salmon index files location
 Genes_signature: # marker based signature for MCPCounter ONLY
   data/signature/genes.txt
 Signature: # regular signature for deconRNAseq and epidish
-  data/signature/Final.CD226_signature.txt
+  /home/julien/Documents/lungProject/data/signature/BPRNACan.txt
 Deconvolution_method: # quantiseq, deconRNAseq, epidish or mcpcounter
-  quantiseq
+  mcpcounter
 
 
 ################################# STAR specific files ###############
