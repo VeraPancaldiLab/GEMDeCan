@@ -1,4 +1,4 @@
-require(immunedeconv)
+library(immunedeconv)
 
 t1 <- as.matrix(read.table(snakemake@input[[1]], header = TRUE, row.names = 1))
 res <- deconvolute(t1, "quantiseq")

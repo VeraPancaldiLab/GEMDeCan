@@ -1,4 +1,4 @@
-require(EpiDISH)
+library(EpiDISH)
 
 signature <- as.matrix(read.table(snakemake@params[[1]], header = TRUE, row.names = 1))
 t1 <- read.table(snakemake@input[[1]], header = TRUE, row.names = 1)
