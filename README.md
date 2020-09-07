@@ -74,6 +74,11 @@ The snakefile shouldn't be modified. A provided `config.yaml` file takes as inpu
 Once everything is configured and installed, open a terminal on the `snakefile` location and launch the pipeline using a single bash line :
 `snakemake -j <number_of_threads> --use-conda`
 
+### Containers
+The pipeline is ready to be executed using **[Singularity](https://sylabs.io/singularity/)** containers\
+Simply install the last version of _Singularity_ following the [official documentation](https://sylabs.io/guides/3.6/user-guide/quick_start.html#quick-installation-steps) and add the **`--use-singularity`** flag\
+`snakemake -j <number_of_threads> --use-conda --use-singularity`
+
 For the sample parser tool, you simply have to use it like a regular python script, with the path to your illumina files as an argument. You might need to modify it to suit your naming convention.
 `python3 sample_parser.py <path_to_files> `
 
