@@ -1,5 +1,6 @@
 channels:
     - bioconda
+    - conda-forge
 dependencies:
     - bioconductor-tximport= 1.14.0
     - bioconductor-rhdf5= 2.30.0
