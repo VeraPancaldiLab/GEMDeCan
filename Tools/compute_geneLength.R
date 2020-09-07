@@ -1,9 +1,9 @@
 suppressMessages({
-  require(tximport)
-  require(org.Hs.eg.db)
-  require(TxDb.Hsapiens.UCSC.hg38.knownGene)
-  require(Organism.dplyr)
-  require(tidyverse)
+  library(org.Hs.eg.db)
+  library(tximport)
+  library(TxDb.Hsapiens.UCSC.hg38.knownGene)
+  library(Organism.dplyr)
+  library(tidyverse)
 })
 
 # Convert ENST to HUGO symbols, quantif.sf is the output from Salmon

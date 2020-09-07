@@ -1,8 +1,8 @@
 suppressMessages({
-  require(tximport)
-  require(org.Hs.eg.db)
-  require(TxDb.Hsapiens.UCSC.hg38.knownGene)
-  require(Organism.dplyr)
+  library(tximport)
+  library(org.Hs.eg.db)
+  library(TxDb.Hsapiens.UCSC.hg38.knownGene)
+  library(Organism.dplyr)
 })
 setwd(snakemake@params[[1]])
 sample = basename(getwd())

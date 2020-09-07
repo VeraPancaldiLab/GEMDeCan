@@ -1,4 +1,4 @@
-require(DeconRNASeq)
+library(DeconRNASeq)
 
 signature <- read.table(snakemake@params[[1]], header = TRUE, row.names = 1)
 t1 <- read.table(snakemake@input[[1]], header = TRUE, row.names = 1)
