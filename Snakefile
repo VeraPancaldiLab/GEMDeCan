@@ -85,6 +85,7 @@ if config["Do_rnaseq"] == "yes" :
             conda:
                 "Tools/bcl2fastq.yaml"
             threads: THREADS
+            container: "docker://continuumio/miniconda3:4.8.2"
             shell:
                 """
                 bcl2fastq -w {threads} -R {input.INDIR} -o {params} --sample-sheet {input.SHEET}
@@ -257,6 +258,7 @@ if config["Do_rnaseq"] == "yes" :
                 "benchmarks/benchmark.kallisto_{samples}.txt"
             conda:
                 "Tools/kallisto.yaml"
+            container: "docker://continuumio/miniconda3:4.8.2"
             shell:
                 "kallisto quant -t {threads} -i {input.INDEXK} -b 30 "
                 "-o {params.OUTDIRE} "
@@ -273,6 +275,7 @@ if config["Do_rnaseq"] == "yes" :
                 "benchmarks/benchmark.quant_to_gene_{samples}.txt"
             conda:
                 "Tools/quantif.yaml"
+            container: "docker://continuumio/miniconda3:4.8.2"
             script:
                 "Tools/quant_for_kallisto.R"
         
@@ -296,6 +299,7 @@ if config["Do_rnaseq"] == "yes" :
                 "benchmarks/benchmark.salmon_{samples}.txt"
             conda:
                 "Tools/salmon.yaml"
+            container: "docker://continuumio/miniconda3:4.8.2"
             shell:
                 "salmon quant -i {input.index} -l {params.libtype} "
                 "-1 {input.r1} -2 {input.r2} "
@@ -313,6 +317,7 @@ if config["Do_rnaseq"] == "yes" :
                 "benchmarks/benchmark.quant_to_gene_{samples}.txt"
             conda:
                 "Tools/quantif.yaml"
+            container: "docker://continuumio/miniconda3:4.8.2"
             script:
                 "Tools/quant_for_salmon.R"
 
@@ -392,6 +397,7 @@ if config["Do_rnaseq"] == "yes" :
                 QUANTIF+"/{samples}/count_quantif.txt"
             conda:
                 "Tools/htseq.yaml"
+            container: "docker://continuumio/miniconda3:4.8.2"
             message:
                 "Running HTseq-count ..."
             shell:
@@ -442,6 +448,7 @@ if config["Do_deconv"] == "yes":
                 "benchmarks/benchmark.quantiseq.txt"
             conda:
                 "Tools/immunedeconv.yaml"
+            container: "docker://continuumio/miniconda3:4.8.2"
             script:
                 "Tools/deconvolution_quantiseq.R"
 
@@ -474,6 +481,7 @@ if config["Do_deconv"] == "yes":
                 "benchmarks/benchmark.deconRNA.txt"
             conda:
                 "Tools/RNAdeconv.yaml"
+            container: "docker://continuumio/miniconda3:4.8.2"
             script:
                 "Tools/deconvolution_deconrnaseq.R"
 
@@ -491,5 +499,6 @@ if config["Do_deconv"] == "yes":
                 "benchmarks/benchmark.epidish.txt"
             conda:
                 "Tools/epidish.yaml"
+            container: "docker://continuumio/miniconda3:4.8.2"
             script:
                 "Tools/deconvolution_epidish.R"
