@@ -1,6 +1,3 @@
-install.packages(c("devtools", "curl"))
-library(devtools)
-install_github("ebecht/MCPcounter", ref = "master", subdir = "Source")
 library(MCPcounter)
 
 t1 <- as.matrix(read.table(snakemake@input[[1]], header = TRUE, row.names = 1))

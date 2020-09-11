@@ -464,6 +464,9 @@ if config["Do_deconv"] == "yes":
                 "Running deconvolution"
             benchmark:
                 "benchmarks/benchmark.mcp.txt"
+            conda:
+                "Tools/mcpcounter.yaml"
+            container: "docker://continuumio/miniconda3:4.8.2"
             script:
                 "Tools/deconvolution_mcpcounter.R"
 
