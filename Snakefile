@@ -140,7 +140,7 @@ if config["Do_rnaseq"] == "yes" :
         params:
             "-t 8"
         wrapper:
-            "0.47.0/bio/fastqc"
+            "0.65.0/bio/fastqc"
 
     rule multiqc1:
         input:
@@ -151,7 +151,7 @@ if config["Do_rnaseq"] == "yes" :
         output:
             MainOut = OUTmultiqc+"/{samples}_multiqc_report.html"
         wrapper:
-            "0.47.0/bio/multiqc"
+            "0.65.0/bio/multiqc"
 
 
     if config["Trim_with"] == "Trimmomatic" :
@@ -175,7 +175,7 @@ if config["Do_rnaseq"] == "yes" :
                 compression_level="-9",
                 extra = "-phred33"
             wrapper:
-                "0.47.0/bio/trimmomatic/pe"
+                "0.65.0/bio/trimmomatic/pe"
 
     elif config["Trim_with"] == "Trimgalore" :
         ## Read trimming by Trim-galore (Paired-end)
@@ -195,7 +195,7 @@ if config["Do_rnaseq"] == "yes" :
             benchmark:
                 "benchmarks/benchmark.trimgalore_{samples}.txt"
             wrapper:
-                "0.47.0/bio/trim_galore/pe"
+                "0.65.0/bio/trim_galore/pe"
 
         rule rename:
             input:
@@ -227,7 +227,7 @@ if config["Do_rnaseq"] == "yes" :
         params:
             "-t 8"
         wrapper:
-            "0.47.0/bio/fastqc"
+            "0.65.0/bio/fastqc"
     rule multiqc2:
         input:
             OUTfastqc2+"/{samples}_R1_fastqc.html",
@@ -237,7 +237,7 @@ if config["Do_rnaseq"] == "yes" :
         benchmark:
             "benchmarks/benchmark.multiqc2_{samples}.txt"
         wrapper:
-            "0.47.0/bio/multiqc"
+            "0.65.0/bio/multiqc"
 
     # Quantification
     if config["Quantification_with"] == "kallisto" :
@@ -335,7 +335,7 @@ if config["Do_rnaseq"] == "yes" :
             message:
                 "Quantification with STAR"
             wrapper:
-                "0.47.0/bio/star/align"
+                "0.65.0/bio/star/align"
 
         rule samtools_faidx:
             input:
@@ -346,7 +346,7 @@ if config["Do_rnaseq"] == "yes" :
             message:
                 "Samtools faidx ..."
             wrapper:
-                "0.47.0/bio/samtools/faidx"
+                "0.65.0/bio/samtools/faidx"
 
         rule samtools_view:
             input:
@@ -360,7 +360,7 @@ if config["Do_rnaseq"] == "yes" :
             params:
                 "-bt "+GENOME+".fai -@ 12"
             wrapper:
-                "0.47.0/bio/samtools/view"
+                "0.65.0/bio/samtools/view"
 
         rule samtools_sort:
             input:
@@ -373,7 +373,7 @@ if config["Do_rnaseq"] == "yes" :
             message:
                 "Samtools sort ..."
             wrapper:
-                "0.47.0/bio/samtools/sort"
+                "0.65.0/bio/samtools/sort"
 
         rule samtools_index:
             input:
@@ -386,7 +386,7 @@ if config["Do_rnaseq"] == "yes" :
             params:
                 "-@ 12"
             wrapper:
-                "0.47.0/bio/samtools/index"
+                "0.65.0/bio/samtools/index"
 
         rule htseqcount:
             input:
