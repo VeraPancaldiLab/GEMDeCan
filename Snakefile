@@ -181,12 +181,12 @@ if config["Do_rnaseq"] == "yes" :
         ## Read trimming by Trim-galore (Paired-end)
         rule trimgalore:
             input:
-                [OUTmerge+"/{sample}_R1.fastq.gz", OUTmerge+"/{sample}_R2.fastq.gz"]
+                [OUTmerge+"/{samples}_R1.fastq.gz", OUTmerge+"/{samples}_R2.fastq.gz"]
             output:
-                OUTcut+"/{sample}_R1_val_1.fq.gz",
-                OUTcut+"/{sample}_R1.fastq.gz_trimming_report.txt",
-                OUTcut+"/{sample}_R2_val_2.fq.gz",
-                OUTcut+"/{sample}_R2.fastq.gz_trimming_report.txt"
+                OUTcut+"/{samples}_R1_val_1.fq.gz",
+                OUTcut+"/{samples}_R1.fastq.gz_trimming_report.txt",
+                OUTcut+"/{samples}_R2_val_2.fq.gz",
+                OUTcut+"/{samples}_R2.fastq.gz_trimming_report.txt"
             params:
                 extra= '--phred33 --illumina --paired --quality 20 --length 36'
             threads: THREADS
@@ -199,11 +199,11 @@ if config["Do_rnaseq"] == "yes" :
 
         rule rename:
             input:
-                R1 = OUTcut+"/{sample}_R1_val_1.fq.gz",
-                R2 = OUTcut+"/{sample}_R2_val_2.fq.gz"
+                R1 = OUTcut+"/{samples}_R1_val_1.fq.gz",
+                R2 = OUTcut+"/{samples}_R2_val_2.fq.gz"
             output:
-                R1out = OUTcut+"/{sample}_R1.fastq.gz",
-                R2out = OUTcut+"/{sample}_R2.fastq.gz"
+                R1out = OUTcut+"/{samples}_R1.fastq.gz",
+                R2out = OUTcut+"/{samples}_R2.fastq.gz"
             benchmark:
                 "benchmarks/benchmark.rename_{samples}.txt"
             shell:
