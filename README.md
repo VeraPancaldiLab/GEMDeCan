@@ -63,7 +63,7 @@ The snakefile shouldn't be modified. A provided `config.yaml` file takes as inpu
  * **Genes_signature** : a marker based signature file to use with MCPCounter
  * **Signature** : a regular signature to use with deconRNAseq
  
-### STAR spcific files
+### STAR specific files
  * **Genome** file in fasta format
  * **GTF** file in absolute path (mendatory !). Can be compressed or not.
  * **Gene length file** : if using STAR to compute deconvolution, you need to provide a file with the length of every gene in order to convert from gene counts to TPM
