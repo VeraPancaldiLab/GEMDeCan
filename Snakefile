@@ -181,7 +181,8 @@ if config["Do_rnaseq"] == "yes" :
         ## Read trimming by Trim-galore (Paired-end)
         rule trimgalore:
             input:
-                [OUTmerge+"/{samples}_R1.fastq.gz", OUTmerge+"/{samples}_R2.fastq.gz"]
+                QCINPUT+"/{samples}_R1.fastq.gz",
+                QCINPUT+"/{samples}_R2.fastq.gz"
             output:
                 OUTcut+"/{samples}_R1_val_1.fq.gz",
                 OUTcut+"/{samples}_R1.fastq.gz_trimming_report.txt",
