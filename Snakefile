@@ -16,6 +16,7 @@
 
 from snakemake.utils import validate
 from os.path import basename
+from os.path import abspath
 
 configfile: "config.yaml"
 validate(config, "schema.yaml")
@@ -61,7 +62,8 @@ if config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "yes":
 elif config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "no":
     rule all:
         input:
-            OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name
+            OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name,
+            OUTDIR+"/report_"+QUANTIFTOOL+"_"+SIG_name+".html"
 elif config["Do_deconv"] == "no" and config["Do_rnaseq"] == "yes":
     rule all:
         input:
@@ -85,7 +87,8 @@ if config["Do_rnaseq"] == "yes" :
             conda:
                 "Tools/bcl2fastq.yaml"
             threads: THREADS
-            container: "docker://continuumio/miniconda3:4.8.2"
+            singularity: 
+                "docker://continuumio/miniconda3:4.8.2"
             shell:
                 """
                 bcl2fastq -w {threads} -R {input.INDIR} -o {params} --sample-sheet {input.SHEET}
@@ -259,7 +262,8 @@ if config["Do_rnaseq"] == "yes" :
                 "benchmarks/benchmark.kallisto_{samples}.txt"
             conda:
                 "Tools/kallisto.yaml"
-            container: "docker://continuumio/miniconda3:4.8.2"
+            singularity: 
+                "docker://continuumio/miniconda3:4.8.2"
             shell:
                 "kallisto quant -t {threads} -i {input.INDEXK} -b 30 "
                 "-o {params.OUTDIRE} "
@@ -276,7 +280,8 @@ if config["Do_rnaseq"] == "yes" :
                 "benchmarks/benchmark.quant_to_gene_{samples}.txt"
             conda:
                 "Tools/quantif.yaml"
-            container: "docker://continuumio/miniconda3:4.8.2"
+            singularity: 
+                "docker://continuumio/miniconda3:4.8.2"
             script:
                 "Tools/quant_for_kallisto.R"
         
@@ -300,7 +305,8 @@ if config["Do_rnaseq"] == "yes" :
                 "benchmarks/benchmark.salmon_{samples}.txt"
             conda:
                 "Tools/salmon.yaml"
-            container: "docker://continuumio/miniconda3:4.8.2"
+            singularity: 
+                "docker://continuumio/miniconda3:4.8.2"
             shell:
                 "salmon quant -i {input.index} -l {params.libtype} "
                 "-1 {input.r1} -2 {input.r2} "
@@ -318,7 +324,8 @@ if config["Do_rnaseq"] == "yes" :
                 "benchmarks/benchmark.quant_to_gene_{samples}.txt"
             conda:
                 "Tools/quantif.yaml"
-            container: "docker://continuumio/miniconda3:4.8.2"
+            singularity: 
+                "docker://continuumio/miniconda3:4.8.2"
             script:
                 "Tools/quant_for_salmon.R"
 
@@ -398,7 +405,8 @@ if config["Do_rnaseq"] == "yes" :
                 QUANTIF+"/{samples}/count_quantif.txt"
             conda:
                 "Tools/htseq.yaml"
-            container: "docker://continuumio/miniconda3:4.8.2"
+            singularity: 
+                "docker://continuumio/miniconda3:4.8.2"
             message:
                 "Running HTseq-count ..."
             shell:
@@ -449,7 +457,8 @@ if config["Do_deconv"] == "yes":
                 "benchmarks/benchmark.quantiseq.txt"
             conda:
                 "Tools/immunedeconv.yaml"
-            container: "docker://continuumio/miniconda3:4.8.2"
+            singularity: 
+                "docker://continuumio/miniconda3:4.8.2"
             script:
                 "Tools/deconvolution_quantiseq.R"
 
@@ -467,7 +476,8 @@ if config["Do_deconv"] == "yes":
                 "benchmarks/benchmark.mcp.txt"
             conda:
                 "Tools/mcpcounter.yaml"
-            container: "docker://continuumio/miniconda3:4.8.2"
+            singularity: 
+                "docker://continuumio/miniconda3:4.8.2"
             script:
                 "Tools/deconvolution_mcpcounter.R"
 
@@ -485,7 +495,8 @@ if config["Do_deconv"] == "yes":
                 "benchmarks/benchmark.deconRNA.txt"
             conda:
                 "Tools/RNAdeconv.yaml"
-            container: "docker://continuumio/miniconda3:4.8.2"
+            singularity: 
+                "docker://continuumio/miniconda3:4.8.2"
             script:
                 "Tools/deconvolution_deconrnaseq.R"
 
@@ -503,6 +514,22 @@ if config["Do_deconv"] == "yes":
                 "benchmarks/benchmark.epidish.txt"
             conda:
                 "Tools/epidish.yaml"
-            container: "docker://continuumio/miniconda3:4.8.2"
+            singularity: 
+                "docker://continuumio/miniconda3:4.8.2"
             script:
                 "Tools/deconvolution_epidish.R"
+
+    path_to_deconv = abspath(OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name)
+    rule report:
+        input :
+            OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name
+        output:
+            directory(OUTDIR+"/HTML_REPORT_"+QUANTIFTOOL+"_"+SIG_name)
+        params:
+            path_to_deconv
+        message:
+            "Generating report"
+        conda:
+            "Tools/analyse.yaml"
+        shell:
+            "Rscript -e \"rmarkdown::render('Tools/analyses.R', output_dir='{output}')\" {params}"
