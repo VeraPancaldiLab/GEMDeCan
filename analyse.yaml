@@ -1,0 +1,6 @@
+channels:
+    - conda-forge
+dependencies:
+    - r-rmarkdown =2.3
+    - r-hmisc =4.4.1
+    - r-viridis =0.5.1
