@@ -1,17 +1,17 @@
 suppressMessages({
-  library(org.Hs.eg.db)
-  library(tximport)
-  library(TxDb.Hsapiens.UCSC.hg38.knownGene)
-  library(Organism.dplyr)
-  library(tidyverse)
+  require(tximport)
+  require(org.Hs.eg.db)
+  require(TxDb.Hsapiens.UCSC.hg38.knownGene)
+  require(Organism.dplyr)
+  require(tidyverse)
+  require(GenomicRanges)
 })
 
-# Convert ENST to HUGO symbols, quantif.sf is the output from Salmon
 src <- src_organism("TxDb.Hsapiens.UCSC.hg38.knownGene")
 src <- src_ucsc("Homo sapiens")
 k <- keys(src, keytype = "tx_id")
-tx2gene<- select(src, keys = k, columns = c("tx_name","symbol"), keytype = "entrez")
-tx2gene<-tx2gene[,-1]
-txi <- tximport("quant.sf", type = "salmon", tx2gene = tx2gene)
-write_tsv(as.data.frame(cbind(Gene=rownames(txi[[3]]), floor(txi[[3]]) )), "gene_length.txt")
-
+tx2gene <- select(src, keys = k, columns = c("symbol"), keytype = "entrez")
+tx_by_gene <- genes(TxDb.Hsapiens.UCSC.hg38.knownGene, columns = "gene_id")
+gene_length <- data.frame("entrez" = tx_by_gene$gene_id, "length" = width(tx_by_gene))
+gene_length <- inner_join(tx2gene, gene_length, by = "entrez")[, -1]
+write_tsv(gene_length, "gene_length.txt")
