@@ -58,12 +58,13 @@ if config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "yes":
         input:
             expand(OUTmultiqc+"/{sample}_multiqc_report.html", sample=SAMPLES),
             expand(OUTmultiqc2+"/{sample}_multiqc_report.html", sample=SAMPLES),
-            OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name
+            OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name,
+            directory(OUTDIR+"/HTML_REPORT_"+QUANTIFTOOL+"_"+SIG_name)
 elif config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "no":
     rule all:
         input:
             OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name,
-            OUTDIR+"/report_"+QUANTIFTOOL+"_"+SIG_name+".html"
+            directory(OUTDIR+"/HTML_REPORT_"+QUANTIFTOOL+"_"+SIG_name)
 elif config["Do_deconv"] == "no" and config["Do_rnaseq"] == "yes":
     rule all:
         input:
