@@ -17,9 +17,15 @@
 from snakemake.utils import validate
 from os.path import basename
 from os.path import abspath
+from os import sysconf
+from math import floor
 
 configfile: "config.yaml"
 validate(config, "schema.yaml")
+
+##########################
+####     PARAMETERS     ####
+#########################
 
 # Define paths
 OUTDIR = config["Output_Directory"]
@@ -35,8 +41,6 @@ ADAPTER = config["Adapter"]
 GENES = config["Genes_signature"]
 sampledir = config["Samples"]
 SIGNATURE = config["Signature"]
-GENELENGTH = config["Gene_length_file"]
-MEANLENGTH = config["Mean_fragment_length"]
 QUANTIFTOOL = config["Deconvolution_method"]
 
 OUTbcl = OUTDIR+"/bcl2raw"
@@ -52,7 +56,13 @@ SAMPLES = list(open(sampledir).read().splitlines())
 
 SIG_name = basename(SIGNATURE)
 
-## Outputs
+mem_bytes = sysconf('SC_PAGE_SIZE') * sysconf('SC_PHYS_PAGES') 
+mem_gib = mem_bytes/(1024.**3)
+RAM = floor(mem_gib * 1000 * 0.75)
+
+##########################
+####       OUTPUTS          ####
+#########################
 if config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "yes":
     rule all:
         input:
@@ -70,7 +80,11 @@ elif config["Do_deconv"] == "no" and config["Do_rnaseq"] == "yes":
         input:
             expand(OUTmultiqc+"/{sample}_multiqc_report.html", sample=SAMPLES),
             expand(OUTmultiqc2+"/{sample}_multiqc_report.html", sample=SAMPLES),
-            QUANTIF+"/all_sample_quantified.txt"  
+            OUTDIR+"/all_sample_quantified.txt"  
+
+########################
+####### RNA-SEQ #######
+#######################
 
 if config["Do_rnaseq"] == "yes" :
     ## Converts base call (.BCL) files into FASTQ
@@ -156,7 +170,6 @@ if config["Do_rnaseq"] == "yes" :
             MainOut = OUTmultiqc+"/{samples}_multiqc_report.html"
         wrapper:
             "0.47.0/bio/multiqc"
-
 
     if config["Trim_with"] == "Trimmomatic" :
         ## Read trimming by Trimmomatic (Paired-End)
@@ -270,13 +283,14 @@ if config["Do_rnaseq"] == "yes" :
                 "-o {params.OUTDIRE} "
                 "{input.R1} {input.R2}"
 
-        rule quant_to_gene:
+        rule kallisto_quant:
             input:
-                QUANTIF+"/{samples}/abundance.h5"
+                expand(QUANTIF+"/{samples}/abundance.h5", samples= SAMPLES)
             output:
-                QUANTIF+"/{samples}/quantif.txt"
+                OUTDIR+"/all_sample_quantified.txt"
             params:
-                QUANTIF+"/{samples}"
+                QUANTIF,
+                SAMPLES
             benchmark:
                 "benchmarks/benchmark.quant_to_gene_{samples}.txt"
             conda:
@@ -316,11 +330,12 @@ if config["Do_rnaseq"] == "yes" :
         
         rule salmon_quant:
             input:
-                QUANTIF+"/{samples}/quant.sf"
+                expand(QUANTIF+"/{samples}/quant.sf", samples= SAMPLES)
             output:
-                QUANTIF+"/{samples}/quantif.txt"
+                OUTDIR+"/all_sample_quantified.txt"
             params:
-                QUANTIF+"/{samples}"
+                QUANTIF,
+                SAMPLES
             benchmark:
                 "benchmarks/benchmark.quant_to_gene_{samples}.txt"
             conda:
@@ -331,118 +346,100 @@ if config["Do_rnaseq"] == "yes" :
                 "Tools/quant_for_salmon.R"
 
     elif config["Quantification_with"] == "STAR":
-        rule star_map_reads:
+        rule star:
             input:
                 fq1 = OUTcut+"/{samples}_R1.fastq.gz",
                 fq2 = OUTcut+"/{samples}_R2.fastq.gz"
             output:
-                "star/sam/{samples}/Aligned.out.sam"
+                OUTDIR+"/star/{samples}/Aligned.toTranscriptome.out.bam"
             params:
-                index= INDEXSTAR,
-                extra=""
-            threads: THREADS
-            message:
-                "Quantification with STAR"
-            wrapper:
-                "0.47.0/bio/star/align"
-
-        rule samtools_faidx:
-            input:
-                GENOME
-            output:
-                GENOME+".fai"
-            params: ""
-            message:
-                "Samtools faidx ..."
-            wrapper:
-                "0.47.0/bio/samtools/faidx"
-
-        rule samtools_view:
-            input:
-                "star/sam/{samples}/Aligned.out.sam",
-                BT = GENOME+".fai"
-            output:
-                "star/bam/{samples}/Aligned.out.bam"
-            threads: THREADS
-            message:
-                "Samtools view ..."
-            params:
-                "-bt "+GENOME+".fai -@ 12"
-            wrapper:
-                "0.47.0/bio/samtools/view"
-
-        rule samtools_sort:
-            input:
-                "star/bam/{samples}/Aligned.out.bam"
-            output:
-                "star/bam/{samples}/Aligned.out.sorted.bam"
-            params:
-                ""
-            threads:  THREADS
-            message:
-                "Samtools sort ..."
-            wrapper:
-                "0.47.0/bio/samtools/sort"
-
-        rule samtools_index:
-            input:
-                "star/bam/{samples}/Aligned.out.sorted.bam"
-            output:
-                "star/bam/{samples}/Aligned.out.sorted.bam.bai"
-            threads: THREADS
-            message:
-                "Samtools index ..."
-            params:
-                "-@ 12"
-            wrapper:
-                "0.47.0/bio/samtools/index"
-
-        rule htseqcount:
-            input:
-                BAM = "star/bam/{samples}/Aligned.out.sorted.bam",
-                GTF = GTF,
-                BAI ="star/bam/{samples}/Aligned.out.sorted.bam.bai"
-            output:
-                QUANTIF+"/{samples}/count_quantif.txt"
+                OUT = OUTDIR+"/star/{samples}/",
+                GENOMEdir = INDEXSTAR,
+                GTF = GTF
+            threads:
+                THREADS
+            benchmark:
+                "benchmarks/star_{samples}.txt"
             conda:
-                "Tools/htseq.yaml"
-            singularity: 
-                "docker://continuumio/miniconda3:4.8.2"
-            message:
-                "Running HTseq-count ..."
+                "Tools/star.yaml"
             shell:
-                "htseq-count -f bam "
-                "-s reverse -r pos "
-                "-i gene_name "
-                "{input.BAM} "
-                "{input.GTF} "
-                "> {output}"
-        
-        rule count_to_tpm:
-            input:
-                QUANTIF+"/{samples}/count_quantif.txt"
-            output:
-                QUANTIF+"/{samples}/quantif.txt"
-            params:
-                QUANTIF+"/{samples}",
-                GENELENGTH,
-                MEANLENGTH
-            script:
-                "Tools/count_to_tpm.R"
+                "STAR "
+                "--runThreadN {threads} "
+                "--runMode alignReads "
+                "--readFilesCommand zcat "
+                "--outSAMtype BAM SortedByCoordinate "
+                "--quantMode TranscriptomeSAM "
+                "--quantTranscriptomeBan IndelSoftclipSingleend "
+                "--outFileNamePrefix {params.OUT} "
+                "--genomeDir {params.GENOMEdir} "
+                "--sjdbGTFfile {params.GTF} "
+                "--readFilesIn {input.fq1} {input.fq2}"
 
-    rule merge_quantif:
-        input:
-            expand(QUANTIF+"/{samples}/quantif.txt", samples= SAMPLES)
-        output:
-            QUANTIF+"/all_sample_quantified.txt"
-        benchmark:
-                "benchmarks/benchmark.merge.txt"
-        script:
-            "Tools/merge_quantif.R"
+        rule RSEM_ref:
+            input:
+                GTF
+            output:
+                "data/rsem/gen.seq"
+            params:
+                GEN = GENOME
+            threads:
+                THREADS
+            conda:
+                "Tools/rsem.yaml"
+            shell:
+                "rsem-prepare-reference "
+                "-p {threads} "
+                "--gtf {input} "
+                "{params} "
+                "{output}"
+
+        rule RSEM:
+            input:
+                BAM = OUTDIR+"/star/{samples}/Aligned.toTranscriptome.out.bam",
+                REF = "data/rsem/gen.seq"
+            output:
+                OUTDIR+"/rsem/{samples}.genes.results"
+            params:
+                OUT = OUTDIR+"/rsem/{samples}",
+                RAM = RAM,
+                REF = "data/rsem/gen"
+            threads:
+                THREADS
+            benchmark:
+                "benchmarks/rsem_{samples}.txt"
+            conda:
+                "Tools/rsem.yaml"
+            shell:
+                "rsem-calculate-expression "
+                "-p {threads} "
+                "--paired-end --alignments  "
+                "--estimate-rspd "
+                "--no-bam-output "
+                "--strandedness reverse "
+                "{input.BAM} "
+                "{params.REF} "
+                "{params.OUT}"
+
+        rule star_quant:
+            input:
+                expand(OUTDIR+"/rsem/{samples}.genes.results", samples= SAMPLES)
+            output:
+                OUTDIR+"/all_sample_quantified.txt"
+            params:
+                OUTDIR+"/rsem",
+                SAMPLES
+            conda:
+                "Tools/quantif.yaml"
+            script:
+                "Tools/quant_for_star.R"
+
+##########################
+#### DECONVOLUTION ####
+#########################
 
 if config["Do_deconv"] == "yes":
     if config["Do_rnaseq"] == "yes" :
-        DECONV_INPUT = QUANTIF+"/all_sample_quantified.txt"
+        DECONV_INPUT = OUTDIR+"/all_sample_quantified.txt"
     else:
         DECONV_INPUT = INDIR
     
