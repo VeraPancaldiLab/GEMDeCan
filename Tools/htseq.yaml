@@ -1,4 +1,0 @@
-channels:
-    - bioconda
-dependencies:
-    - htseq =0.11.2
