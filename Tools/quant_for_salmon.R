@@ -6,7 +6,8 @@ suppressMessages({
 })
 setwd(snakemake@params[[1]])
 samples <- snakemake@params[[2]]
-files <- sort(paste0(samples[, 1], "quant.sf"))
+files <- sort(paste0(samples, "quant.sf"))
+names(files) <- sort(samples)
 
 src <- src_organism("TxDb.Hsapiens.UCSC.hg38.knownGene")
 src <- src_ucsc("Homo sapiens")
@@ -16,9 +17,7 @@ tx2gene <- tx2gene[, -1]
 txi <- tximport("quant.sf", type = "salmon", tx2gene = tx2gene)
 # Get TPM
 txi_TPM <- as.data.frame(cbind(Gene = rownames(txi$abundance), txi$abundance))
-colnames(txi_TPM) <- c("Gene", unlist(samples))
 write.table(txi_TPM, "../all_sample_quantified.txt", sep = "\t", quote = F, row.names = F)
 # Output Gene counts for good measure
 txi_count <- as.data.frame(cbind(Gene = rownames(txi$counts), txi$counts))
-colnames(txi_count) <- c("Gene", unlist(samples))
 write.table(txi_count, "../gene_counts.txt", sep = "\t", quote = F, row.names = F)
