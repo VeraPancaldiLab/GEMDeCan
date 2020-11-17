@@ -17,8 +17,6 @@
 from snakemake.utils import validate
 from os.path import basename
 from os.path import abspath
-from os import sysconf
-from math import floor
 
 configfile: "config.yaml"
 validate(config, "schema.yaml")
@@ -55,10 +53,6 @@ QUANTIF = OUTDIR+"/Quantification"
 SAMPLES = list(open(sampledir).read().splitlines())
 
 SIG_name = basename(SIGNATURE)
-
-mem_bytes = sysconf('SC_PAGE_SIZE') * sysconf('SC_PHYS_PAGES') 
-mem_gib = mem_bytes/(1024.**3)
-RAM = floor(mem_gib * 1000 * 0.75)
 
 ##########################
 ####       OUTPUTS          ####
