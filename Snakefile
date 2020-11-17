@@ -50,8 +50,6 @@ OUTmultiqc2 = OUTDIR+"/multiqc_after_cutadapter"
 OUTcut = OUTDIR+"/data_after_cutadapter"
 QUANTIF = OUTDIR+"/Quantification"
 
-SAMPLES = list(open(sampledir).read().splitlines())
-
 SIG_name = basename(SIGNATURE)
 
 ##########################
@@ -81,6 +79,8 @@ elif config["Do_deconv"] == "no" and config["Do_rnaseq"] == "yes":
 #######################
 
 if config["Do_rnaseq"] == "yes" :
+    SAMPLES = list(open(sampledir).read().splitlines())
+
     ## Converts base call (.BCL) files into FASTQ
     if config["Convert_bcl2fastq"] == "yes" :
         rule bcl2fastq:
