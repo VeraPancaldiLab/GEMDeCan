@@ -52,6 +52,9 @@ QUANTIF = OUTDIR+"/Quantification"
 
 SIG_name = basename(SIGNATURE)
 
+if config["Do_rnaseq"] == "yes" :
+    SAMPLES = list(open(sampledir).read().splitlines())
+
 ##########################
 ####       OUTPUTS          ####
 #########################
@@ -79,8 +82,6 @@ elif config["Do_deconv"] == "no" and config["Do_rnaseq"] == "yes":
 #######################
 
 if config["Do_rnaseq"] == "yes" :
-    SAMPLES = list(open(sampledir).read().splitlines())
-
     ## Converts base call (.BCL) files into FASTQ
     if config["Convert_bcl2fastq"] == "yes" :
         rule bcl2fastq:
@@ -395,7 +396,6 @@ if config["Do_rnaseq"] == "yes" :
                 OUTDIR+"/rsem/{samples}.genes.results"
             params:
                 OUT = OUTDIR+"/rsem/{samples}",
-                RAM = RAM,
                 REF = "data/rsem/gen"
             threads:
                 THREADS
