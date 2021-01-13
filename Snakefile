@@ -19,7 +19,7 @@ from os.path import basename
 from os.path import abspath
 
 configfile: "config.yaml"
-validate(config, "schema.yaml")
+#validate(config, "schema.yaml")
 
 ##########################
 ####     PARAMETERS     ####
@@ -50,7 +50,17 @@ OUTmultiqc2 = OUTDIR+"/multiqc_after_cutadapter"
 OUTcut = OUTDIR+"/data_after_cutadapter"
 QUANTIF = OUTDIR+"/Quantification"
 
-SIG_name = basename(SIGNATURE)
+
+
+#### Exceptions handling ####
+
+if config["Do_deconv"] == "yes" :
+    if config["Genes_signature"] == None :
+        #print("Missing Genes_signature")
+        exit("ERROR: Exiting Snakemake procedure due to missing \"Genes_signature\" parameter in the config.yaml file.")
+
+if config["Do_deconv"] == "yes" :
+    SIG_name = basename(SIGNATURE)
 
 if config["Do_rnaseq"] == "yes" :
     SAMPLES = list(open(sampledir).read().splitlines())
@@ -82,6 +92,9 @@ elif config["Do_deconv"] == "no" and config["Do_rnaseq"] == "yes":
 #######################
 
 if config["Do_rnaseq"] == "yes" :
+    # if config["Quantification_with"] == None :
+    #     print("Missing Quantification_with param")
+
     ## Converts base call (.BCL) files into FASTQ
     if config["Convert_bcl2fastq"] == "yes" :
         rule bcl2fastq:
@@ -254,7 +267,7 @@ if config["Do_rnaseq"] == "yes" :
 
     # Quantification
     if config["Quantification_with"] == "kallisto" :
-        rule kallisto_quant:
+        rule kallisto:
             input:
                 R1 = OUTcut+"/{samples}_R1.fastq.gz",
                 R2 = OUTcut+"/{samples}_R2.fastq.gz",
@@ -287,7 +300,7 @@ if config["Do_rnaseq"] == "yes" :
                 QUANTIF,
                 SAMPLES
             benchmark:
-                "benchmarks/benchmark.quant_to_gene_{samples}.txt"
+                "benchmarks/benchmark.quant_to_gene.txt"
             conda:
                 "Tools/quantif.yaml"
             singularity: 
