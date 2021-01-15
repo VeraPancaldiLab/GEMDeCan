@@ -28,10 +28,8 @@ Need_merging: #if above condition is no, then do you need to merge experimental 
 # Quantification
 Quantification_with: # kallisto or salmon or STAR
   STAR
-Index_kallisto: # kallisto index file location
+Index_rnaseq: # kallisto or Salmon ndex file location
   data/genome/transcript.idx
-Index_salmon: # salmon index files location
-  data/genome/salmon_index
 
 # Deconvolution
 Genes_signature: # marker based signature for MCPCounter ONLY

@@ -19,7 +19,6 @@ from os.path import basename
 from os.path import abspath
 
 configfile: "config.yaml"
-#validate(config, "schema.yaml")
 
 ##########################
 ####     PARAMETERS     ####
@@ -30,8 +29,7 @@ OUTDIR = config["Output_Directory"]
 INDIR = config["Input_Directory"]
 SAMPLESHEET = config["Sample_Sheet"]
 THREADS = config["THREADS"]
-INDEXK = config["Index_kallisto"]
-INDEXS = config["Index_salmon"]
+INDEXK = config["Index_rnaseq"]
 INDEXSTAR = config["Index_STAR"]
 GENOME = config["Genome"]
 GTF = config["GTF"]
@@ -50,20 +48,37 @@ OUTmultiqc2 = OUTDIR+"/multiqc_after_cutadapter"
 OUTcut = OUTDIR+"/data_after_cutadapter"
 QUANTIF = OUTDIR+"/Quantification"
 
-
-
+##########################
 #### Exceptions handling ####
-
-if config["Do_deconv"] == "yes" :
-    if config["Genes_signature"] == None :
-        #print("Missing Genes_signature")
-        exit("ERROR: Exiting Snakemake procedure due to missing \"Genes_signature\" parameter in the config.yaml file.")
+#########################
 
 if config["Do_deconv"] == "yes" :
     SIG_name = basename(SIGNATURE)
+    if  config["Deconvolution_method"] == "mcpcounter":
+        if config["Genes_signature"] == None :
+            exit("ERROR: Exiting Snakemake procedure due to missing \"Genes_signature\" parameter in the config.yaml file.")
+    elif  config["Deconvolution_method"] != None:
+        if config["Signature"] == None:
+            exit("ERROR: Exiting Snakemake procedure due to missing \"Signature\" parameter in the config.yaml file.")
+    elif  config["Deconvolution_method"] == None:
+        exit("ERROR: Exiting Snakemake procedure due to missing \"Deconvolution_method\" parameter in the config.yaml file.")
 
 if config["Do_rnaseq"] == "yes" :
     SAMPLES = list(open(sampledir).read().splitlines())
+    if config["Trim_with"] == None:
+        exit("ERROR: Exiting Snakemake procedure due to missing \"Trim_with\" parameter in the config.yaml file.")
+    if config["Index_rnaseq"] == None:
+        exit("ERROR: Exiting Snakemake procedure due to missing \"Index_rnaseq\" parameter in the config.yaml file.")
+    if config["Quantification_with"] == None:
+        exit("ERROR: Exiting Snakemake procedure due to missing \"Quantification_with\" parameter in the config.yaml file.")
+    elif config["Quantification_with] == "STAR":
+        if config["GTF"] == None:
+            exit("ERROR: Exiting Snakemake procedure due to missing \"GTF\" parameter in the config.yaml file.")
+        if config["Genome"] == None:
+            exit("ERROR: Exiting Snakemake procedure due to missing \"Genome\" parameter in the config.yaml file.")
+        if config["Index_STAR"] == None:
+            exit("ERROR: Exiting Snakemake procedure due to missing \"Index_STAR\" parameter in the config.yaml file.")
+
 
 ##########################
 ####       OUTPUTS          ####
@@ -126,11 +141,12 @@ if config["Do_rnaseq"] == "yes" :
                 OUTmerge+"/{samples}_R1.fastq.gz",
                 OUTmerge+"/{samples}_R2.fastq.gz"
             params:
-                OUT = OUTDIR
+                OUT = OUTmerge
+                IN = OUTbcl
             message:
                 "Merging files from lanes"
             shell:
-                "bash Tools/merge_those_fastq.sh {params.OUT} {params.OUT}/bcl2raw"
+                "bash Tools/merge_those_fastq.sh {params.OUT} {params.IN}"
 
     if config["Convert_bcl2fastq"] == "no" and config["Need_merging"] == "yes":
         rule merge_fastq:
@@ -149,12 +165,12 @@ if config["Do_rnaseq"] == "yes" :
     if config["Need_merging"] == "yes":
         QCINPUT = OUTmerge+"/{samples}.fastq.gz"
     else:
-        QCINPUT = INDIR
+        QCINPUT = INDIR+"/{samples}.fastq.gz"
 
     ## Quality control for raw fastq data
     rule fastqc1:
         input:
-            QCINPUT+"/{samples}.fastq.gz"
+            QCINPUT
         output:
             html = OUTfastqc+"/{samples}_fastqc.html",
             zip = OUTfastqc+"/{samples}_fastqc.zip"
@@ -313,7 +329,7 @@ if config["Do_rnaseq"] == "yes" :
             input:
                 r1 = OUTcut+"/{samples}_R1.fastq.gz",
                 r2 = OUTcut+"/{samples}_R2.fastq.gz",
-                index = INDEXS
+                index = INDEXK
             output:
                 quant = QUANTIF+"/{samples}/quant.sf",
                 lib = QUANTIF+"/{samples}/lib_format_counts.json"
