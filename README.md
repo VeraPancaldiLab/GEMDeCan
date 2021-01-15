@@ -4,9 +4,9 @@ README
 
 ## What am I looking at ?
 This pipeline goes from converting raw Illumina data to quantification and deconvolution with user-chosen software between :
-* Kallisto
-* STAR + HTseq-count
-* Salmon
+* Kallisto *
+* STAR + RSEM *
+* Salmon *
 * QuantiSeq
 * MCP Counter
 * deconRNAseq
@@ -16,7 +16,8 @@ User also gets to chose his favorite trimmer between:
 * Trim-galore
 * Trimmomatic
 
-Please do take note that genome indexing isn't performed in this pipeline. If you don't have a genome index for the software you chose, it won't perform. An additional script `compute_indexes.sh` is provided if you need to build it.
+\* Please do take note that genome indexing isn't performed in this pipeline. If you don't have a genome index for the software you chose, it won't perform. An additional script `compute_indexes.sh` is provided to help you into building one if you need it.
+This script is for command line usage like so : `bash compute_indexes.sh [method] [input] [output] [number_of_threads]`
 
 ## Installation
 
@@ -42,11 +43,11 @@ The snakefile shouldn't be modified. A provided `config.yaml` file takes as inpu
 
 ### General informations
  * **Output directory** : directory for all outputs. If you have multiple dataset, make one for each dataset.
- * **Input directory** : directory where your RNASeq data are located (`.fastq` or `.bcl`). If using only deconvolution, the path to your quantification file (in TPM).
- * **Threads** : number of threads allowed for each job
- * **Sample_sheet** results from illumina sequencing. It is needed for Illumina `.bcl` to `.fastq` conversion
+ * **Input** : directory where your RNASeq data are located (`.fastq` or `.bcl`). If using only deconvolution, the path to your quantification matrix file (tab-separated TPM values).
+ * **Threads** : number of threads allowed for each job.
+ * **Sample_sheet** results from illumina sequencing. It is needed for Illumina `.bcl` to `.fastq` conversion.
  * **Adapter** : adapter used for illumina sequencing that is to be trimmed. Required for Trimmomatic, but not for Trim-galore.
- * **Samples** : the list of all samples to be analysed. It should be a path to a `.txt` file with the list of samples in it. 
+ * **Samples** : the list of all samples to be analysed. It should be a path to a `.txt` file with the list of samples in it. If you are using bcl2fastq, simply copy/paste the column sample_name from your sample sheet.
  
 ### Options
  * **Trim_with** : chose between one of the two trimmer 
@@ -57,26 +58,25 @@ The snakefile shouldn't be modified. A provided `config.yaml` file takes as inpu
 
 ### Quantification
  * **Quantification_with** : STAR, Kallisto or Salmon to be used for quantification analysis
- * **Index_kallisto** : index location for Kallisto
- * **Index_salmon** : index location for Salmon
+ * **Index** : index location for Kallisto or Salmon
  
 ### Deconvolution 
   * **Deconvolution_method** : run the deconvolution with QuantiSeq, deconRNAseq or MCPCounter. In the last case, you need to provide signature files. See the [MCPCounter doc](https://github.com/ebecht/MCPcounter) for more information
  * **Genes_signature** : a marker based signature file to use with MCPCounter
- * **Signature** : a regular signature to use with deconRNAseq
+ * **Signature** : a regular signature to use with deconRNAseq or EpiDish
  
 ### STAR specific files
  * **Genome** file in fasta format
  * **GTF** file in absolute path (mendatory !). Can be compressed or not.
- * **Gene length file** : if using STAR to compute deconvolution, you need to provide a file with the length of every gene in order to convert from gene counts to TPM
- * **Mean fragment length** : like above, for STAR with deconvolution you need to provide the mean length of the sequenced reads (in bp)
- * **Index_STAR**: index location for STAR
+ * **Index_STAR**: index directory location for STAR
 
 ## Usage
-Once everything is configured and installed, open a terminal on the `snakefile` location and launch the pipeline using a single bash line :
+Once everything is configured and installed, open a terminal on the `snakefile` location.
+Activate your conda environement and launch the pipeline using a single bash line :
 `snakemake -j <number_of_threads> --use-conda`
+The `<number_of_threads>` parameter in the command line can be different from the parameter in the config file. For exemple, if you give 4 threads in the config file and 8 in the snakemake command line, 2 jobs can run in parallel. 
 
-If you really need to use STAR before running the deconvolution, you need to provide aditionnal informations described above. The gene length can be obtained by parsing a GTF annotation. An exemple script to make such a file is provided in `Tools/compute_geneLength.R`.
+Note that Kallisto and Salmon and faster than STAR, as they are pseudo-aligner.
 
 ### Containers
 The pipeline is ready to be executed using **[Singularity](https://sylabs.io/singularity/)** containers\
@@ -84,9 +84,12 @@ Simply install the last version of _Singularity_ following the [official documen
 `snakemake -j <number_of_threads> --use-conda --use-singularity`
 
 ## Deconvolution
-Last part of the pipeline runs a deconvolution algorithm on the quantified samples.\ 
+Last part of the pipeline runs a deconvolution algorithm on the quantified samples. 
 We here chose to run QuantiSeq through the R `immunedeconv` package which wraps several other algorithms.\
-MCPCounter allows you to use your own signature files, for usage see the link to the official package Git above.\
+MCPCounter allows you to use your own signature files, for usage see the link to the official Git package above.\
 DeconRNASeq and EpiDish both allow the user to chose his own signature. 
 
 Please do take note that all methods require a quantification matrix as input, in a tabulated format with a preference for **TPM** normalization (we also provide a quick R function of convert from FPKM). The signature is also in a tab separated file.
+
+## Exemple
+You can run an exemple of this pipeline using ressources provided in the `Exemple/` directory of this repository.
