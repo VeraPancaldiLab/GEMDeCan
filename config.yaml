@@ -14,36 +14,34 @@ Samples: # link to file containing the list of samples / conditions
   data/samples.txt
 
 # Options
-Trim_with: # Trimmomatic or Trimgalore
-  Trimmomatic
-Do_deconv: # run the deconvolution ? "yes" or "no", don't forget the ""
-  "no"
 Do_rnaseq: # run the rna-seq pipeline ? "yes" or "no", don't forget the ""
   "yes"
+Trim_with: # Trimmomatic or Trimgalore
+  Trimmomatic
+# Quantification
+Quantification_with: # STAR or kallisto or salmon
+  STAR
+################################# STAR specific files ###############
+GTF: # in case of STAR method is chosen. Path to the GTF file. It must be full path for R, and not zipped format
+  /home/julien/Documents/pipeline_rnaseq/data/genome/homo_grch38.gtf
+Genome: # in case of STAR method is chosen? Path to the reference genome sequence. It must be fasta format.
+  data/genome/homo_grch38_dna.fasta
+
+Index_rnaseq: # path to kallisto Index file location or Salmon or STAR Index folder location
+  data/genome/transcript.idx
 Convert_bcl2fastq: # Do you need to convert from raw illumina bcl to fastq ?  "yes" or "no", don't forget the ""
   "no"
 Need_merging: #if above condition is no, then do you need to merge experimental lanes into one file ?
   "no"
+Do_deconv: # run the deconvolution ? "yes" or "no", don't forget the ""
+  "no"
 
-# Quantification
-Quantification_with: # kallisto or salmon or STAR
-  STAR
-Index_rnaseq: # kallisto or Salmon ndex file location
-  data/genome/transcript.idx
 
 # Deconvolution
-Genes_signature: # marker based signature for MCPCounter ONLY
-  data/signature/genes.txt
-Signature: # regular signature for deconRNAseq and epidish
-  /mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/DNA_WGBS_methylation/signature/BPRNACan+.tsv
 Deconvolution_method: # quantiseq, deconRNAseq, epidish or mcpcounter
   epidish
+Signature: # gene signature for deconvolution
+  /mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/DNA_WGBS_methylation/signature/BPRNACan+.tsv
 
 
-################################# STAR specific files ###############
-GTF: # must be full path for R, also not zipped
-  /home/julien/Documents/pipeline_rnaseq/data/genome/homo_grch38.gtf
-Genome: # 
-  data/genome/homo_grch38_dna.fasta
-Index_STAR: # STAR index files location
-  data/star
+

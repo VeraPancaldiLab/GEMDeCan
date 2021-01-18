@@ -29,12 +29,10 @@ OUTDIR = config["Output_Directory"]
 INDIR = config["Input_Directory"]
 SAMPLESHEET = config["Sample_Sheet"]
 THREADS = config["THREADS"]
-INDEXK = config["Index_rnaseq"]
-INDEXSTAR = config["Index_STAR"]
+INDEX = config["Index_rnaseq"]
 GENOME = config["Genome"]
 GTF = config["GTF"]
 ADAPTER = config["Adapter"]
-GENES = config["Genes_signature"]
 sampledir = config["Samples"]
 SIGNATURE = config["Signature"]
 QUANTIFTOOL = config["Deconvolution_method"]
@@ -54,31 +52,24 @@ QUANTIF = OUTDIR+"/Quantification"
 
 if config["Do_deconv"] == "yes" :
     SIG_name = basename(SIGNATURE)
-    if  config["Deconvolution_method"] == "mcpcounter":
-        if config["Genes_signature"] == None :
-            exit("ERROR: Exiting Snakemake procedure due to missing \"Genes_signature\" parameter in the config.yaml file.")
-    elif  config["Deconvolution_method"] != None:
-        if config["Signature"] == None:
-            exit("ERROR: Exiting Snakemake procedure due to missing \"Signature\" parameter in the config.yaml file.")
-    elif  config["Deconvolution_method"] == None:
+    if  config["Deconvolution_method"] == None:
         exit("ERROR: Exiting Snakemake procedure due to missing \"Deconvolution_method\" parameter in the config.yaml file.")
+    if config["Signature"] == None:
+        exit("ERROR: Exiting Snakemake procedure due to missing \"Signature\" parameter in the config.yaml file.")
 
 if config["Do_rnaseq"] == "yes" :
     SAMPLES = list(open(sampledir).read().splitlines())
     if config["Trim_with"] == None:
         exit("ERROR: Exiting Snakemake procedure due to missing \"Trim_with\" parameter in the config.yaml file.")
-    if config["Index_rnaseq"] == None:
-        exit("ERROR: Exiting Snakemake procedure due to missing \"Index_rnaseq\" parameter in the config.yaml file.")
     if config["Quantification_with"] == None:
         exit("ERROR: Exiting Snakemake procedure due to missing \"Quantification_with\" parameter in the config.yaml file.")
-    elif config["Quantification_with] == "STAR":
+    if config["Quantification_with"] == "STAR":
         if config["GTF"] == None:
             exit("ERROR: Exiting Snakemake procedure due to missing \"GTF\" parameter in the config.yaml file.")
         if config["Genome"] == None:
             exit("ERROR: Exiting Snakemake procedure due to missing \"Genome\" parameter in the config.yaml file.")
-        if config["Index_STAR"] == None:
-            exit("ERROR: Exiting Snakemake procedure due to missing \"Index_STAR\" parameter in the config.yaml file.")
-
+    if config["Index_rnaseq"] == None:
+        exit("ERROR: Exiting Snakemake procedure due to missing \"Index_rnaseq\" parameter in the config.yaml file.")
 
 ##########################
 ####       OUTPUTS          ####
@@ -156,13 +147,14 @@ if config["Do_rnaseq"] == "yes" :
                 OUTmerge+"/{samples}_R1.fastq.gz",
                 OUTmerge+"/{samples}_R2.fastq.gz"
             params:
-                    OUT = OUTDIR
+                OUT = OUTmerge
             message:
                 "Merging files from lanes"
             shell:
                 "bash Tools/merge_those_fastq.sh {params.OUT} {input}"
 
-    if config["Need_merging"] == "yes":
+    # declare QCINPUT for next processing 
+    if config["Need_merging"] == "yes" or config["Convert_bcl2fastq"] == "yes":
         QCINPUT = OUTmerge+"/{samples}.fastq.gz"
     else:
         QCINPUT = INDIR+"/{samples}.fastq.gz"
@@ -287,7 +279,7 @@ if config["Do_rnaseq"] == "yes" :
             input:
                 R1 = OUTcut+"/{samples}_R1.fastq.gz",
                 R2 = OUTcut+"/{samples}_R2.fastq.gz",
-                INDEXK = INDEXK,
+                INDEX = INDEX,
             threads: THREADS
             output:
                 QUANTIF+"/{samples}/abundance.tsv",
@@ -303,7 +295,7 @@ if config["Do_rnaseq"] == "yes" :
             singularity: 
                 "docker://continuumio/miniconda3:4.8.2"
             shell:
-                "kallisto quant -t {threads} -i {input.INDEXK} -b 30 "
+                "kallisto quant -t {threads} -i {input.INDEX} -b 30 "
                 "-o {params.OUTDIRE} "
                 "{input.R1} {input.R2}"
 
@@ -329,7 +321,7 @@ if config["Do_rnaseq"] == "yes" :
             input:
                 r1 = OUTcut+"/{samples}_R1.fastq.gz",
                 r2 = OUTcut+"/{samples}_R2.fastq.gz",
-                index = INDEXK
+                index = INDEX
             output:
                 quant = QUANTIF+"/{samples}/quant.sf",
                 lib = QUANTIF+"/{samples}/lib_format_counts.json"
@@ -378,7 +370,7 @@ if config["Do_rnaseq"] == "yes" :
                 OUTDIR+"/star/{samples}/Aligned.toTranscriptome.out.bam"
             params:
                 OUT = OUTDIR+"/star/{samples}/",
-                GENOMEdir = INDEXSTAR,
+                GENOMEdir = INDEX,
                 GTF = GTF
             threads:
                 THREADS
@@ -490,7 +482,7 @@ if config["Do_deconv"] == "yes":
             output:
                 OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name
             params:
-                GENES
+                SIGNATURE
             message:
                 "Running deconvolution"
             benchmark:
