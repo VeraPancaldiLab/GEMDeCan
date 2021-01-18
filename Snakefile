@@ -132,7 +132,7 @@ if config["Do_rnaseq"] == "yes" :
                 OUTmerge+"/{samples}_R1.fastq.gz",
                 OUTmerge+"/{samples}_R2.fastq.gz"
             params:
-                OUT = OUTmerge
+                OUT = OUTmerge,
                 IN = OUTbcl
             message:
                 "Merging files from lanes"
