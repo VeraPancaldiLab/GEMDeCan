@@ -38,7 +38,6 @@ SIGNATURE = config["Signature"]
 QUANTIFTOOL = config["Deconvolution_method"]
 
 OUTbcl = OUTDIR+"/bcl2raw"
-OUTmerge = OUTDIR+"/raw2merge"
 OUTfastqc = OUTDIR+"/fastqc_raw"
 OUTfastqc2 = OUTDIR+"/fastqc_cutadapter"
 OUTmultiqc = OUTDIR+"/multiqc_raw"
@@ -108,7 +107,7 @@ if config["Do_rnaseq"] == "yes" :
                 INDIR = INDIR,
                 SHEET = SAMPLESHEET
             output:
-                touch("bcl2fastq.done")
+                OUTbcl+"/Reports/html/index.html"
             params:
                 OUTbcl
             message:
@@ -120,49 +119,35 @@ if config["Do_rnaseq"] == "yes" :
                 "docker://continuumio/miniconda3:4.8.2"
             shell:
                 """
-                bcl2fastq -w {threads} -R {input.INDIR} -o {params} --sample-sheet {input.SHEET}
+                bcl2fastq -w {threads} -R {input.INDIR} -o {params} --sample-sheet {input.SHEET} --no-lane-splitting
                 rm {params}/Undetermined*
-                rename "s/_S[0-9]+//" {params}/*.fastq.gz
                 """
-        ##  Merge into one fastq file from different lanes
-        rule merging:
+        rule rename_raw:
             input:
-                "bcl2fastq.done"
-            output: 
-                OUTmerge+"/{samples}_R1.fastq.gz",
-                OUTmerge+"/{samples}_R2.fastq.gz"
-            params:
-                OUT = OUTmerge,
-                IN = OUTbcl
-            message:
-                "Merging files from lanes"
-            shell:
-                "bash Tools/merge_those_fastq.sh {params.OUT} {params.IN}"
-
-    if config["Convert_bcl2fastq"] == "no" and config["Need_merging"] == "yes":
-        rule merge_fastq:
-            input:
-                INDIR
+                OUTbcl+"/Reports/html/index.html"
             output:
-                OUTmerge+"/{samples}_R1.fastq.gz",
-                OUTmerge+"/{samples}_R2.fastq.gz"
+                OUTbcl+"/{samples}_R1.fastq.gz",
+                OUTbcl+"/{samples}_R2.fastq.gz"
             params:
-                OUT = OUTmerge
-            message:
-                "Merging files from lanes"
+                OUTbcl
+            conda:
+                "Tools/rename.yaml"
             shell:
-                "bash Tools/merge_those_fastq.sh {params.OUT} {input}"
+                """
+                rename "s/_S[0-9]+_R1_001/_R1/g" {params}/*.fastq.gz 
+                rename "s/_S[0-9]+_R2_001/_R2/g" {params}/*.fastq.gz 
+                """
 
     # declare QCINPUT for next processing 
-    if config["Need_merging"] == "yes" or config["Convert_bcl2fastq"] == "yes":
-        QCINPUT = OUTmerge+"/{samples}.fastq.gz"
+    if  config["Convert_bcl2fastq"] == "yes":
+        QCINPUT = OUTbcl
     else:
-        QCINPUT = INDIR+"/{samples}.fastq.gz"
+        QCINPUT = INDIR
 
     ## Quality control for raw fastq data
     rule fastqc1:
         input:
-            QCINPUT
+            QCINPUT+"/{samples}.fastq.gz"
         output:
             html = OUTfastqc+"/{samples}_fastqc.html",
             zip = OUTfastqc+"/{samples}_fastqc.zip"
