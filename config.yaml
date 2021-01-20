@@ -31,8 +31,6 @@ Index_rnaseq: # path to kallisto Index file location or Salmon or STAR Index fol
   data/genome/transcript.idx
 Convert_bcl2fastq: # Do you need to convert from raw illumina bcl to fastq ?  "yes" or "no", don't forget the ""
   "no"
-Need_merging: #if above condition is no, then do you need to merge experimental lanes into one file ?
-  "no"
 Do_deconv: # run the deconvolution ? "yes" or "no", don't forget the ""
   "no"
 
