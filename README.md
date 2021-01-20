@@ -35,9 +35,6 @@ Once the snakemake environment is activated, you need to add the following chann
 
 Note that officialy only Linux is supported for this pipeline.
 
-You may also need to install bash function `rename` to use the BCL to fastq conversion part :
-`sudo apt install rename`
-
 ## Configure your workspace
 The snakefile shouldn't be modified. A provided `config.yaml` file takes as input all needed directories and files.
 
@@ -54,7 +51,6 @@ The snakefile shouldn't be modified. A provided `config.yaml` file takes as inpu
  * **Do_deconv** : should the pipeline run a deconvolution method ?
  * **Do_rnaseq** : should the pipeline run the RNAseq analysis part ?
  * **Convert_bcl2fastq** : do you need to convert `.bcl` to `.fastq` ? "yes" or "no"
- * **Need_merging** : do you need to merge the different sequencing lines for each sample ?
 
 ### Quantification
  * **Quantification_with** : STAR, Kallisto or Salmon to be used for quantification analysis
