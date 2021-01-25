@@ -6,15 +6,19 @@ Input_Directory: # location of your data
 THREADS: # number of threads to use
   14
 
-# Quantification
+# Rnaseq quantification option
 Do_rnaseq: # run the rna-seq pipeline ? "yes" or "no", don't forget the ""
   "yes"
+Samples: # link to file containing the list of samples name
+  samples.txt
+
+# Conversion BCL to FASTQ format  
 Convert_bcl2fastq: # Do you need to convert from raw illumina bcl to fastq ?  "yes" or "no", don't forget the ""
   "yes"
 Sample_Sheet:
   /home/julien/Documents/data/Eq9_and_21/SampleSheetCLL-1.csv
-Samples: # link to file containing the list of samples name
-  samples.txt
+
+# Trimming process
 Trim_with: # Trimmomatic or Trimgalore
   Trimmomatic
 Adapter: # illumina adapter
@@ -30,7 +34,7 @@ GTF: # in case of STAR method is chosen. Path to the GTF file. It must be full p
 Genome: # in case of STAR method is chosen? Path to the reference genome sequence. It must be fasta format.
   data/genome/homo_grch38_dna.fasta
 
-# Deconvolution
+# Deconvolution option
 Do_deconv: # run the deconvolution ? "yes" or "no", don't forget the ""
   "no"
 Deconvolution_method: # quantiseq, deconRNAseq, epidish or mcpcounter
