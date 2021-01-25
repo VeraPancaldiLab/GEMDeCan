@@ -2,40 +2,37 @@
 Output_Directory:
   outputs
 Input_Directory: # location of your data
-  /home/julien/Documents/pipeline_rnaseq/outputs/Quantification/all_sample_quantified_LP.txt
- # /mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/DNA_WGBS_methylation/blueprint_data.txt
+  /home/julien/Documents/data/Eq9_and_21/
 THREADS: # number of threads to use
   14
-Sample_Sheet:
-  data/samplesheet_Cong.csv
-Adapter: # illumina adapter
-  data/TruSeqAdapt.fa
-Samples: # link to file containing the list of samples / conditions
-  data/samples.txt
 
-# Options
+# Quantification
 Do_rnaseq: # run the rna-seq pipeline ? "yes" or "no", don't forget the ""
   "yes"
+Convert_bcl2fastq: # Do you need to convert from raw illumina bcl to fastq ?  "yes" or "no", don't forget the ""
+  "yes"
+Sample_Sheet:
+  /home/julien/Documents/data/Eq9_and_21/SampleSheetCLL-1.csv
+Samples: # link to file containing the list of samples name
+  samples.txt
 Trim_with: # Trimmomatic or Trimgalore
   Trimmomatic
-# Quantification
+Adapter: # illumina adapter
+  /home/julien/Documents/pipeline_rnaseq/data/TruSeqAdapt.fa
 Quantification_with: # STAR or kallisto or salmon
-  STAR
-################################# STAR specific files ###############
+  kallisto
+Index_rnaseq: # path to kallisto Index file location or Salmon or STAR Index folder location
+  /home/julien/Documents/pipeline_rnaseq/data/genome/transcript.idx
+
+############## STAR specific files ##############
 GTF: # in case of STAR method is chosen. Path to the GTF file. It must be full path for R, and not zipped format
   /home/julien/Documents/pipeline_rnaseq/data/genome/homo_grch38.gtf
 Genome: # in case of STAR method is chosen? Path to the reference genome sequence. It must be fasta format.
   data/genome/homo_grch38_dna.fasta
 
-Index_rnaseq: # path to kallisto Index file location or Salmon or STAR Index folder location
-  data/genome/transcript.idx
-Convert_bcl2fastq: # Do you need to convert from raw illumina bcl to fastq ?  "yes" or "no", don't forget the ""
-  "no"
+# Deconvolution
 Do_deconv: # run the deconvolution ? "yes" or "no", don't forget the ""
   "no"
-
-
-# Deconvolution
 Deconvolution_method: # quantiseq, deconRNAseq, epidish or mcpcounter
   epidish
 Signature: # gene signature for deconvolution
