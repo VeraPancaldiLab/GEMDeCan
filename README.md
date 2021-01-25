@@ -26,14 +26,13 @@ You can refer to this link for installation, using the "Installation via Conda" 
 
 Note that if you don't use Conda, this pipeline won't work. In case you need it, here's the installation process :
 * [Linux](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
-* [Windows](https://docs.conda.io/projects/conda/en/latest/user-guide/install/windows.html)
-* [MacOS](https://docs.conda.io/projects/conda/en/latest/user-guide/install/macos.html)
 
 Once the snakemake environment is activated, you need to add the following channels :
 * `conda config --add channels bioconda`
 * `conda config --add channels conda-forge`
 
-Note that officialy only Linux is supported for this pipeline.
+Note that officialy only Linux is supported for this pipeline. This also requires an internet connection in order to use conda auto-generated environements for all necessary softwares and packages.
+This pipeline was tested under R version 4. You may experience packages conflicts while running previous version of R.
 
 ## Configure your workspace
 The snakefile shouldn't be modified. A provided `config.yaml` file takes as input all needed directories and files.
@@ -42,29 +41,29 @@ The snakefile shouldn't be modified. A provided `config.yaml` file takes as inpu
  * **Output directory** : directory for all outputs. If you have multiple dataset, make one for each dataset.
  * **Input** : directory where your RNASeq data are located (`.fastq` or `.bcl`). If using only deconvolution, the path to your quantification matrix file (tab-separated TPM values).
  * **Threads** : number of threads allowed for each job.
+
+### Options 
+ * **Do_deconv** : should the pipeline run a deconvolution method ?
+ * **Do_rnaseq** : should the pipeline run the RNAseq analysis part ?
+
+### RNASeq
+ * **Quantification_with** : STAR, Kallisto or Salmon to be used for quantification analysis
+ * **Index** : index location for Kallisto or Salmon
  * **Sample_sheet** results from illumina sequencing. It is needed for Illumina `.bcl` to `.fastq` conversion.
  * **Adapter** : adapter used for illumina sequencing that is to be trimmed. Required for Trimmomatic, but not for Trim-galore.
  * **Samples** : the list of all samples to be analysed. It should be a path to a `.txt` file with the list of samples in it. If you are using bcl2fastq, simply copy/paste the column sample_name from your sample sheet.
+  * **Convert_bcl2fastq** : do you need to convert `.bcl` to `.fastq` ? "yes" or "no"
+  * **Trim_with** : chose between one of the two trimmer 
  
-### Options
- * **Trim_with** : chose between one of the two trimmer 
- * **Do_deconv** : should the pipeline run a deconvolution method ?
- * **Do_rnaseq** : should the pipeline run the RNAseq analysis part ?
- * **Convert_bcl2fastq** : do you need to convert `.bcl` to `.fastq` ? "yes" or "no"
-
-### Quantification
- * **Quantification_with** : STAR, Kallisto or Salmon to be used for quantification analysis
- * **Index** : index location for Kallisto or Salmon
- 
-### Deconvolution 
-  * **Deconvolution_method** : run the deconvolution with QuantiSeq, deconRNAseq or MCPCounter. In the last case, you need to provide signature files. See the [MCPCounter doc](https://github.com/ebecht/MCPcounter) for more information
- * **Genes_signature** : a marker based signature file to use with MCPCounter
- * **Signature** : a regular signature to use with deconRNAseq or EpiDish
- 
-### STAR specific files
+ ### STAR specific files
  * **Genome** file in fasta format
  * **GTF** file in absolute path (mendatory !). Can be compressed or not.
- * **Index_STAR**: index directory location for STAR
+ 
+### Deconvolution 
+  * **Deconvolution_method** : run the deconvolution with QuantiSeq, deconRNAseq or MCPCounter. 
+ * **Signature** : a regular signature to use with deconRNAseq or EpiDish
+ 
+
 
 ## Usage
 Once everything is configured and installed, open a terminal on the `snakefile` location.
@@ -82,10 +81,9 @@ Simply install the last version of _Singularity_ following the [official documen
 ## Deconvolution
 Last part of the pipeline runs a deconvolution algorithm on the quantified samples. 
 We here chose to run QuantiSeq through the R `immunedeconv` package which wraps several other algorithms.\
-MCPCounter allows you to use your own signature files, for usage see the link to the official Git package above.\
 DeconRNASeq and EpiDish both allow the user to chose his own signature. 
 
-Please do take note that all methods require a quantification matrix as input, in a tabulated format with a preference for **TPM** normalization (we also provide a quick R function of convert from FPKM). The signature is also in a tab separated file.
+Please do take note that all methods require a quantification matrix as input, in a tabulated format with a preference for **TPM** normalization (we also provide a quick R function of convert from FPKM). The signature is also in a tab separated file. You can find our signature from the publication [link to publication] in the `Signature/` directory of this repository.
 
 ## Exemple
 You can run an exemple of this pipeline using ressources provided in the `Exemple/` directory of this repository.
