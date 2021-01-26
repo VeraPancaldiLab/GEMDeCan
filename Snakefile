@@ -27,14 +27,6 @@ configfile: "config.yaml"
 # Define paths
 OUTDIR = config["Output_Directory"]
 INDIR = config["Input_Directory"]
-SAMPLESHEET = config["Sample_Sheet"]
-THREADS = config["THREADS"]
-INDEX = config["Index_rnaseq"]
-GENOME = config["Genome"]
-GTF = config["GTF"]
-ADAPTER = config["Adapter"]
-sampledir = config["Samples"]
-SIGNATURE = config["Signature"]
 QUANTIFTOOL = config["Deconvolution_method"]
 
 OUTbcl = OUTDIR+"/bcl2raw"
@@ -44,8 +36,6 @@ OUTmultiqc = OUTDIR+"/multiqc_raw"
 OUTmultiqc2 = OUTDIR+"/multiqc_after_cutadapter"
 OUTcut = OUTDIR+"/data_after_cutadapter"
 QUANTIF = OUTDIR+"/Quantification"
-
-deconv_with_sign = ["epidish", "deconRNAseq"]
 
 ##########################
 #### Exceptions handling ####
@@ -59,7 +49,7 @@ if config["Do_deconv"] == "yes" :
     if  config["Deconvolution_method"] is None:
         exit_error("Deconvolution_method")
 
-    if config["Signature"] is None and config["Deconvolution_method"] in deconv_with_sign :
+    if config["Signature"] is None and config["Deconvolution_method"] in ["epidish", "deconRNAseq"]:
         exit_error("Signature")
 
 if config["Do_rnaseq"] == "yes" :
@@ -90,7 +80,7 @@ if config["Do_rnaseq"] == "yes" :
 
     if config["Convert_bcl2fastq"] == "yes":
         # extract samples names from Illumina Sample Sheet.
-        with open(SAMPLESHEET, "r") as f_in, open("samples.txt", "w") as f_out:
+        with open(config["Sample_Sheet"], "r") as f_in, open("samples.txt", "w") as f_out:
             for skip in range(18):
                 next(f_in)
             reader = csv.reader(f_in, delimiter=',')
@@ -101,7 +91,7 @@ if config["Do_rnaseq"] == "yes" :
 
     ## else if Do_rnaseq = yes and Convert_bcl2fastq = no, Path to file of Samples' names is required
 else:
-    SAMPLES = list(open(sampledir).read().splitlines())
+    SAMPLES = list(open(config["Samples"]).read().splitlines())
 
 ##########################
 ####       OUTPUTS          ####
@@ -136,7 +126,7 @@ if config["Do_rnaseq"] == "yes" :
         rule bcl2fastq:
             input:
                 INDIR = INDIR,
-                SHEET = SAMPLESHEET
+                SHEET = config["Sample_Sheet"]
             output:
                 OUTbcl+"/Reports/html/index.html"
             params:
@@ -145,7 +135,8 @@ if config["Do_rnaseq"] == "yes" :
                 "Converting BCL2 Illumina files to fastQ"
             conda:
                 "Tools/bcl2fastq.yaml"
-            threads: THREADS
+            threads:
+                config["THREADS"]
             singularity:
                 "docker://continuumio/miniconda3:4.8.2"
             shell:
@@ -183,7 +174,8 @@ if config["Do_rnaseq"] == "yes" :
         output:
             html = OUTfastqc+"/{samples}_fastqc.html",
             zip = OUTfastqc+"/{samples}_fastqc.zip"
-        threads: THREADS
+        threads:
+            config["THREADS"]
         benchmark:
             "benchmarks/benchmark.fastqc1_{samples}.txt"
         message:
@@ -215,13 +207,14 @@ if config["Do_rnaseq"] == "yes" :
                 r1_unpaired = OUTcut+"/{samples}_R1.unpaired.fastq.gz",
                 r2 = OUTcut+"/{samples}_R2.fastq.gz",
                 r2_unpaired = OUTcut+"/{samples}_R2.unpaired.fastq.gz"
-            threads: THREADS
+            threads:
+                config["THREADS"]
             message:
                 "Trimming using Trimmomatic"
             benchmark:
                 "benchmarks/benchmark.trimmomatic_{samples}.txt"
             params:
-                trimmer = ["TRAILING:20", "LEADING:20", "MINLEN:36", "CROP:10000", "ILLUMINACLIP:"+ADAPTER+":2:30:10"],
+                trimmer = ["TRAILING:20", "LEADING:20", "MINLEN:36", "CROP:10000", "ILLUMINACLIP:"+config["Adapter"]+":2:30:10"],
                 compression_level="-9",
                 extra = "-phred33"
             wrapper:
@@ -240,7 +233,8 @@ if config["Do_rnaseq"] == "yes" :
                 OUTcut+"/{samples}_R2.fastq.gz_trimming_report.txt"
             params:
                 extra= '--phred33 --illumina --paired --quality 20 --length 36'
-            threads: THREADS
+            threads:
+                config["THREADS"]
             message:
                 "Trimming using Trim-Galore"
             benchmark:
@@ -270,7 +264,8 @@ if config["Do_rnaseq"] == "yes" :
         output:
             html = OUTfastqc2+"/{samples}_fastqc.html",
             zip = OUTfastqc2+"/{samples}_fastqc.zip"
-        threads: THREADS
+        threads:
+            config["THREADS"]
         message:
             "Quality control after trimming"
         benchmark:
@@ -296,8 +291,9 @@ if config["Do_rnaseq"] == "yes" :
             input:
                 R1 = OUTcut+"/{samples}_R1.fastq.gz",
                 R2 = OUTcut+"/{samples}_R2.fastq.gz",
-                INDEX = INDEX,
-            threads: THREADS
+                INDEX = config["Index_rnaseq"],
+            threads:
+                config["THREADS"]
             output:
                 QUANTIF+"/{samples}/abundance.tsv",
                 QUANTIF+"/{samples}/abundance.h5"
@@ -338,7 +334,7 @@ if config["Do_rnaseq"] == "yes" :
             input:
                 r1 = OUTcut+"/{samples}_R1.fastq.gz",
                 r2 = OUTcut+"/{samples}_R2.fastq.gz",
-                index = INDEX
+                index = config["Index_rnaseq"]
             output:
                 quant = QUANTIF+"/{samples}/quant.sf",
                 lib = QUANTIF+"/{samples}/lib_format_counts.json"
@@ -346,7 +342,8 @@ if config["Do_rnaseq"] == "yes" :
                 DIR = QUANTIF+"/{samples}",
                 libtype ="A",
                 extra=" --validateMappings"
-            threads: THREADS
+            threads:
+                config["THREADS"]
             message:
                 "Quantification with Salmon"
             benchmark:
@@ -387,10 +384,10 @@ if config["Do_rnaseq"] == "yes" :
                 OUTDIR+"/star/{samples}/Aligned.toTranscriptome.out.bam"
             params:
                 OUT = OUTDIR+"/star/{samples}/",
-                GENOMEdir = INDEX,
-                GTF = GTF
+                GENOMEdir = config["Index_rnaseq"],
+                GTF = config["GTF"]
             threads:
-                THREADS
+                config["THREADS"]
             benchmark:
                 "benchmarks/star_{samples}.txt"
             conda:
@@ -410,13 +407,13 @@ if config["Do_rnaseq"] == "yes" :
 
         rule RSEM_ref:
             input:
-                GTF
+                config["GTF"]
             output:
                 "data/rsem/gen.seq"
             params:
-                GEN = GENOME
+                config["Genome"]
             threads:
-                THREADS
+                config["THREADS"]
             conda:
                 "Tools/rsem.yaml"
             shell:
@@ -436,7 +433,7 @@ if config["Do_rnaseq"] == "yes" :
                 OUT = OUTDIR+"/rsem/{samples}",
                 REF = "data/rsem/gen"
             threads:
-                THREADS
+                config["THREADS"]
             benchmark:
                 "benchmarks/rsem_{samples}.txt"
             conda:
@@ -512,14 +509,14 @@ if config["Do_deconv"] == "yes":
                 "Tools/deconvolution_mcpcounter.R"
 
     elif config["Deconvolution_method"] == "deconRNAseq":
-        SIG_name = basename(SIGNATURE)
+        SIG_name = basename(config["Signature"])
         rule deconRNAseq:
             input:
                 DECONV_INPUT
             output:
                 OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name
             params:
-                SIGNATURE
+                config["Signature"]
             message:
                 "Running deconvolution"
             benchmark:
@@ -532,14 +529,14 @@ if config["Do_deconv"] == "yes":
                 "Tools/deconvolution_deconrnaseq.R"
 
     elif config["Deconvolution_method"] == "epidish":
-        SIG_name = basename(SIGNATURE)
+        SIG_name = basename(config["Signature"])
         rule epidish:
             input:
                 DECONV_INPUT
             output:
                 OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name
             params:
-                SIGNATURE
+                config["Signature"]
             message:
                 "Running deconvolution"
             benchmark:
