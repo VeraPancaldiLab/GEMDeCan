@@ -44,7 +44,7 @@ QUANTIF = OUTDIR + "/Quantification"
 def exit_error(message):
     exit("ERROR: Exiting Snakemake procedure due to missing \"{}\" parameter in the config.yaml file.".format(message))
 
-if config["Do_deconv"] == "yes" :
+if config["Do_deconv"] == "yes":
 
     if  config["Deconvolution_method"] is None:
         exit_error("Deconvolution_method")
@@ -52,7 +52,7 @@ if config["Do_deconv"] == "yes" :
     if config["Signature"] is None and config["Deconvolution_method"] in ["epidish", "deconRNAseq"]:
         exit_error("Signature")
 
-if config["Do_rnaseq"] == "yes" :
+if config["Do_rnaseq"] == "yes":
 
     if config["Trim_with"] is None:
         exit_error("Trim_with")
@@ -75,7 +75,7 @@ if config["Do_rnaseq"] == "yes" :
     if config["Convert_bcl2fastq"] == "yes" and config["Sample_Sheet"] is None:
         exit_error("Sample_Sheet")
 
-    if config["Convert_bcl2fastq"] == "no" and config["Samples"] is None :
+    if config["Convert_bcl2fastq"] == "no" and config["Samples"] is None:
         exit_error("Samples")
 
     if config["Convert_bcl2fastq"] == "yes":
@@ -119,10 +119,10 @@ elif config["Do_deconv"] == "no" and config["Do_rnaseq"] == "yes":
 ####### RNA-SEQ #######
 #######################
 
-if config["Do_rnaseq"] == "yes" :
+if config["Do_rnaseq"] == "yes":
 
     ## Converts base call (.BCL) files into FASTQ
-    if config["Convert_bcl2fastq"] == "yes" :
+    if config["Convert_bcl2fastq"] == "yes":
         rule bcl2fastq:
             input:
                 INDIR = INDIR,
@@ -196,7 +196,7 @@ if config["Do_rnaseq"] == "yes" :
         wrapper:
             "0.47.0/bio/multiqc"
 
-    if config["Trim_with"] == "Trimmomatic" :
+    if config["Trim_with"] == "Trimmomatic":
         ## Read trimming by Trimmomatic (Paired-End)
         rule Trimmomatic:
             input:
@@ -220,7 +220,7 @@ if config["Do_rnaseq"] == "yes" :
             wrapper:
                 "0.47.0/bio/trimmomatic/pe"
 
-    elif config["Trim_with"] == "Trimgalore" :
+    elif config["Trim_with"] == "Trimgalore":
         ## Read trimming by Trim-galore (Paired-end)
         rule trimgalore:
             input:
@@ -286,7 +286,7 @@ if config["Do_rnaseq"] == "yes" :
             "0.47.0/bio/multiqc"
 
     # Quantification
-    if config["Quantification_with"] == "kallisto" :
+    if config["Quantification_with"] == "kallisto":
         rule kallisto:
             input:
                 R1 = OUTcut + "/{samples}_R1.fastq.gz",
@@ -329,7 +329,7 @@ if config["Do_rnaseq"] == "yes" :
             script:
                 "Tools/quant_for_kallisto.R"
 
-    elif config["Quantification_with"] == "salmon" :
+    elif config["Quantification_with"] == "salmon":
         rule salmon:
             input:
                 r1 = OUTcut + "/{samples}_R1.fastq.gz",
@@ -467,7 +467,7 @@ if config["Do_rnaseq"] == "yes" :
 #########################
 
 if config["Do_deconv"] == "yes":
-    if config["Do_rnaseq"] == "yes" :
+    if config["Do_rnaseq"] == "yes":
         DECONV_INPUT = OUTDIR + "/all_sample_quantified.txt"
     else:
         DECONV_INPUT = INDIR
@@ -550,7 +550,7 @@ if config["Do_deconv"] == "yes":
 
     path_to_deconv = abspath(OUTDIR + "/deconvolution_" + QUANTIFTOOL + "_" + SIG_name)
     rule report:
-        input :
+        input:
             OUTDIR + "/deconvolution_" + QUANTIFTOOL + "_" + SIG_name
         output:
             directory(OUTDIR + "/HTML_REPORT_" + QUANTIFTOOL + "_" + SIG_name)
