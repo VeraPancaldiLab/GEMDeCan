@@ -16,6 +16,7 @@
 
 from os.path import basename
 from os.path import abspath
+from re import sub
 import csv
 
 configfile: "config.yaml"
@@ -27,7 +28,7 @@ configfile: "config.yaml"
 # Define paths
 OUTDIR = config["Output_Directory"]
 INDIR = config["Input_Directory"]
-QUANTIFTOOL = config["Deconvolution_method"]
+config["Deconvolution_method"] = config["Deconvolution_method"]
 
 OUTbcl = OUTDIR + "/bcl2raw"
 OUTfastqc = OUTDIR + "/fastqc_raw"
@@ -36,6 +37,10 @@ OUTmultiqc = OUTDIR + "/multiqc_raw"
 OUTmultiqc2 = OUTDIR + "/multiqc_after_cutadapter"
 OUTcut = OUTDIR + "/data_after_cutadapter"
 QUANTIF = OUTDIR + "/Quantification"
+
+
+deconv_with_sign = ["epidish", "deconRNAseq"]
+deconv_without_sign = ["mcpcounter", "quantiseq"]
 
 ##########################
 #### Exceptions handling ####
@@ -49,8 +54,12 @@ if config["Do_deconv"] == "yes":
     if  config["Deconvolution_method"] is None:
         exit_error("Deconvolution_method")
 
-    if config["Signature"] is None and config["Deconvolution_method"] in ["epidish", "deconRNAseq"]:
+    if config["Signature"] is None and config["Deconvolution_method"] in deconv_with_sign:
         exit_error("Signature")
+
+    if config["Deconvolution_method"] in deconv_with_sign:
+        SIG_name = basename(config["Signature"])
+        SIG_name = sub(".txt", "", SIG_name, 1)
 
 if config["Do_rnaseq"] == "yes":
 
@@ -80,7 +89,11 @@ if config["Do_rnaseq"] == "yes":
 
     if config["Convert_bcl2fastq"] == "yes":
         # extract samples names from Illumina Sample Sheet.
-        with open(config["Sample_Sheet"], "r") as f_in, open("samples.txt", "w") as f_out:
+        file_out = basename(config["Sample_Sheet"])
+        file_out = sub(".csv", "", file_out, 1)
+        file_out = "Samples_" + file_out + ".txt"
+        print(file_out)
+        with open(config["Sample_Sheet"], "r") as f_in, open(file_out, "w") as f_out:
             for skip in range(18):
                 next(f_in)
             reader = csv.reader(f_in, delimiter=',')
@@ -96,18 +109,32 @@ else:
 ##########################
 ####       OUTPUTS          ####
 #########################
-if config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "yes":
+if config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "yes" and config["Deconvolution_method"] in deconv_without_sign:
     rule all:
         input:
             expand(OUTmultiqc + "/{sample}_multiqc_report.html", sample=SAMPLES),
             expand(OUTmultiqc2 + "/{sample}_multiqc_report.html", sample=SAMPLES),
-            OUTDIR + "/deconvolution_" + QUANTIFTOOL + "_" + SIG_name,
-            directory(OUTDIR + "/HTML_REPORT_" + QUANTIFTOOL + "_" + SIG_name)
-elif config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "no":
+            OUTDIR + "/deconvolution_" + config["Deconvolution_method"] + ".txt",
+            directory(OUTDIR + "/HTML_REPORT_" + config["Deconvolution_method"])
+elif config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "no" and config["Deconvolution_method"] in deconv_without_sign:
     rule all:
         input:
-            OUTDIR + "/deconvolution_" + QUANTIFTOOL + "_" + SIG_name,
-            directory(OUTDIR + "/HTML_REPORT_" + QUANTIFTOOL + "_" + SIG_name)
+            OUTDIR + "/deconvolution_" + config["Deconvolution_method"] + ".txt",
+            directory(OUTDIR + "/HTML_REPORT_" + config["Deconvolution_method"])
+
+elif config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "yes" and config["Deconvolution_method"] in deconv_with_sign:
+    rule all:
+        input:
+            expand(OUTmultiqc + "/{sample}_multiqc_report.html", sample=SAMPLES),
+            expand(OUTmultiqc2 + "/{sample}_multiqc_report.html", sample=SAMPLES),
+            OUTDIR + "/deconvolution_" + config["Deconvolution_method"] + "_" + SIG_name + ".txt",
+            directory(OUTDIR + "/HTML_REPORT_" + config["Deconvolution_method"] + "_" + SIG_name)
+elif config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "no" and config["Deconvolution_method"] in deconv_with_sign:
+    rule all:
+        input:
+            OUTDIR + "/deconvolution_" + config["Deconvolution_method"] + "_" + SIG_name + ".txt",
+            directory(OUTDIR + "/HTML_REPORT_" + config["Deconvolution_method"] + "_" + SIG_name)
+
 elif config["Do_deconv"] == "no" and config["Do_rnaseq"] == "yes":
     rule all:
         input:
@@ -473,12 +500,11 @@ if config["Do_deconv"] == "yes":
         DECONV_INPUT = INDIR
 
     if config["Deconvolution_method"] == "quantiseq":
-        SIG_name = ".txt"
         rule quantiseq:
             input:
                 DECONV_INPUT
             output:
-                OUTDIR + "/deconvolution_" + QUANTIFTOOL + "_" + SIG_name
+                OUTDIR + "/deconvolution_" + config["Deconvolution_method"] + ".txt"
             message:
                 "Running deconvolution"
             benchmark:
@@ -491,12 +517,11 @@ if config["Do_deconv"] == "yes":
                 "Tools/deconvolution_quantiseq.R"
 
     elif config["Deconvolution_method"] == "mcpcounter":
-        SIG_name = ".txt"
         rule mcpcounter:
             input:
                 DECONV_INPUT
             output:
-                OUTDIR + "/deconvolution_" + QUANTIFTOOL + "_" + SIG_name
+                OUTDIR + "/deconvolution_" + config["Deconvolution_method"] + ".txt"
             message:
                 "Running deconvolution"
             benchmark:
@@ -514,7 +539,7 @@ if config["Do_deconv"] == "yes":
             input:
                 DECONV_INPUT
             output:
-                OUTDIR + "/deconvolution_" + QUANTIFTOOL + "_" + SIG_name
+                OUTDIR + "/deconvolution_" + config["Deconvolution_method"] + "_" + SIG_name + ".txt"
             params:
                 config["Signature"]
             message:
@@ -529,12 +554,11 @@ if config["Do_deconv"] == "yes":
                 "Tools/deconvolution_deconrnaseq.R"
 
     elif config["Deconvolution_method"] == "epidish":
-        SIG_name = basename(config["Signature"])
         rule epidish:
             input:
                 DECONV_INPUT
             output:
-                OUTDIR + "/deconvolution_" + QUANTIFTOOL + "_" + SIG_name
+                OUTDIR + "/deconvolution_" + config["Deconvolution_method"] + "_" + SIG_name + ".txt"
             params:
                 config["Signature"]
             message:
@@ -548,12 +572,21 @@ if config["Do_deconv"] == "yes":
             script:
                 "Tools/deconvolution_epidish.R"
 
-    path_to_deconv = abspath(OUTDIR + "/deconvolution_" + QUANTIFTOOL + "_" + SIG_name)
+    path_to_deconv = abspath(OUTDIR + "/deconvolution_" + config["Deconvolution_method"] + "_" + SIG_name)
+    if config["Deconvolution_method"] in deconv_without_sign :
+        report_input = OUTDIR + "/deconvolution_" + config["Deconvolution_method"]+".txt"
+        report_output = directory(OUTDIR + "/HTML_REPORT_" + config["Deconvolution_method"])
+    elif config["Deconvolution_method"] in deconv_with_sign :
+       report_input = OUTDIR + "/deconvolution_" + config["Deconvolution_method"] + "_" + SIG_name + ".txt"
+       report_output = directory(OUTDIR + "/HTML_REPORT_" + config["Deconvolution_method"] + "_" + SIG_name)
+    else :
+        exit("Please check the config.yaml 'Deconcolution_method' parameter.")
+
     rule report:
         input:
-            OUTDIR + "/deconvolution_" + QUANTIFTOOL + "_" + SIG_name
+            report_input
         output:
-            directory(OUTDIR + "/HTML_REPORT_" + QUANTIFTOOL + "_" + SIG_name)
+            report_output
         params:
             path_to_deconv
         message:
