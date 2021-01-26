@@ -16,6 +16,7 @@
 
 from os.path import basename
 from os.path import abspath
+from re import sub
 import csv
 
 configfile: "config.yaml"
@@ -46,6 +47,7 @@ OUTcut = OUTDIR+"/data_after_cutadapter"
 QUANTIF = OUTDIR+"/Quantification"
 
 deconv_with_sign = ["epidish", "deconRNAseq"]
+deconv_without_sign = ["mcpcounter", "quantiseq"]
 
 ##########################
 #### Exceptions handling ####
@@ -55,39 +57,47 @@ if config["Do_deconv"] == "yes" :
     
     if  config["Deconvolution_method"] == None:
         exit("ERROR: Exiting Snakemake procedure due to missing \"Deconvolution_method\" parameter in the config.yaml file.")
-    
+
     if config["Signature"] == None and config["Deconvolution_method"] in deconv_with_sign : 
         exit("ERROR: Exiting Snakemake procedure due to missing \"Signature\" parameter in the config.yaml file.")
+
+    if config["Deconvolution_method"] in deconv_with_sign:
+        SIG_name = basename(SIGNATURE)
+        SIG_name = sub(".txt", "", SIG_name, 1)
 
 if config["Do_rnaseq"] == "yes" :
     
     if config["Trim_with"] == None:
         exit("ERROR: Exiting Snakemake procedure due to missing \"Trim_with\" parameter in the config.yaml file.")
-    
+
     if config["Quantification_with"] == None:
         exit("ERROR: Exiting Snakemake procedure due to missing \"Quantification_with\" parameter in the config.yaml file.")
-    
+
     if config["Quantification_with"] == "STAR":
         if config["GTF"] == None:
             exit("ERROR: Exiting Snakemake procedure due to missing \"GTF\" parameter in the config.yaml file.")
         if config["Genome"] == None:
             exit("ERROR: Exiting Snakemake procedure due to missing \"Genome\" parameter in the config.yaml file.")
-    
+
     if config["Index_rnaseq"] == None:
         exit("ERROR: Exiting Snakemake procedure due to missing \"Index_rnaseq\" parameter in the config.yaml file.")
-    
+
     if config["Convert_bcl2fastq"] == None:
         exit("ERROR: Exiting Snakemake procedure due to missing \"Convert_bcl2fastq\" parameter in the config.yaml file.")
-    
+
     if config["Convert_bcl2fastq"] == "yes" and config["Sample_Sheet"] == None:
         exit("ERROR: Exiting Snakemake procedure due to missing \"Sample_Sheet\" parameter in the config.yaml file.")
-    
+
     if config["Convert_bcl2fastq"] == "no" and config["Samples"] == None :
          exit("ERROR: Exiting Snakemake procedure due to missing \"Samples\" parameter in the config.yaml file.")
 
     if config["Convert_bcl2fastq"] == "yes":
         # extract samples names from Illumina Sample Sheet.
-        with open(SAMPLESHEET, "r") as f_in, open("samples.txt", "w") as f_out:
+        file_out = basename(SAMPLESHEET)
+        file_out = sub(".csv", "", file_out, 1)
+        file_out = "Samples_"+file_out+".txt"
+        print(file_out)
+        with open(SAMPLESHEET, "r") as f_in, open(file_out, "w") as f_out:
             for skip in range(18):
                 next(f_in)
             reader = csv.reader(f_in, delimiter=',')
@@ -95,7 +105,7 @@ if config["Do_rnaseq"] == "yes" :
             f_out.write(SAMPLES[0])
             for item in SAMPLES[1:]:
                     f_out.write('\n{}'.format(item))
-    
+
     ## else if Do_rnaseq = yes and Convert_bcl2fastq = no, Path to file of Samples' names is required
     else: 
         SAMPLES = list(open(sampledir).read().splitlines())
@@ -103,18 +113,32 @@ if config["Do_rnaseq"] == "yes" :
 ##########################
 ####       OUTPUTS          ####
 #########################
-if config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "yes":
+if config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "yes" and config["Deconvolution_method"] in deconv_without_sign:
     rule all:
         input:
             expand(OUTmultiqc+"/{sample}_multiqc_report.html", sample=SAMPLES),
             expand(OUTmultiqc2+"/{sample}_multiqc_report.html", sample=SAMPLES),
-            OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name,
-            directory(OUTDIR+"/HTML_REPORT_"+QUANTIFTOOL+"_"+SIG_name)
-elif config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "no":
+            OUTDIR+"/deconvolution_"+QUANTIFTOOL+".txt",
+            directory(OUTDIR+"/HTML_REPORT_"+QUANTIFTOOL)
+elif config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "no" and config["Deconvolution_method"] in deconv_without_sign:
     rule all:
         input:
-            OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name,
+            OUTDIR+"/deconvolution_"+QUANTIFTOOL+".txt",
+            directory(OUTDIR+"/HTML_REPORT_"+QUANTIFTOOL)
+
+elif config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "yes" and config["Deconvolution_method"] in deconv_with_sign:
+    rule all:
+        input:
+            expand(OUTmultiqc+"/{sample}_multiqc_report.html", sample=SAMPLES),
+            expand(OUTmultiqc2+"/{sample}_multiqc_report.html", sample=SAMPLES),
+            OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name+".txt",
             directory(OUTDIR+"/HTML_REPORT_"+QUANTIFTOOL+"_"+SIG_name)
+elif config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "no" and config["Deconvolution_method"] in deconv_with_sign:
+    rule all:
+        input:
+            OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name+".txt",
+            directory(OUTDIR+"/HTML_REPORT_"+QUANTIFTOOL+"_"+SIG_name)
+
 elif config["Do_deconv"] == "no" and config["Do_rnaseq"] == "yes":
     rule all:
         input:
@@ -329,7 +353,7 @@ if config["Do_rnaseq"] == "yes" :
                 "docker://continuumio/miniconda3:4.8.2"
             script:
                 "Tools/quant_for_kallisto.R"
-        
+
     elif config["Quantification_with"] == "salmon" :
         rule salmon:
             input:
@@ -357,7 +381,7 @@ if config["Do_rnaseq"] == "yes" :
                 "-1 {input.r1} -2 {input.r2} "
                 "-o {params.DIR} "
                 "-p {threads} --validateMappings"
-        
+
         rule salmon_quant:
             input:
                 expand(QUANTIF+"/{samples}/quant.sf", samples= SAMPLES)
@@ -471,14 +495,13 @@ if config["Do_deconv"] == "yes":
         DECONV_INPUT = OUTDIR+"/all_sample_quantified.txt"
     else:
         DECONV_INPUT = INDIR
-    
+
     if config["Deconvolution_method"] == "quantiseq":
-        SIG_name = ".txt"
         rule quantiseq:
             input:
                 DECONV_INPUT
             output:
-                OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name
+                OUTDIR+"/deconvolution_"+QUANTIFTOOL+".txt"
             message:
                 "Running deconvolution"
             benchmark:
@@ -491,12 +514,11 @@ if config["Do_deconv"] == "yes":
                 "Tools/deconvolution_quantiseq.R"
 
     elif config["Deconvolution_method"] == "mcpcounter":
-        SIG_name = ".txt"
         rule mcpcounter:
             input:
                 DECONV_INPUT
             output:
-                OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name
+                OUTDIR+"/deconvolution_"+QUANTIFTOOL+".txt"
             message:
                 "Running deconvolution"
             benchmark:
@@ -509,12 +531,11 @@ if config["Do_deconv"] == "yes":
                 "Tools/deconvolution_mcpcounter.R"
 
     elif config["Deconvolution_method"] == "deconRNAseq":
-        SIG_name = basename(SIGNATURE)
         rule deconRNAseq:
             input:
                 DECONV_INPUT
             output:
-                OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name
+                OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name+".txt"
             params:
                 SIGNATURE
             message:
@@ -529,12 +550,11 @@ if config["Do_deconv"] == "yes":
                 "Tools/deconvolution_deconrnaseq.R"
 
     elif config["Deconvolution_method"] == "epidish":
-        SIG_name = basename(SIGNATURE)
         rule epidish:
             input:
                 DECONV_INPUT
             output:
-                OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name
+                OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name+".txt"
             params:
                 SIGNATURE
             message:
@@ -549,11 +569,20 @@ if config["Do_deconv"] == "yes":
                 "Tools/deconvolution_epidish.R"
 
     path_to_deconv = abspath(OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name)
+    if config["Deconvolution_method"] in deconv_without_sign :
+        report_input = OUTDIR+"/deconvolution_"+QUANTIFTOOL+".txt"
+        report_output = directory(OUTDIR+"/HTML_REPORT_"+QUANTIFTOOL)
+    elif config["Deconvolution_method"] in deconv_with_sign :
+       report_input = OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name+".txt"
+       report_output = directory(OUTDIR+"/HTML_REPORT_"+QUANTIFTOOL+"_"+SIG_name)
+    else :
+        exit("Please check the config.yaml 'Deconcolution_method' parameter.")
+
     rule report:
         input :
-            OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name
+            report_input
         output:
-            directory(OUTDIR+"/HTML_REPORT_"+QUANTIFTOOL+"_"+SIG_name)
+            report_output
         params:
             path_to_deconv
         message:
