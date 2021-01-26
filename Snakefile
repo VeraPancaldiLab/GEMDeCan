@@ -52,38 +52,38 @@ deconv_with_sign = ["epidish", "deconRNAseq"]
 #########################
 
 if config["Do_deconv"] == "yes" :
-    
+
     if  config["Deconvolution_method"] == None:
         exit("ERROR: Exiting Snakemake procedure due to missing \"Deconvolution_method\" parameter in the config.yaml file.")
-    
-    if config["Signature"] == None and config["Deconvolution_method"] in deconv_with_sign : 
+
+    if config["Signature"] == None and config["Deconvolution_method"] in deconv_with_sign :
         exit("ERROR: Exiting Snakemake procedure due to missing \"Signature\" parameter in the config.yaml file.")
 
 if config["Do_rnaseq"] == "yes" :
-    
+
     if config["Trim_with"] == None:
         exit("ERROR: Exiting Snakemake procedure due to missing \"Trim_with\" parameter in the config.yaml file.")
-    
+
     if config["Quantification_with"] == None:
         exit("ERROR: Exiting Snakemake procedure due to missing \"Quantification_with\" parameter in the config.yaml file.")
-    
+
     if config["Quantification_with"] == "STAR":
         if config["GTF"] == None:
             exit("ERROR: Exiting Snakemake procedure due to missing \"GTF\" parameter in the config.yaml file.")
         if config["Genome"] == None:
             exit("ERROR: Exiting Snakemake procedure due to missing \"Genome\" parameter in the config.yaml file.")
-    
+
     if config["Index_rnaseq"] == None:
         exit("ERROR: Exiting Snakemake procedure due to missing \"Index_rnaseq\" parameter in the config.yaml file.")
-    
+
     if config["Convert_bcl2fastq"] == None:
         exit("ERROR: Exiting Snakemake procedure due to missing \"Convert_bcl2fastq\" parameter in the config.yaml file.")
-    
+
     if config["Convert_bcl2fastq"] == "yes" and config["Sample_Sheet"] == None:
         exit("ERROR: Exiting Snakemake procedure due to missing \"Sample_Sheet\" parameter in the config.yaml file.")
-    
+
     if config["Convert_bcl2fastq"] == "no" and config["Samples"] == None :
-         exit("ERROR: Exiting Snakemake procedure due to missing \"Samples\" parameter in the config.yaml file.")
+        exit("ERROR: Exiting Snakemake procedure due to missing \"Samples\" parameter in the config.yaml file.")
 
     if config["Convert_bcl2fastq"] == "yes":
         # extract samples names from Illumina Sample Sheet.
@@ -94,11 +94,11 @@ if config["Do_rnaseq"] == "yes" :
             SAMPLES = list(set([row[2] for row in reader]))
             f_out.write(SAMPLES[0])
             for item in SAMPLES[1:]:
-                    f_out.write('\n{}'.format(item))
-    
+                f_out.write('\n{}'.format(item))
+
     ## else if Do_rnaseq = yes and Convert_bcl2fastq = no, Path to file of Samples' names is required
-    else: 
-        SAMPLES = list(open(sampledir).read().splitlines())
+else:
+    SAMPLES = list(open(sampledir).read().splitlines())
 
 ##########################
 ####       OUTPUTS          ####
@@ -120,7 +120,7 @@ elif config["Do_deconv"] == "no" and config["Do_rnaseq"] == "yes":
         input:
             expand(OUTmultiqc+"/{sample}_multiqc_report.html", sample=SAMPLES),
             expand(OUTmultiqc2+"/{sample}_multiqc_report.html", sample=SAMPLES),
-            OUTDIR+"/all_sample_quantified.txt"  
+            OUTDIR+"/all_sample_quantified.txt"
 
 ########################
 ####### RNA-SEQ #######
@@ -143,7 +143,7 @@ if config["Do_rnaseq"] == "yes" :
             conda:
                 "Tools/bcl2fastq.yaml"
             threads: THREADS
-            singularity: 
+            singularity:
                 "docker://continuumio/miniconda3:4.8.2"
             shell:
                 """
@@ -163,11 +163,11 @@ if config["Do_rnaseq"] == "yes" :
                 "Tools/rename.yaml"
             shell:
                 """
-                rename "s/_S[0-9]+_R1_001/_R1/g" {params}/*.fastq.gz 
-                rename "s/_S[0-9]+_R2_001/_R2/g" {params}/*.fastq.gz 
+                rename "s/_S[0-9]+_R1_001/_R1/g" {params}/*.fastq.gz
+                rename "s/_S[0-9]+_R2_001/_R2/g" {params}/*.fastq.gz
                 """
 
-    # declare QCINPUT for next processing 
+    # declare QCINPUT for next processing
     if  config["Convert_bcl2fastq"] == "yes":
         QCINPUT = OUTbcl
     else:
@@ -306,7 +306,7 @@ if config["Do_rnaseq"] == "yes" :
                 "benchmarks/benchmark.kallisto_{samples}.txt"
             conda:
                 "Tools/kallisto.yaml"
-            singularity: 
+            singularity:
                 "docker://continuumio/miniconda3:4.8.2"
             shell:
                 "kallisto quant -t {threads} -i {input.INDEX} -b 30 "
@@ -325,11 +325,11 @@ if config["Do_rnaseq"] == "yes" :
                 "benchmarks/benchmark.quant_to_gene.txt"
             conda:
                 "Tools/quantif.yaml"
-            singularity: 
+            singularity:
                 "docker://continuumio/miniconda3:4.8.2"
             script:
                 "Tools/quant_for_kallisto.R"
-        
+
     elif config["Quantification_with"] == "salmon" :
         rule salmon:
             input:
@@ -350,14 +350,14 @@ if config["Do_rnaseq"] == "yes" :
                 "benchmarks/benchmark.salmon_{samples}.txt"
             conda:
                 "Tools/salmon.yaml"
-            singularity: 
+            singularity:
                 "docker://continuumio/miniconda3:4.8.2"
             shell:
                 "salmon quant -i {input.index} -l {params.libtype} "
                 "-1 {input.r1} -2 {input.r2} "
                 "-o {params.DIR} "
                 "-p {threads} --validateMappings"
-        
+
         rule salmon_quant:
             input:
                 expand(QUANTIF+"/{samples}/quant.sf", samples= SAMPLES)
@@ -370,7 +370,7 @@ if config["Do_rnaseq"] == "yes" :
                 "benchmarks/benchmark.quant_to_gene_{samples}.txt"
             conda:
                 "Tools/quantif.yaml"
-            singularity: 
+            singularity:
                 "docker://continuumio/miniconda3:4.8.2"
             script:
                 "Tools/quant_for_salmon.R"
@@ -471,7 +471,7 @@ if config["Do_deconv"] == "yes":
         DECONV_INPUT = OUTDIR+"/all_sample_quantified.txt"
     else:
         DECONV_INPUT = INDIR
-    
+
     if config["Deconvolution_method"] == "quantiseq":
         SIG_name = ".txt"
         rule quantiseq:
@@ -485,7 +485,7 @@ if config["Do_deconv"] == "yes":
                 "benchmarks/benchmark.quantiseq.txt"
             conda:
                 "Tools/immunedeconv.yaml"
-            singularity: 
+            singularity:
                 "docker://continuumio/miniconda3:4.8.2"
             script:
                 "Tools/deconvolution_quantiseq.R"
@@ -503,7 +503,7 @@ if config["Do_deconv"] == "yes":
                 "benchmarks/benchmark.mcp.txt"
             conda:
                 "Tools/mcpcounter.yaml"
-            singularity: 
+            singularity:
                 "docker://continuumio/miniconda3:4.8.2"
             script:
                 "Tools/deconvolution_mcpcounter.R"
@@ -523,7 +523,7 @@ if config["Do_deconv"] == "yes":
                 "benchmarks/benchmark.deconRNA.txt"
             conda:
                 "Tools/RNAdeconv.yaml"
-            singularity: 
+            singularity:
                 "docker://continuumio/miniconda3:4.8.2"
             script:
                 "Tools/deconvolution_deconrnaseq.R"
@@ -543,7 +543,7 @@ if config["Do_deconv"] == "yes":
                 "benchmarks/benchmark.epidish.txt"
             conda:
                 "Tools/epidish.yaml"
-            singularity: 
+            singularity:
                 "docker://continuumio/miniconda3:4.8.2"
             script:
                 "Tools/deconvolution_epidish.R"
