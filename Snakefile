@@ -29,13 +29,13 @@ OUTDIR = config["Output_Directory"]
 INDIR = config["Input_Directory"]
 QUANTIFTOOL = config["Deconvolution_method"]
 
-OUTbcl = OUTDIR+"/bcl2raw"
-OUTfastqc = OUTDIR+"/fastqc_raw"
-OUTfastqc2 = OUTDIR+"/fastqc_cutadapter"
-OUTmultiqc = OUTDIR+"/multiqc_raw"
-OUTmultiqc2 = OUTDIR+"/multiqc_after_cutadapter"
-OUTcut = OUTDIR+"/data_after_cutadapter"
-QUANTIF = OUTDIR+"/Quantification"
+OUTbcl = OUTDIR + "/bcl2raw"
+OUTfastqc = OUTDIR + "/fastqc_raw"
+OUTfastqc2 = OUTDIR + "/fastqc_cutadapter"
+OUTmultiqc = OUTDIR + "/multiqc_raw"
+OUTmultiqc2 = OUTDIR + "/multiqc_after_cutadapter"
+OUTcut = OUTDIR + "/data_after_cutadapter"
+QUANTIF = OUTDIR + "/Quantification"
 
 ##########################
 #### Exceptions handling ####
@@ -99,21 +99,21 @@ else:
 if config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "yes":
     rule all:
         input:
-            expand(OUTmultiqc+"/{sample}_multiqc_report.html", sample=SAMPLES),
-            expand(OUTmultiqc2+"/{sample}_multiqc_report.html", sample=SAMPLES),
-            OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name,
-            directory(OUTDIR+"/HTML_REPORT_"+QUANTIFTOOL+"_"+SIG_name)
+            expand(OUTmultiqc + "/{sample}_multiqc_report.html", sample=SAMPLES),
+            expand(OUTmultiqc2 + "/{sample}_multiqc_report.html", sample=SAMPLES),
+            OUTDIR + "/deconvolution_" + QUANTIFTOOL + "_" + SIG_name,
+            directory(OUTDIR + "/HTML_REPORT_" + QUANTIFTOOL + "_" + SIG_name)
 elif config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "no":
     rule all:
         input:
-            OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name,
-            directory(OUTDIR+"/HTML_REPORT_"+QUANTIFTOOL+"_"+SIG_name)
+            OUTDIR + "/deconvolution_" + QUANTIFTOOL + "_" + SIG_name,
+            directory(OUTDIR + "/HTML_REPORT_" + QUANTIFTOOL + "_" + SIG_name)
 elif config["Do_deconv"] == "no" and config["Do_rnaseq"] == "yes":
     rule all:
         input:
-            expand(OUTmultiqc+"/{sample}_multiqc_report.html", sample=SAMPLES),
-            expand(OUTmultiqc2+"/{sample}_multiqc_report.html", sample=SAMPLES),
-            OUTDIR+"/all_sample_quantified.txt"
+            expand(OUTmultiqc + "/{sample}_multiqc_report.html", sample=SAMPLES),
+            expand(OUTmultiqc2 + "/{sample}_multiqc_report.html", sample=SAMPLES),
+            OUTDIR + "/all_sample_quantified.txt"
 
 ########################
 ####### RNA-SEQ #######
@@ -128,7 +128,7 @@ if config["Do_rnaseq"] == "yes" :
                 INDIR = INDIR,
                 SHEET = config["Sample_Sheet"]
             output:
-                OUTbcl+"/Reports/html/index.html"
+                OUTbcl + "/Reports/html/index.html"
             params:
                 OUTbcl
             message:
@@ -147,10 +147,10 @@ if config["Do_rnaseq"] == "yes" :
 
         rule rename_raw:
             input:
-                OUTbcl+"/Reports/html/index.html"
+                OUTbcl + "/Reports/html/index.html"
             output:
-                OUTbcl+"/{samples}_R1.fastq.gz",
-                OUTbcl+"/{samples}_R2.fastq.gz"
+                OUTbcl + "/{samples}_R1.fastq.gz",
+                OUTbcl + "/{samples}_R2.fastq.gz"
             params:
                 OUTbcl
             conda:
@@ -170,10 +170,10 @@ if config["Do_rnaseq"] == "yes" :
     ## Quality control for raw fastq data
     rule fastqc1:
         input:
-            QCINPUT+"/{samples}.fastq.gz"
+            QCINPUT + "/{samples}.fastq.gz"
         output:
-            html = OUTfastqc+"/{samples}_fastqc.html",
-            zip = OUTfastqc+"/{samples}_fastqc.zip"
+            html = OUTfastqc + "/{samples}_fastqc.html",
+            zip = OUTfastqc + "/{samples}_fastqc.zip"
         threads:
             config["THREADS"]
         benchmark:
@@ -187,12 +187,12 @@ if config["Do_rnaseq"] == "yes" :
 
     rule multiqc1:
         input:
-            OUTfastqc+"/{samples}_R1_fastqc.html",
-            OUTfastqc+"/{samples}_R2_fastqc.html"
+            OUTfastqc + "/{samples}_R1_fastqc.html",
+            OUTfastqc + "/{samples}_R2_fastqc.html"
         benchmark:
             "benchmarks/benchmark.multiqc1_{samples}.txt"
         output:
-            MainOut = OUTmultiqc+"/{samples}_multiqc_report.html"
+            MainOut = OUTmultiqc + "/{samples}_multiqc_report.html"
         wrapper:
             "0.47.0/bio/multiqc"
 
@@ -200,13 +200,13 @@ if config["Do_rnaseq"] == "yes" :
         ## Read trimming by Trimmomatic (Paired-End)
         rule Trimmomatic:
             input:
-                r1 = QCINPUT+"/{samples}_R1.fastq.gz",
-                r2 = QCINPUT+"/{samples}_R2.fastq.gz"
+                r1 = QCINPUT + "/{samples}_R1.fastq.gz",
+                r2 = QCINPUT + "/{samples}_R2.fastq.gz"
             output:
-                r1 = OUTcut+"/{samples}_R1.fastq.gz",
-                r1_unpaired = OUTcut+"/{samples}_R1.unpaired.fastq.gz",
-                r2 = OUTcut+"/{samples}_R2.fastq.gz",
-                r2_unpaired = OUTcut+"/{samples}_R2.unpaired.fastq.gz"
+                r1 = OUTcut + "/{samples}_R1.fastq.gz",
+                r1_unpaired = OUTcut + "/{samples}_R1.unpaired.fastq.gz",
+                r2 = OUTcut + "/{samples}_R2.fastq.gz",
+                r2_unpaired = OUTcut + "/{samples}_R2.unpaired.fastq.gz"
             threads:
                 config["THREADS"]
             message:
@@ -214,7 +214,7 @@ if config["Do_rnaseq"] == "yes" :
             benchmark:
                 "benchmarks/benchmark.trimmomatic_{samples}.txt"
             params:
-                trimmer = ["TRAILING:20", "LEADING:20", "MINLEN:36", "CROP:10000", "ILLUMINACLIP:"+config["Adapter"]+":2:30:10"],
+                trimmer = ["TRAILING:20", "LEADING:20", "MINLEN:36", "CROP:10000", "ILLUMINACLIP:" + config["Adapter"] + ":2:30:10"],
                 compression_level="-9",
                 extra = "-phred33"
             wrapper:
@@ -224,13 +224,13 @@ if config["Do_rnaseq"] == "yes" :
         ## Read trimming by Trim-galore (Paired-end)
         rule trimgalore:
             input:
-                QCINPUT+"/{samples}_R1.fastq.gz",
-                QCINPUT+"/{samples}_R2.fastq.gz"
+                QCINPUT + "/{samples}_R1.fastq.gz",
+                QCINPUT + "/{samples}_R2.fastq.gz"
             output:
-                OUTcut+"/{samples}_R1_val_1.fq.gz",
-                OUTcut+"/{samples}_R1.fastq.gz_trimming_report.txt",
-                OUTcut+"/{samples}_R2_val_2.fq.gz",
-                OUTcut+"/{samples}_R2.fastq.gz_trimming_report.txt"
+                OUTcut + "/{samples}_R1_val_1.fq.gz",
+                OUTcut + "/{samples}_R1.fastq.gz_trimming_report.txt",
+                OUTcut + "/{samples}_R2_val_2.fq.gz",
+                OUTcut + "/{samples}_R2.fastq.gz_trimming_report.txt"
             params:
                 extra= '--phred33 --illumina --paired --quality 20 --length 36'
             threads:
@@ -244,11 +244,11 @@ if config["Do_rnaseq"] == "yes" :
 
         rule rename:
             input:
-                R1 = OUTcut+"/{samples}_R1_val_1.fq.gz",
-                R2 = OUTcut+"/{samples}_R2_val_2.fq.gz"
+                R1 = OUTcut + "/{samples}_R1_val_1.fq.gz",
+                R2 = OUTcut + "/{samples}_R2_val_2.fq.gz"
             output:
-                R1out = OUTcut+"/{samples}_R1.fastq.gz",
-                R2out = OUTcut+"/{samples}_R2.fastq.gz"
+                R1out = OUTcut + "/{samples}_R1.fastq.gz",
+                R2out = OUTcut + "/{samples}_R2.fastq.gz"
             benchmark:
                 "benchmarks/benchmark.rename_{samples}.txt"
             shell:
@@ -260,10 +260,10 @@ if config["Do_rnaseq"] == "yes" :
     ## Quality control after trimming
     rule fastqc2:
         input:
-            OUTcut+"/{samples}.fastq.gz"
+            OUTcut + "/{samples}.fastq.gz"
         output:
-            html = OUTfastqc2+"/{samples}_fastqc.html",
-            zip = OUTfastqc2+"/{samples}_fastqc.zip"
+            html = OUTfastqc2 + "/{samples}_fastqc.html",
+            zip = OUTfastqc2 + "/{samples}_fastqc.zip"
         threads:
             config["THREADS"]
         message:
@@ -276,10 +276,10 @@ if config["Do_rnaseq"] == "yes" :
             "0.47.0/bio/fastqc"
     rule multiqc2:
         input:
-            OUTfastqc2+"/{samples}_R1_fastqc.html",
-            OUTfastqc2+"/{samples}_R2_fastqc.html"
+            OUTfastqc2 + "/{samples}_R1_fastqc.html",
+            OUTfastqc2 + "/{samples}_R2_fastqc.html"
         output:
-            OUTmultiqc2+"/{samples}_multiqc_report.html"
+            OUTmultiqc2 + "/{samples}_multiqc_report.html"
         benchmark:
             "benchmarks/benchmark.multiqc2_{samples}.txt"
         wrapper:
@@ -289,16 +289,16 @@ if config["Do_rnaseq"] == "yes" :
     if config["Quantification_with"] == "kallisto" :
         rule kallisto:
             input:
-                R1 = OUTcut+"/{samples}_R1.fastq.gz",
-                R2 = OUTcut+"/{samples}_R2.fastq.gz",
+                R1 = OUTcut + "/{samples}_R1.fastq.gz",
+                R2 = OUTcut + "/{samples}_R2.fastq.gz",
                 INDEX = config["Index_rnaseq"],
             threads:
                 config["THREADS"]
             output:
-                QUANTIF+"/{samples}/abundance.tsv",
-                QUANTIF+"/{samples}/abundance.h5"
+                QUANTIF + "/{samples}/abundance.tsv",
+                QUANTIF + "/{samples}/abundance.h5"
             params:
-                OUTDIRE = QUANTIF+"/{samples}"
+                OUTDIRE = QUANTIF + "/{samples}"
             message:
                 "Quantification with Kallisto"
             benchmark:
@@ -314,9 +314,9 @@ if config["Do_rnaseq"] == "yes" :
 
         rule kallisto_quant:
             input:
-                expand(QUANTIF+"/{samples}/abundance.h5", samples= SAMPLES)
+                expand(QUANTIF + "/{samples}/abundance.h5", samples= SAMPLES)
             output:
-                OUTDIR+"/all_sample_quantified.txt"
+                OUTDIR + "/all_sample_quantified.txt"
             params:
                 QUANTIF,
                 SAMPLES
@@ -332,14 +332,14 @@ if config["Do_rnaseq"] == "yes" :
     elif config["Quantification_with"] == "salmon" :
         rule salmon:
             input:
-                r1 = OUTcut+"/{samples}_R1.fastq.gz",
-                r2 = OUTcut+"/{samples}_R2.fastq.gz",
+                r1 = OUTcut + "/{samples}_R1.fastq.gz",
+                r2 = OUTcut + "/{samples}_R2.fastq.gz",
                 index = config["Index_rnaseq"]
             output:
-                quant = QUANTIF+"/{samples}/quant.sf",
-                lib = QUANTIF+"/{samples}/lib_format_counts.json"
+                quant = QUANTIF + "/{samples}/quant.sf",
+                lib = QUANTIF + "/{samples}/lib_format_counts.json"
             params:
-                DIR = QUANTIF+"/{samples}",
+                DIR = QUANTIF + "/{samples}",
                 libtype ="A",
                 extra=" --validateMappings"
             threads:
@@ -360,9 +360,9 @@ if config["Do_rnaseq"] == "yes" :
 
         rule salmon_quant:
             input:
-                expand(QUANTIF+"/{samples}/quant.sf", samples= SAMPLES)
+                expand(QUANTIF + "/{samples}/quant.sf", samples= SAMPLES)
             output:
-                OUTDIR+"/all_sample_quantified.txt"
+                OUTDIR + "/all_sample_quantified.txt"
             params:
                 QUANTIF,
                 SAMPLES
@@ -378,12 +378,12 @@ if config["Do_rnaseq"] == "yes" :
     elif config["Quantification_with"] == "STAR":
         rule star:
             input:
-                fq1 = OUTcut+"/{samples}_R1.fastq.gz",
-                fq2 = OUTcut+"/{samples}_R2.fastq.gz"
+                fq1 = OUTcut + "/{samples}_R1.fastq.gz",
+                fq2 = OUTcut + "/{samples}_R2.fastq.gz"
             output:
-                OUTDIR+"/star/{samples}/Aligned.toTranscriptome.out.bam"
+                OUTDIR + "/star/{samples}/Aligned.toTranscriptome.out.bam"
             params:
-                OUT = OUTDIR+"/star/{samples}/",
+                OUT = OUTDIR + "/star/{samples}/",
                 GENOMEdir = config["Index_rnaseq"],
                 GTF = config["GTF"]
             threads:
@@ -425,12 +425,12 @@ if config["Do_rnaseq"] == "yes" :
 
         rule RSEM:
             input:
-                BAM = OUTDIR+"/star/{samples}/Aligned.toTranscriptome.out.bam",
+                BAM = OUTDIR + "/star/{samples}/Aligned.toTranscriptome.out.bam",
                 REF = "data/rsem/gen.seq"
             output:
-                OUTDIR+"/rsem/{samples}.genes.results"
+                OUTDIR + "/rsem/{samples}.genes.results"
             params:
-                OUT = OUTDIR+"/rsem/{samples}",
+                OUT = OUTDIR + "/rsem/{samples}",
                 REF = "data/rsem/gen"
             threads:
                 config["THREADS"]
@@ -451,11 +451,11 @@ if config["Do_rnaseq"] == "yes" :
 
         rule star_quant:
             input:
-                expand(OUTDIR+"/rsem/{samples}.genes.results", samples= SAMPLES)
+                expand(OUTDIR + "/rsem/{samples}.genes.results", samples= SAMPLES)
             output:
-                OUTDIR+"/all_sample_quantified.txt"
+                OUTDIR + "/all_sample_quantified.txt"
             params:
-                OUTDIR+"/rsem",
+                OUTDIR + "/rsem",
                 SAMPLES
             conda:
                 "Tools/quantif.yaml"
@@ -468,7 +468,7 @@ if config["Do_rnaseq"] == "yes" :
 
 if config["Do_deconv"] == "yes":
     if config["Do_rnaseq"] == "yes" :
-        DECONV_INPUT = OUTDIR+"/all_sample_quantified.txt"
+        DECONV_INPUT = OUTDIR + "/all_sample_quantified.txt"
     else:
         DECONV_INPUT = INDIR
 
@@ -478,7 +478,7 @@ if config["Do_deconv"] == "yes":
             input:
                 DECONV_INPUT
             output:
-                OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name
+                OUTDIR + "/deconvolution_" + QUANTIFTOOL + "_" + SIG_name
             message:
                 "Running deconvolution"
             benchmark:
@@ -496,7 +496,7 @@ if config["Do_deconv"] == "yes":
             input:
                 DECONV_INPUT
             output:
-                OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name
+                OUTDIR + "/deconvolution_" + QUANTIFTOOL + "_" + SIG_name
             message:
                 "Running deconvolution"
             benchmark:
@@ -514,7 +514,7 @@ if config["Do_deconv"] == "yes":
             input:
                 DECONV_INPUT
             output:
-                OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name
+                OUTDIR + "/deconvolution_" + QUANTIFTOOL + "_" + SIG_name
             params:
                 config["Signature"]
             message:
@@ -534,7 +534,7 @@ if config["Do_deconv"] == "yes":
             input:
                 DECONV_INPUT
             output:
-                OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name
+                OUTDIR + "/deconvolution_" + QUANTIFTOOL + "_" + SIG_name
             params:
                 config["Signature"]
             message:
@@ -548,12 +548,12 @@ if config["Do_deconv"] == "yes":
             script:
                 "Tools/deconvolution_epidish.R"
 
-    path_to_deconv = abspath(OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name)
+    path_to_deconv = abspath(OUTDIR + "/deconvolution_" + QUANTIFTOOL + "_" + SIG_name)
     rule report:
         input :
-            OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name
+            OUTDIR + "/deconvolution_" + QUANTIFTOOL + "_" + SIG_name
         output:
-            directory(OUTDIR+"/HTML_REPORT_"+QUANTIFTOOL+"_"+SIG_name)
+            directory(OUTDIR + "/HTML_REPORT_" + QUANTIFTOOL + "_" + SIG_name)
         params:
             path_to_deconv
         message:
