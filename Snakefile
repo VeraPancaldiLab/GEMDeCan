@@ -109,6 +109,7 @@ if config["Do_rnaseq"] == "yes" :
     ## else if Do_rnaseq = yes and Convert_bcl2fastq = no, Path to file of Samples' names is required
     else: 
         SAMPLES = list(open(sampledir).read().splitlines())
+     
 
 ##########################
 ####       OUTPUTS          ####
@@ -179,8 +180,8 @@ if config["Do_rnaseq"] == "yes" :
             input:
                 OUTbcl+"/Reports/html/index.html"
             output:
-                OUTbcl+"/{samples}_R1.fastq.gz",
-                OUTbcl+"/{samples}_R2.fastq.gz"
+                expand(OUTbcl+"/{samples}_R1.fastq.gz", samples= SAMPLES),
+                expand(OUTbcl+"/{samples}_R2.fastq.gz", samples= SAMPLES)
             params:
                 OUTbcl
             conda:
