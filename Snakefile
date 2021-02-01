@@ -569,13 +569,14 @@ if config["Do_deconv"] == "yes":
             script:
                 "Tools/deconvolution_epidish.R"
 
-    path_to_deconv = abspath(OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name)
     if config["Deconvolution_method"] in deconv_without_sign :
         report_input = OUTDIR+"/deconvolution_"+QUANTIFTOOL+".txt"
         report_output = directory(OUTDIR+"/HTML_REPORT_"+QUANTIFTOOL)
+        path_to_deconv = abspath(OUTDIR+"/deconvolution_"+QUANTIFTOOL+".txt")
     elif config["Deconvolution_method"] in deconv_with_sign :
        report_input = OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name+".txt"
        report_output = directory(OUTDIR+"/HTML_REPORT_"+QUANTIFTOOL+"_"+SIG_name)
+       path_to_deconv = abspath(OUTDIR+"/deconvolution_"+QUANTIFTOOL+"_"+SIG_name+".txt")
     else :
         exit("Please check the config.yaml 'Deconcolution_method' parameter.")
 
