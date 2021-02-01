@@ -183,8 +183,7 @@ if config["Do_rnaseq"] == "yes":
                 "Tools/rename.yaml"
             shell:
                 """
-                rename "s/_S[0-9]+_R1_001/_R1/g" {params}/*.fastq.gz
-                rename "s/_S[0-9]+_R2_001/_R2/g" {params}/*.fastq.gz
+                rename 's/S[0-9]+_(R1|R2)_001/$1/g' {params}/*.fastq.gz
                 """
 
     # declare QCINPUT for next processing
