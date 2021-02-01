@@ -247,7 +247,6 @@ if config["Do_rnaseq"] == "yes":
                 "benchmarks/benchmark.trimmomatic_{samples}.txt"
             params:
                 trimmer = ["TRAILING:20", "LEADING:20", "MINLEN:36", "CROP:10000", "ILLUMINACLIP:" + ADAPTER + ":2:30:10"],
-                compression_level="-9",
                 extra = "-phred33"
             wrapper:
                 "0.47.0/bio/trimmomatic/pe"
