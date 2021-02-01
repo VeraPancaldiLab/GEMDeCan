@@ -34,6 +34,8 @@ OUTmultiqc2 = config["Output_Directory"] + "/multiqc_after_cutadapter"
 OUTcut = config["Output_Directory"] + "/data_after_cutadapter"
 QUANTIF = config["Output_Directory"] + "/Quantification"
 
+SNAKEMAKE_WRAPPERS_VERSION = "0.70.0"
+
 deconv_with_sign = ["epidish", "deconRNAseq"]
 deconv_without_sign = ["mcpcounter", "quantiseq"]
 
@@ -204,7 +206,7 @@ if config["Do_rnaseq"] == "yes":
         params:
             "-t 8"
         wrapper:
-            "0.47.0/bio/fastqc"
+            SNAKEMAKE_WRAPPERS_VERSION + "/bio/fastqc"
 
     rule multiqc1:
         input:
@@ -215,7 +217,7 @@ if config["Do_rnaseq"] == "yes":
         output:
             MainOut = OUTmultiqc + "/{samples}_multiqc_report.html"
         wrapper:
-            "0.47.0/bio/multiqc"
+            SNAKEMAKE_WRAPPERS_VERSION + "/bio/multiqc"
 
     if config["Trim_with"] == "Trimmomatic":
         ## Read trimming by Trimmomatic (Paired-End)
@@ -237,7 +239,7 @@ if config["Do_rnaseq"] == "yes":
                 trimmer = ["TRAILING:20", "LEADING:20", "MINLEN:36", "CROP:10000", "ILLUMINACLIP:" + config["Adapter"] + ":2:30:10"],
                 extra = "-phred33"
             wrapper:
-                "0.47.0/bio/trimmomatic/pe"
+                SNAKEMAKE_WRAPPERS_VERSION + "/bio/trimmomatic/pe"
 
     elif config["Trim_with"] == "Trimgalore":
         ## Read trimming by Trim-galore (Paired-end)
@@ -258,7 +260,7 @@ if config["Do_rnaseq"] == "yes":
             benchmark:
                 "benchmarks/benchmark.trimgalore_{samples}.txt"
             wrapper:
-                "0.47.0/bio/trim_galore/pe"
+                SNAKEMAKE_WRAPPERS_VERSION + "/bio/trim_galore/pe"
 
         rule rename:
             input:
@@ -290,7 +292,7 @@ if config["Do_rnaseq"] == "yes":
         params:
             "-t 8"
         wrapper:
-            "0.47.0/bio/fastqc"
+            SNAKEMAKE_WRAPPERS_VERSION + "/bio/fastqc"
     rule multiqc2:
         input:
             OUTfastqc2 + "/{samples}_R1_fastqc.html",
@@ -300,7 +302,7 @@ if config["Do_rnaseq"] == "yes":
         benchmark:
             "benchmarks/benchmark.multiqc2_{samples}.txt"
         wrapper:
-            "0.47.0/bio/multiqc"
+            SNAKEMAKE_WRAPPERS_VERSION + "/bio/multiqc"
 
     # Quantification
     if config["Quantification_with"] == "kallisto":
