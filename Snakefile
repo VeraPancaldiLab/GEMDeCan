@@ -26,25 +26,13 @@ configfile: "config.yaml"
 #########################
 
 # Define paths
-OUTDIR = config["Output_Directory"]
-INDIR = config["Input_Directory"]
-SAMPLESHEET = config["Sample_Sheet"]
-THREADS = config["THREADS"]
-INDEX = config["Index_rnaseq"]
-GENOME = config["Genome"]
-GTF = config["GTF"]
-ADAPTER = config["Adapter"]
-sampledir = config["Samples"]
-SIGNATURE = config["Signature"]
-QUANTIFTOOL = config["Deconvolution_method"]
-
-OUTbcl = OUTDIR + "/bcl2raw"
-OUTfastqc = OUTDIR + "/fastqc_raw"
-OUTfastqc2 = OUTDIR + "/fastqc_cutadapter"
-OUTmultiqc = OUTDIR + "/multiqc_raw"
-OUTmultiqc2 = OUTDIR + "/multiqc_after_cutadapter"
-OUTcut = OUTDIR + "/data_after_cutadapter"
-QUANTIF = OUTDIR + "/Quantification"
+OUTbcl = config["Output_Directory"] + "/bcl2raw"
+OUTfastqc = config["Output_Directory"] + "/fastqc_raw"
+OUTfastqc2 = config["Output_Directory"] + "/fastqc_cutadapter"
+OUTmultiqc = config["Output_Directory"] + "/multiqc_raw"
+OUTmultiqc2 = config["Output_Directory"] + "/multiqc_after_cutadapter"
+OUTcut = config["Output_Directory"] + "/data_after_cutadapter"
+QUANTIF = config["Output_Directory"] + "/Quantification"
 
 deconv_with_sign = ["epidish", "deconRNAseq"]
 deconv_without_sign = ["mcpcounter", "quantiseq"]
@@ -65,7 +53,7 @@ if config["Do_deconv"] == "yes":
         exit_error("Signature")
 
     if config["Deconvolution_method"] in deconv_with_sign:
-        SIG_name = basename(SIGNATURE)
+        SIG_name = basename(config["Signature"])
         SIG_name = sub(".txt", "", SIG_name, 1)
 
 if config["Do_rnaseq"] == "yes":
@@ -96,11 +84,11 @@ if config["Do_rnaseq"] == "yes":
 
     if config["Convert_bcl2fastq"] == "yes":
         # extract samples names from Illumina Sample Sheet.
-        file_out = basename(SAMPLESHEET)
+        file_out = basename(config["Sample_Sheet"])
         file_out = sub(".csv", "", file_out, 1)
         file_out = "Samples_" + file_out + ".txt"
         print(file_out)
-        with open(SAMPLESHEET, "r") as f_in, open(file_out, "w") as f_out:
+        with open(config["Sample_Sheet"], "r") as f_in, open(file_out, "w") as f_out:
             for skip in range(18):
                 next(f_in)
             reader = csv.reader(f_in, delimiter=',')
@@ -111,7 +99,7 @@ if config["Do_rnaseq"] == "yes":
 
     ## else if Do_rnaseq = yes and Convert_bcl2fastq = no, Path to file of Samples' names is required
     else:
-        SAMPLES = list(open(sampledir).read().splitlines())
+        SAMPLES = list(open(config["Samples"]).read().splitlines())
 
 
 ##########################
@@ -122,33 +110,33 @@ if config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "yes" and config["Dec
         input:
             expand(OUTmultiqc + "/{sample}_multiqc_report.html", sample=SAMPLES),
             expand(OUTmultiqc2 + "/{sample}_multiqc_report.html", sample=SAMPLES),
-            OUTDIR + "/deconvolution_" + QUANTIFTOOL + ".txt",
-            directory(OUTDIR + "/HTML_REPORT_" + QUANTIFTOOL)
+            config["Output_Directory"] + "/deconvolution_" + config["Deconvolution_method"] + ".txt",
+            directory(config["Output_Directory"] + "/HTML_REPORT_" + config["Deconvolution_method"])
 elif config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "no" and config["Deconvolution_method"] in deconv_without_sign:
     rule all:
         input:
-            OUTDIR + "/deconvolution_" + QUANTIFTOOL + ".txt",
-            directory(OUTDIR + "/HTML_REPORT_" + QUANTIFTOOL)
+            config["Output_Directory"] + "/deconvolution_" + config["Deconvolution_method"] + ".txt",
+            directory(config["Output_Directory"] + "/HTML_REPORT_" + config["Deconvolution_method"])
 
 elif config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "yes" and config["Deconvolution_method"] in deconv_with_sign:
     rule all:
         input:
             expand(OUTmultiqc + "/{sample}_multiqc_report.html", sample=SAMPLES),
             expand(OUTmultiqc2 + "/{sample}_multiqc_report.html", sample=SAMPLES),
-            OUTDIR + "/deconvolution_" + QUANTIFTOOL + "_" + SIG_name + ".txt",
-            directory(OUTDIR + "/HTML_REPORT_" + QUANTIFTOOL + "_" + SIG_name)
+            config["Output_Directory"] + "/deconvolution_" + config["Deconvolution_method"] + "_" + SIG_name + ".txt",
+            directory(config["Output_Directory"] + "/HTML_REPORT_" + config["Deconvolution_method"] + "_" + SIG_name)
 elif config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "no" and config["Deconvolution_method"] in deconv_with_sign:
     rule all:
         input:
-            OUTDIR + "/deconvolution_" + QUANTIFTOOL + "_" + SIG_name + ".txt",
-            directory(OUTDIR + "/HTML_REPORT_" + QUANTIFTOOL + "_" + SIG_name)
+            config["Output_Directory"] + "/deconvolution_" + config["Deconvolution_method"] + "_" + SIG_name + ".txt",
+            directory(config["Output_Directory"] + "/HTML_REPORT_" + config["Deconvolution_method"] + "_" + SIG_name)
 
 elif config["Do_deconv"] == "no" and config["Do_rnaseq"] == "yes":
     rule all:
         input:
             expand(OUTmultiqc + "/{sample}_multiqc_report.html", sample=SAMPLES),
             expand(OUTmultiqc2 + "/{sample}_multiqc_report.html", sample=SAMPLES),
-            OUTDIR + "/all_sample_quantified.txt"
+            config["Output_Directory"] + "/all_sample_quantified.txt"
 
 ########################
 ####### RNA-SEQ #######
@@ -160,8 +148,8 @@ if config["Do_rnaseq"] == "yes":
     if config["Convert_bcl2fastq"] == "yes":
         rule bcl2fastq:
             input:
-                INDIR = INDIR,
-                SHEET = SAMPLESHEET
+                INDIR = config["Input_Directory"],
+                SHEET = config["Sample_Sheet"]
             output:
                 OUTbcl + "/Reports/html/index.html"
             params:
@@ -170,7 +158,7 @@ if config["Do_rnaseq"] == "yes":
                 "Converting BCL2 Illumina files to fastQ"
             conda:
                 "Tools/bcl2fastq.yaml"
-            threads: THREADS
+            threads: config["THREADS"]
             singularity:
                 "docker://continuumio/miniconda3:4.8.2"
             shell:
@@ -199,7 +187,7 @@ if config["Do_rnaseq"] == "yes":
     if  config["Convert_bcl2fastq"] == "yes":
         QCINPUT = OUTbcl
     else:
-        QCINPUT = INDIR
+        QCINPUT = config["Input_Directory"]
 
     ## Quality control for raw fastq data
     rule fastqc1:
@@ -208,7 +196,7 @@ if config["Do_rnaseq"] == "yes":
         output:
             html = OUTfastqc + "/{samples}_fastqc.html",
             zip = OUTfastqc + "/{samples}_fastqc.zip"
-        threads: THREADS
+        threads: config["THREADS"]
         benchmark:
             "benchmarks/benchmark.fastqc1_{samples}.txt"
         message:
@@ -240,13 +228,13 @@ if config["Do_rnaseq"] == "yes":
                 r1_unpaired = OUTcut + "/{samples}_R1.unpaired.fastq.gz",
                 r2 = OUTcut + "/{samples}_R2.fastq.gz",
                 r2_unpaired = OUTcut + "/{samples}_R2.unpaired.fastq.gz"
-            threads: THREADS
+            threads: config["THREADS"]
             message:
                 "Trimming using Trimmomatic"
             benchmark:
                 "benchmarks/benchmark.trimmomatic_{samples}.txt"
             params:
-                trimmer = ["TRAILING:20", "LEADING:20", "MINLEN:36", "CROP:10000", "ILLUMINACLIP:" + ADAPTER + ":2:30:10"],
+                trimmer = ["TRAILING:20", "LEADING:20", "MINLEN:36", "CROP:10000", "ILLUMINACLIP:" + config["Adapter"] + ":2:30:10"],
                 extra = "-phred33"
             wrapper:
                 "0.47.0/bio/trimmomatic/pe"
@@ -264,7 +252,7 @@ if config["Do_rnaseq"] == "yes":
                 OUTcut + "/{samples}_R2.fastq.gz_trimming_report.txt"
             params:
                 extra= '--phred33 --illumina --paired --quality 20 --length 36'
-            threads: THREADS
+            threads: config["THREADS"]
             message:
                 "Trimming using Trim-Galore"
             benchmark:
@@ -294,7 +282,7 @@ if config["Do_rnaseq"] == "yes":
         output:
             html = OUTfastqc2 + "/{samples}_fastqc.html",
             zip = OUTfastqc2 + "/{samples}_fastqc.zip"
-        threads: THREADS
+        threads: config["THREADS"]
         message:
             "Quality control after trimming"
         benchmark:
@@ -320,8 +308,8 @@ if config["Do_rnaseq"] == "yes":
             input:
                 R1 = OUTcut + "/{samples}_R1.fastq.gz",
                 R2 = OUTcut + "/{samples}_R2.fastq.gz",
-                INDEX = INDEX,
-            threads: THREADS
+                INDEX = config["Index_rnaseq"],
+            threads: config["THREADS"]
             output:
                 QUANTIF + "/{samples}/abundance.tsv",
                 QUANTIF + "/{samples}/abundance.h5"
@@ -344,7 +332,7 @@ if config["Do_rnaseq"] == "yes":
             input:
                 expand(QUANTIF + "/{samples}/abundance.h5", samples= SAMPLES)
             output:
-                OUTDIR + "/all_sample_quantified.txt"
+                config["Output_Directory"] + "/all_sample_quantified.txt"
             params:
                 QUANTIF,
                 SAMPLES
@@ -362,7 +350,7 @@ if config["Do_rnaseq"] == "yes":
             input:
                 r1 = OUTcut + "/{samples}_R1.fastq.gz",
                 r2 = OUTcut + "/{samples}_R2.fastq.gz",
-                index = INDEX
+                index = config["Index_rnaseq"]
             output:
                 quant = QUANTIF + "/{samples}/quant.sf",
                 lib = QUANTIF + "/{samples}/lib_format_counts.json"
@@ -370,7 +358,7 @@ if config["Do_rnaseq"] == "yes":
                 DIR = QUANTIF + "/{samples}",
                 libtype ="A",
                 extra=" --validateMappings"
-            threads: THREADS
+            threads: config["THREADS"]
             message:
                 "Quantification with Salmon"
             benchmark:
@@ -389,7 +377,7 @@ if config["Do_rnaseq"] == "yes":
             input:
                 expand(QUANTIF + "/{samples}/quant.sf", samples= SAMPLES)
             output:
-                OUTDIR + "/all_sample_quantified.txt"
+                config["Output_Directory"] + "/all_sample_quantified.txt"
             params:
                 QUANTIF,
                 SAMPLES
@@ -408,13 +396,13 @@ if config["Do_rnaseq"] == "yes":
                 fq1 = OUTcut + "/{samples}_R1.fastq.gz",
                 fq2 = OUTcut + "/{samples}_R2.fastq.gz"
             output:
-                OUTDIR + "/star/{samples}/Aligned.toTranscriptome.out.bam"
+                config["Output_Directory"] + "/star/{samples}/Aligned.toTranscriptome.out.bam"
             params:
-                OUT = OUTDIR + "/star/{samples}/",
-                GENOMEdir = INDEX,
-                GTF = GTF
+                OUT = config["Output_Directory"] + "/star/{samples}/",
+                GENOMEdir = config["Index_rnaseq"],
+                GTF = config["GTF"]
             threads:
-                THREADS
+                config["THREADS"]
             benchmark:
                 "benchmarks/star_{samples}.txt"
             conda:
@@ -434,13 +422,13 @@ if config["Do_rnaseq"] == "yes":
 
         rule RSEM_ref:
             input:
-                GTF
+                config["GTF"]
             output:
                 "data/rsem/gen.seq"
             params:
-                GEN = GENOME
+                GEN = config["Genome"]
             threads:
-                THREADS
+                config["THREADS"]
             conda:
                 "Tools/rsem.yaml"
             shell:
@@ -452,15 +440,15 @@ if config["Do_rnaseq"] == "yes":
 
         rule RSEM:
             input:
-                BAM = OUTDIR + "/star/{samples}/Aligned.toTranscriptome.out.bam",
+                BAM = config["Output_Directory"] + "/star/{samples}/Aligned.toTranscriptome.out.bam",
                 REF = "data/rsem/gen.seq"
             output:
-                OUTDIR + "/rsem/{samples}.genes.results"
+                config["Output_Directory"] + "/rsem/{samples}.genes.results"
             params:
-                OUT = OUTDIR + "/rsem/{samples}",
+                OUT = config["Output_Directory"] + "/rsem/{samples}",
                 REF = "data/rsem/gen"
             threads:
-                THREADS
+                config["THREADS"]
             benchmark:
                 "benchmarks/rsem_{samples}.txt"
             conda:
@@ -478,11 +466,11 @@ if config["Do_rnaseq"] == "yes":
 
         rule star_quant:
             input:
-                expand(OUTDIR + "/rsem/{samples}.genes.results", samples= SAMPLES)
+                expand(config["Output_Directory"] + "/rsem/{samples}.genes.results", samples= SAMPLES)
             output:
-                OUTDIR + "/all_sample_quantified.txt"
+                config["Output_Directory"] + "/all_sample_quantified.txt"
             params:
-                OUTDIR + "/rsem",
+                config["Output_Directory"] + "/rsem",
                 SAMPLES
             conda:
                 "Tools/quantif.yaml"
@@ -495,16 +483,16 @@ if config["Do_rnaseq"] == "yes":
 
 if config["Do_deconv"] == "yes":
     if config["Do_rnaseq"] == "yes":
-        DECONV_INPUT = OUTDIR + "/all_sample_quantified.txt"
+        DECONV_INPUT = config["Output_Directory"] + "/all_sample_quantified.txt"
     else:
-        DECONV_INPUT = INDIR
+        DECONV_INPUT = config["Input_Directory"]
 
     if config["Deconvolution_method"] == "quantiseq":
         rule quantiseq:
             input:
                 DECONV_INPUT
             output:
-                OUTDIR + "/deconvolution_" + QUANTIFTOOL + ".txt"
+                config["Output_Directory"] + "/deconvolution_" + config["Deconvolution_method"] + ".txt"
             message:
                 "Running deconvolution"
             benchmark:
@@ -521,7 +509,7 @@ if config["Do_deconv"] == "yes":
             input:
                 DECONV_INPUT
             output:
-                OUTDIR + "/deconvolution_" + QUANTIFTOOL + ".txt"
+                config["Output_Directory"] + "/deconvolution_" + config["Deconvolution_method"] + ".txt"
             message:
                 "Running deconvolution"
             benchmark:
@@ -538,9 +526,9 @@ if config["Do_deconv"] == "yes":
             input:
                 DECONV_INPUT
             output:
-                OUTDIR + "/deconvolution_" + QUANTIFTOOL + "_" + SIG_name + ".txt"
+                config["Output_Directory"] + "/deconvolution_" + config["Deconvolution_method"] + "_" + SIG_name + ".txt"
             params:
-                SIGNATURE
+                config["Signature"]
             message:
                 "Running deconvolution"
             benchmark:
@@ -557,9 +545,9 @@ if config["Do_deconv"] == "yes":
             input:
                 DECONV_INPUT
             output:
-                OUTDIR + "/deconvolution_" + QUANTIFTOOL + "_" + SIG_name + ".txt"
+                config["Output_Directory"] + "/deconvolution_" + config["Deconvolution_method"] + "_" + SIG_name + ".txt"
             params:
-                SIGNATURE
+                config["Signature"]
             message:
                 "Running deconvolution"
             benchmark:
@@ -572,13 +560,13 @@ if config["Do_deconv"] == "yes":
                 "Tools/deconvolution_epidish.R"
 
     if config["Deconvolution_method"] in deconv_without_sign:
-        report_input = OUTDIR + "/deconvolution_" + QUANTIFTOOL + ".txt"
-        report_output = directory(OUTDIR + "/HTML_REPORT_" + QUANTIFTOOL)
-        path_to_deconv = abspath(OUTDIR + "/deconvolution_" + QUANTIFTOOL + ".txt")
+        report_input = config["Output_Directory"] + "/deconvolution_" + config["Deconvolution_method"] + ".txt"
+        report_output = directory(config["Output_Directory"] + "/HTML_REPORT_" + config["Deconvolution_method"])
+        path_to_deconv = abspath(config["Output_Directory"] + "/deconvolution_" + config["Deconvolution_method"] + ".txt")
     elif config["Deconvolution_method"] in deconv_with_sign:
-       report_input = OUTDIR + "/deconvolution_" + QUANTIFTOOL + "_" + SIG_name + ".txt"
-       report_output = directory(OUTDIR + "/HTML_REPORT_" + QUANTIFTOOL + "_" + SIG_name)
-       path_to_deconv = abspath(OUTDIR + "/deconvolution_" + QUANTIFTOOL + "_" + SIG_name + ".txt")
+       report_input = config["Output_Directory"] + "/deconvolution_" + config["Deconvolution_method"] + "_" + SIG_name + ".txt"
+       report_output = directory(config["Output_Directory"] + "/HTML_REPORT_" + config["Deconvolution_method"] + "_" + SIG_name)
+       path_to_deconv = abspath(config["Output_Directory"] + "/deconvolution_" + config["Deconvolution_method"] + "_" + SIG_name + ".txt")
     else:
         exit("Please check the config.yaml 'Deconcolution_method' parameter.")
 
