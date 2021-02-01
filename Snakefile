@@ -34,6 +34,8 @@ OUTmultiqc2 = config["Output_Directory"] + "/multiqc_after_cutadapter"
 OUTcut = config["Output_Directory"] + "/data_after_cutadapter"
 QUANTIF = config["Output_Directory"] + "/Quantification"
 
+SIG_name = ""
+
 SNAKEMAKE_WRAPPERS_VERSION = "0.70.0"
 
 deconv_with_sign = ["epidish", "deconRNAseq"]
