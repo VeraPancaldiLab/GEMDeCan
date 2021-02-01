@@ -10,10 +10,11 @@ files <- sort(paste0(samples, "/abundance.h5"))
 names(files) <- sort(samples)
 
 src <- src_organism("TxDb.Hsapiens.UCSC.hg38.knownGene")
-src <- src_ucsc("Homo sapiens")
-k <- keys(src, keytype = "tx_id")
-tx2gene <- select(src, keys = k, columns = c("tx_name", "symbol"), keytype = "entrez")
-tx2gene <- tx2gene[, -1]
+
+tx2gene <- dplyr::inner_join(tbl(src, "id"), tbl(src, "ranges_tx"), by = "entrez") %>%
+  dplyr::select(tx_name, symbol) %>%
+  as_tibble()
+
 txi <- tximport(files, type = "kallisto", tx2gene = tx2gene, txIn = TRUE)
 # Get TPM
 txi_TPM <- as.data.frame(cbind(Gene = rownames(txi$abundance), txi$abundance))
