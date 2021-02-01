@@ -53,13 +53,16 @@ deconv_without_sign = ["mcpcounter", "quantiseq"]
 #### Exceptions handling ####
 #########################
 
+def exit_error(message):
+    exit("ERROR: Exiting Snakemake procedure due to missing \"{}\" parameter in the config.yaml file.".format(message))
+
 if config["Do_deconv"] == "yes" :
     
     if  config["Deconvolution_method"] is None:
-        exit("ERROR: Exiting Snakemake procedure due to missing \"Deconvolution_method\" parameter in the config.yaml file.")
+        exit_error("Deconvolution_method")
 
     if config["Signature"] is None and config["Deconvolution_method"] in deconv_with_sign : 
-        exit("ERROR: Exiting Snakemake procedure due to missing \"Signature\" parameter in the config.yaml file.")
+        exit_error("Signature")
 
     if config["Deconvolution_method"] in deconv_with_sign:
         SIG_name = basename(SIGNATURE)
@@ -68,28 +71,28 @@ if config["Do_deconv"] == "yes" :
 if config["Do_rnaseq"] == "yes" :
     
     if config["Trim_with"] is None:
-        exit("ERROR: Exiting Snakemake procedure due to missing \"Trim_with\" parameter in the config.yaml file.")
+        exit_error("Trim_with")
 
     if config["Quantification_with"] is None:
-        exit("ERROR: Exiting Snakemake procedure due to missing \"Quantification_with\" parameter in the config.yaml file.")
+        exit_error("Quantification_with")
 
     if config["Quantification_with"] == "STAR":
         if config["GTF"] is None:
-            exit("ERROR: Exiting Snakemake procedure due to missing \"GTF\" parameter in the config.yaml file.")
+            exit_error("GTF")
         if config["Genome"] is None:
-            exit("ERROR: Exiting Snakemake procedure due to missing \"Genome\" parameter in the config.yaml file.")
+            exit_error("Genome")
 
     if config["Index_rnaseq"] is None:
-        exit("ERROR: Exiting Snakemake procedure due to missing \"Index_rnaseq\" parameter in the config.yaml file.")
+        exit_error("Index_rnaseq")
 
     if config["Convert_bcl2fastq"] is None:
-        exit("ERROR: Exiting Snakemake procedure due to missing \"Convert_bcl2fastq\" parameter in the config.yaml file.")
+        exit_error("Convert_bcl2fastq")
 
     if config["Convert_bcl2fastq"] == "yes" and config["Sample_Sheet"] is None:
-        exit("ERROR: Exiting Snakemake procedure due to missing \"Sample_Sheet\" parameter in the config.yaml file.")
+        exit_error("Sample_Sheet")
 
     if config["Convert_bcl2fastq"] == "no" and config["Samples"] is None :
-         exit("ERROR: Exiting Snakemake procedure due to missing \"Samples\" parameter in the config.yaml file.")
+        exit_error("Samples")
 
     if config["Convert_bcl2fastq"] == "yes":
         # extract samples names from Illumina Sample Sheet.
