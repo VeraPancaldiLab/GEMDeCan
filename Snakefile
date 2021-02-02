@@ -585,4 +585,4 @@ if config["Do_deconv"] == "yes":
         conda:
             "Tools/analyse.yaml"
         shell:
-            "Rscript -e \"rmarkdown::render('Tools/analyses.R', output_dir='{output}')\" {params}"
+            "Rscript --vanilla -e \"rmarkdown::render('Tools/analyses.R', output_dir='{output}')\" {params}"
