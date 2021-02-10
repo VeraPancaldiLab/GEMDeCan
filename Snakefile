@@ -38,9 +38,6 @@ SIG_name = ""
 
 SNAKEMAKE_WRAPPERS_VERSION = "0.70.0"
 
-deconv_with_sign = ["epidish", "deconRNAseq"]
-deconv_without_sign = ["mcpcounter", "quantiseq"]
-
 ##########################
 #### Exceptions handling ####
 #########################
@@ -50,15 +47,8 @@ def exit_error(message):
 
 if config["Do_deconv"] == "yes":
 
-    if  config["Deconvolution_method"] is None:
-        exit_error("Deconvolution_method")
-
-    if config["Signature"] is None and config["Deconvolution_method"] in deconv_with_sign:
-        exit_error("Signature")
-
-    if config["Deconvolution_method"] in deconv_with_sign:
-        SIG_name = basename(config["Signature"])
-        SIG_name = sub(".txt", "", SIG_name, 1)
+    if config["Signatures"] is None:
+        exit_error("Signatures")
 
 if config["Do_rnaseq"] == "yes":
 
@@ -109,31 +99,19 @@ if config["Do_rnaseq"] == "yes":
 ##########################
 ####       OUTPUTS          ####
 #########################
-if config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "yes" and config["Deconvolution_method"] in deconv_without_sign:
+if config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "yes":
     rule all:
         input:
             expand(OUTmultiqc + "/{sample}_multiqc_report.html", sample=SAMPLES),
             expand(OUTmultiqc2 + "/{sample}_multiqc_report.html", sample=SAMPLES),
-            config["Output_Directory"] + "/deconvolution_" + config["Deconvolution_method"] + ".txt",
-            directory(config["Output_Directory"] + "/HTML_REPORT_" + config["Deconvolution_method"])
-elif config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "no" and config["Deconvolution_method"] in deconv_without_sign:
-    rule all:
-        input:
-            config["Output_Directory"] + "/deconvolution_" + config["Deconvolution_method"] + ".txt",
-            directory(config["Output_Directory"] + "/HTML_REPORT_" + config["Deconvolution_method"])
+            config["Output_Directory"] + "/deconvolution.txt",
+            directory(config["Output_Directory"] + "/HTML_REPORT")
 
-elif config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "yes" and config["Deconvolution_method"] in deconv_with_sign:
+elif config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "no":
     rule all:
         input:
-            expand(OUTmultiqc + "/{sample}_multiqc_report.html", sample=SAMPLES),
-            expand(OUTmultiqc2 + "/{sample}_multiqc_report.html", sample=SAMPLES),
-            config["Output_Directory"] + "/deconvolution_" + config["Deconvolution_method"] + "_" + SIG_name + ".txt",
-            directory(config["Output_Directory"] + "/HTML_REPORT_" + config["Deconvolution_method"] + "_" + SIG_name)
-elif config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "no" and config["Deconvolution_method"] in deconv_with_sign:
-    rule all:
-        input:
-            config["Output_Directory"] + "/deconvolution_" + config["Deconvolution_method"] + "_" + SIG_name + ".txt",
-            directory(config["Output_Directory"] + "/HTML_REPORT_" + config["Deconvolution_method"] + "_" + SIG_name)
+            config["Output_Directory"] + "/deconvolution.txt",
+            directory(config["Output_Directory"] + "/HTML_REPORT")
 
 elif config["Do_deconv"] == "no" and config["Do_rnaseq"] == "yes":
     rule all:
@@ -490,96 +468,31 @@ if config["Do_deconv"] == "yes":
     else:
         DECONV_INPUT = config["Input_Directory"]
 
-    if config["Deconvolution_method"] == "quantiseq":
-        rule quantiseq:
-            input:
-                DECONV_INPUT
-            output:
-                config["Output_Directory"] + "/deconvolution_" + config["Deconvolution_method"] + ".txt"
-            message:
-                "Running deconvolution"
-            benchmark:
-                "benchmarks/benchmark.quantiseq.txt"
-            conda:
-                "Tools/immunedeconv.yaml"
-            singularity:
-                "docker://continuumio/miniconda3:4.8.2"
-            script:
-                "Tools/deconvolution_quantiseq.R"
-
-    elif config["Deconvolution_method"] == "mcpcounter":
-        rule mcpcounter:
-            input:
-                DECONV_INPUT
-            output:
-                config["Output_Directory"] + "/deconvolution_" + config["Deconvolution_method"] + ".txt"
-            message:
-                "Running deconvolution"
-            benchmark:
-                "benchmarks/benchmark.mcp.txt"
-            conda:
-                "Tools/mcpcounter.yaml"
-            singularity:
-                "docker://continuumio/miniconda3:4.8.2"
-            script:
-                "Tools/deconvolution_mcpcounter.R"
-
-    elif config["Deconvolution_method"] == "deconRNAseq":
-        rule deconRNAseq:
-            input:
-                DECONV_INPUT
-            output:
-                config["Output_Directory"] + "/deconvolution_" + config["Deconvolution_method"] + "_" + SIG_name + ".txt"
-            params:
-                config["Signature"]
-            message:
-                "Running deconvolution"
-            benchmark:
-                "benchmarks/benchmark.deconRNA.txt"
-            conda:
-                "Tools/RNAdeconv.yaml"
-            singularity:
-                "docker://continuumio/miniconda3:4.8.2"
-            script:
-                "Tools/deconvolution_deconrnaseq.R"
-
-    elif config["Deconvolution_method"] == "epidish":
-        rule epidish:
-            input:
-                DECONV_INPUT
-            output:
-                config["Output_Directory"] + "/deconvolution_" + config["Deconvolution_method"] + "_" + SIG_name + ".txt"
-            params:
-                config["Signature"]
-            message:
-                "Running deconvolution"
-            benchmark:
-                "benchmarks/benchmark.epidish.txt"
-            conda:
-                "Tools/epidish.yaml"
-            singularity:
-                "docker://continuumio/miniconda3:4.8.2"
-            script:
-                "Tools/deconvolution_epidish.R"
-
-    if config["Deconvolution_method"] in deconv_without_sign:
-        report_input = config["Output_Directory"] + "/deconvolution_" + config["Deconvolution_method"] + ".txt"
-        report_output = directory(config["Output_Directory"] + "/HTML_REPORT_" + config["Deconvolution_method"])
-        path_to_deconv = abspath(config["Output_Directory"] + "/deconvolution_" + config["Deconvolution_method"] + ".txt")
-    elif config["Deconvolution_method"] in deconv_with_sign:
-       report_input = config["Output_Directory"] + "/deconvolution_" + config["Deconvolution_method"] + "_" + SIG_name + ".txt"
-       report_output = directory(config["Output_Directory"] + "/HTML_REPORT_" + config["Deconvolution_method"] + "_" + SIG_name)
-       path_to_deconv = abspath(config["Output_Directory"] + "/deconvolution_" + config["Deconvolution_method"] + "_" + SIG_name + ".txt")
-    else:
-        exit("Please check the config.yaml 'Deconcolution_method' parameter.")
+    rule deconvolution:
+        input:
+            DECONV_INPUT
+        output:
+            config["Output_Directory"] + "/deconvolution.txt"
+        params:
+            config["Signatures"]
+        message:
+            "Running deconvolution"
+        benchmark:
+            "benchmarks/benchmark.deconvolution.txt"
+        conda:
+            "Tools/deconvolution.yaml"
+        singularity:
+            "docker://continuumio/miniconda3:4.8.2"
+        script:
+            "Tools/deconvolution.R"
 
     rule report:
         input:
-            report_input
+            rules.deconvolution.output
         output:
-            report_output
+            directory(config["Output_Directory"] + "/HTML_REPORT")
         params:
-            path_to_deconv
+            abspath(config["Output_Directory"] + "/deconvolution")
         message:
             "Generating report"
         conda:

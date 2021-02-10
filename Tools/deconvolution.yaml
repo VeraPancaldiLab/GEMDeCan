@@ -1,0 +1,8 @@
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - r-immunedeconv =2.0.1
+  - bioconductor-deconrnaseq= 1.28.0
+  - bioconductor-epidish= 2.2.0
+  - r-mcpcounter=1.1.0

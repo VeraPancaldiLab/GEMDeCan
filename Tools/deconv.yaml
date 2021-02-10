@@ -1,5 +1,0 @@
-channels:
-    - bioconda
-    - conda-forge
-dependencies:
-    - r-immunedeconv =2.0.1
