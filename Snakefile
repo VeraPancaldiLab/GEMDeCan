@@ -548,6 +548,8 @@ if config["Do_deconv"] == "yes":
             config["Signatures"]
         message:
             "Running deconvolution"
+        threads:
+            config["THREADS"]
         benchmark:
             "benchmarks/benchmark.deconvolution.txt"
         conda:
