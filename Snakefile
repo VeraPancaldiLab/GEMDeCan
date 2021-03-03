@@ -494,7 +494,7 @@ if config["Do_deconv"] == "yes":
         output:
             directory(config["Output_Directory"] + "/HTML_REPORT")
         params:
-            abspath(config["Output_Directory"] + "/deconvolution")
+            abspath(rules.deconvolution.output[0])
         message:
             "Generating report"
         conda:
