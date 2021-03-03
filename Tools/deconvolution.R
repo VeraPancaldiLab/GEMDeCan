@@ -18,8 +18,9 @@ output_path <- snakemake@output[[1]]
 threads <- snakemake@threads
 
 signature_files <- list.files(signatures_path, full.names = T)
+signature_files <- setdiff(signature_files, signature_files[dir.exists(signature_files)])
 
-TPM <- readr::read_tsv(TPM_path)
+TPM <- read_tsv(TPM_path)
 TPM_matrix <- as.matrix(TPM[, -1])
 rownames(TPM_matrix) <- TPM %>% pull(1)
 
@@ -37,8 +38,9 @@ computeQuantiseq <- function(TPM_matrix) {
 }
 
 
-computeMCP <- function(TPM_matrix) {
-  mcp <- as_tibble(MCPcounter.estimate(TPM_matrix, featuresType = "HUGO_symbols"), rownames = "cell_type") %>%
+computeMCP <- function(TPM_matrix, signatures_path) {
+  genes <- read.table(file.path(signatures_path, "MCPcounter", "MCPcounter-genes.txt"), sep = "\t", stringsAsFactors = FALSE, header = TRUE, colClasses = "character", check.names = FALSE)
+  mcp <- as_tibble(MCPcounter.estimate(TPM_matrix, genes = genes, featuresType = "HUGO_symbols", probesets = NULL), rownames = "cell_type") %>%
     pivot_longer(-cell_type) %>%
     pivot_wider(names_from = cell_type, values_from = value) %>%
     rename(sample = name)
@@ -57,8 +59,7 @@ methods_with_variable_signatures <- function(TPM_matrix, signature_files, thread
     signature <- as.matrix(read.table(signature_file, header = TRUE, row.names = 1, sep = "\t"))
 
     signature_name <- basename(signature_file)
-    signature_name <- str_split(signature_name, "-")[[1]][2]
-    signature_name <- str_sub(signature_name, end = -5)
+    signature_name <- str_split(signature_name, "\\.")[[1]][1]
 
     epi <- epidish(TPM_matrix, signature, method = "RPC", maxit = 200)
     epi <- as_tibble(epi$estF, rownames = "sample")
@@ -83,7 +84,7 @@ all_deconvolutions_table <- mclapply(c("Quantiseq", "MCP", "rest"), function(met
   if (method == "Quantiseq") {
     computeQuantiseq(TPM_matrix)
   } else if (method == "MCP") {
-    computeMCP(TPM_matrix)
+    computeMCP(TPM_matrix, signatures_path)
   } else if (method == "rest") {
     methods_with_variable_signatures(TPM_matrix, signature_files, threads)
   }
