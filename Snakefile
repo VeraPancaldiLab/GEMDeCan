@@ -485,8 +485,8 @@ if config["Do_deconv"] == "yes":
             "Tools/deconvolution.yaml"
         singularity:
             "docker://continuumio/miniconda3:4.8.2"
-        script:
-            "Tools/deconvolution.R"
+        shell:
+            "Tools/deconvolution.R {input} {output} {params} {threads}"
 
     rule report:
         input:

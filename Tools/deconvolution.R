@@ -1,3 +1,5 @@
+#!/usr/bin/env -S Rscript --vanilla
+
 suppressPackageStartupMessages({
   library(dplyr) # rename
   library(tidyr) # pivot_longer
@@ -12,10 +14,16 @@ suppressPackageStartupMessages({
   library(parallel) # mclapply
 })
 
-TPM_path <- snakemake@input[[1]]
-signatures_path <- snakemake@params[[1]]
-output_path <- snakemake@output[[1]]
-threads <- snakemake@threads
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) != 4) {
+  print("./deconvolution.R TPM_file output_file signatures_path threads_number")
+  quit(status = 1)
+}
+
+TPM_path <- args[1]
+output_path <- args[2]
+signatures_path <- args[3]
+threads <- args[4]
 
 signature_files <- list.files(signatures_path, full.names = T)
 signature_files <- setdiff(signature_files, signature_files[dir.exists(signature_files)])
