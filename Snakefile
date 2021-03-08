@@ -64,7 +64,7 @@ if config["Do_rnaseq"] == "yes":
         if config["Genome"] is None:
             exit_error("Genome")
 
-    if config["Index_rnaseq"] is None:
+    if config["Index_rnaseq"] is None and config["Compute_index"] != "yes":
         exit_error("Index_rnaseq")
 
     if config["Convert_bcl2fastq"] is None:
@@ -102,8 +102,8 @@ if config["Do_rnaseq"] == "yes":
 if config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "yes":
     rule all:
         input:
-            expand(OUTmultiqc + "/{sample}_multiqc_report.html", sample=SAMPLES),
-            expand(OUTmultiqc2 + "/{sample}_multiqc_report.html", sample=SAMPLES),
+            OUTmultiqc + "/multiqc_report.html",
+            OUTmultiqc2 + "/multiqc_report.html",
             config["Output_Directory"] + "/deconvolution.txt",
             directory(config["Output_Directory"] + "/HTML_REPORT")
 
@@ -116,8 +116,8 @@ elif config["Do_deconv"] == "yes" and config["Do_rnaseq"] == "no":
 elif config["Do_deconv"] == "no" and config["Do_rnaseq"] == "yes":
     rule all:
         input:
-            expand(OUTmultiqc + "/{sample}_multiqc_report.html", sample=SAMPLES),
-            expand(OUTmultiqc2 + "/{sample}_multiqc_report.html", sample=SAMPLES),
+            OUTmultiqc + "/multiqc_report.html",
+            OUTmultiqc2 + "/multiqc_report.html",
             config["Output_Directory"] + "/all_sample_quantified.txt"
 
 ########################
@@ -130,7 +130,7 @@ if config["Do_rnaseq"] == "yes":
     if config["Convert_bcl2fastq"] == "yes":
         rule bcl2fastq:
             input:
-                INDIR = config["Input_Directory"],
+                INDIR = config["Input"],
                 SHEET = config["Sample_Sheet"]
             output:
                 OUTbcl + "/Reports/html/index.html"
@@ -168,33 +168,37 @@ if config["Do_rnaseq"] == "yes":
     if  config["Convert_bcl2fastq"] == "yes":
         QCINPUT = OUTbcl
     else:
-        QCINPUT = config["Input_Directory"]
+        QCINPUT = config["Input"]
 
     ## Quality control for raw fastq data
     rule fastqc1:
         input:
-            QCINPUT + "/{samples}.fastq.gz"
+            r1 = QCINPUT + "/{samples}_R1.fastq.gz",
+            r2 = QCINPUT + "/{samples}_R2.fastq.gz"
         output:
-            html = OUTfastqc + "/{samples}_fastqc.html",
-            zip = OUTfastqc + "/{samples}_fastqc.zip"
-        threads: config["THREADS"]
+            zip1 = OUTfastqc + "/{samples}_R1_fastqc.zip",
+            zip2 = OUTfastqc + "/{samples}_R2_fastqc.zip"
+        threads: 
+            config["THREADS"]
         benchmark:
             "benchmarks/benchmark.fastqc1_{samples}.txt"
         message:
             "Quality control before trimming"
         params:
-            "-t 8"
-        wrapper:
-            SNAKEMAKE_WRAPPERS_VERSION + "/bio/fastqc"
+            OUTfastqc
+        conda:
+            "Tools/fastqc.yaml"
+        shell:
+            "fastqc -t {threads} --quiet --outdir {params} {input.r1} {input.r2}"
 
     rule multiqc1:
         input:
-            OUTfastqc + "/{samples}_R1_fastqc.html",
-            OUTfastqc + "/{samples}_R2_fastqc.html"
+            expand(OUTfastqc + "/{samples}_R2_fastqc.zip", samples= SAMPLES)
+            # input is only usefull for the directory here, using R2 to make sure all samples ran into fastqc
         benchmark:
-            "benchmarks/benchmark.multiqc1_{samples}.txt"
+            "benchmarks/benchmark.multiqc1.txt"
         output:
-            MainOut = OUTmultiqc + "/{samples}_multiqc_report.html"
+            OUTmultiqc + "/multiqc_report.html"
         wrapper:
             SNAKEMAKE_WRAPPERS_VERSION + "/bio/multiqc"
 
@@ -259,38 +263,59 @@ if config["Do_rnaseq"] == "yes":
     ## Quality control after trimming
     rule fastqc2:
         input:
-            OUTcut + "/{samples}.fastq.gz"
+            r1 = OUTcut + "/{samples}_R1.fastq.gz",
+            r2 = OUTcut + "/{samples}_R2.fastq.gz"
         output:
-            html = OUTfastqc2 + "/{samples}_fastqc.html",
-            zip = OUTfastqc2 + "/{samples}_fastqc.zip"
-        threads: config["THREADS"]
+            zip1 = OUTfastqc2 + "/{samples}_R1_fastqc.zip",
+            zip2 = OUTfastqc2 + "/{samples}_R2_fastqc.zip"
+        threads: 
+            config["THREADS"]
         message:
             "Quality control after trimming"
         benchmark:
             "benchmarks/benchmark.fastqc2_{samples}.txt"
         params:
-            "-t 8"
-        wrapper:
-            SNAKEMAKE_WRAPPERS_VERSION + "/bio/fastqc"
+            OUTfastqc2
+        conda:
+            "Tools/fastqc.yaml"
+        shell:
+            "fastqc -t {threads} --quiet --outdir {params} {input.r1} {input.r2}"
+
     rule multiqc2:
         input:
-            OUTfastqc2 + "/{samples}_R1_fastqc.html",
-            OUTfastqc2 + "/{samples}_R2_fastqc.html"
-        output:
-            OUTmultiqc2 + "/{samples}_multiqc_report.html"
+            expand(OUTfastqc2 + "/{samples}_R2_fastqc.zip", samples= SAMPLES)
         benchmark:
-            "benchmarks/benchmark.multiqc2_{samples}.txt"
+            "benchmarks/benchmark.multiqc2.txt"
+        output:
+            OUTmultiqc2 + "/multiqc_report.html"
         wrapper:
             SNAKEMAKE_WRAPPERS_VERSION + "/bio/multiqc"
 
     # Quantification
     if config["Quantification_with"] == "kallisto":
+        if config["Compute_index"] == "yes":
+            rule kallisto_index:
+                input:
+                    config["CDNA"]
+                output:
+                    "data/genome/transcript.idx"
+                message:
+                    "Building Kallisto index"
+                conda:
+                    "Tools/kallisto.yaml"
+                shell:
+                    "kallisto index -i {output} {input}"
+            index = rules.kallisto_index.output
+        else:
+            index = config["Index_rnaseq"]
+        
         rule kallisto:
             input:
                 R1 = OUTcut + "/{samples}_R1.fastq.gz",
                 R2 = OUTcut + "/{samples}_R2.fastq.gz",
-                INDEX = config["Index_rnaseq"],
-            threads: config["THREADS"]
+                INDEX = index
+            threads: 
+                config["THREADS"]
             output:
                 QUANTIF + "/{samples}/abundance.tsv",
                 QUANTIF + "/{samples}/abundance.h5"
@@ -327,14 +352,36 @@ if config["Do_rnaseq"] == "yes":
                 "Tools/quant_for_kallisto.R"
 
     elif config["Quantification_with"] == "salmon":
+        if config["Compute_index"] == "yes":
+            rule salmon_index:
+                input:
+                    CDNA = config["CDNA"],
+                    GENOME = config["Genome"]
+                output:
+                    directory("data/genome/salmon_index")
+                threads:
+                    config["THREADS"]
+                params:
+                    "data/genome/salmon_index"
+                message:
+                    "Building Salmon index"
+                benchmark:
+                    "benchmarks/benchmark.salmon_index.txt"
+                conda:
+                    "Tools/salmon.yaml"
+                shell:
+                    "bash Tools/compute_index_salmon.sh {input.GENOME} {input.CDNA} {threads} {params}"
+            index = rules.salmon_index.output
+        else:
+            index = config["Index_rnaseq"]
+
         rule salmon:
             input:
                 r1 = OUTcut + "/{samples}_R1.fastq.gz",
                 r2 = OUTcut + "/{samples}_R2.fastq.gz",
-                index = config["Index_rnaseq"]
+                INDEX = index
             output:
-                quant = QUANTIF + "/{samples}/quant.sf",
-                lib = QUANTIF + "/{samples}/lib_format_counts.json"
+                QUANTIF + "/{samples}/quant.sf"
             params:
                 DIR = QUANTIF + "/{samples}",
                 libtype ="A",
@@ -349,7 +396,7 @@ if config["Do_rnaseq"] == "yes":
             singularity:
                 "docker://continuumio/miniconda3:4.8.2"
             shell:
-                "salmon quant -i {input.index} -l {params.libtype} "
+                "salmon quant -i {input.INDEX} -l {params.libtype} "
                 "-1 {input.r1} -2 {input.r2} "
                 "-o {params.DIR} "
                 "-p {threads} --validateMappings"
@@ -363,7 +410,7 @@ if config["Do_rnaseq"] == "yes":
                 QUANTIF,
                 SAMPLES
             benchmark:
-                "benchmarks/benchmark.quant_to_gene_{samples}.txt"
+                "benchmarks/benchmark.quant_to_gene.txt"
             conda:
                 "Tools/quantif.yaml"
             singularity:
@@ -372,15 +419,38 @@ if config["Do_rnaseq"] == "yes":
                 "Tools/quant_for_salmon.R"
 
     elif config["Quantification_with"] == "STAR":
+        if config["Compute_index"] == "yes":
+            rule star_index:
+                input:
+                    GENOME = config["Genome"],
+                    GTF = config["GTF"]
+                output:
+                    directory("data/star")
+                threads:
+                    config["THREADS"]
+                benchmark:
+                    "benchmark/star_index.txt"
+                message:
+                    "Computing STAR index"
+                conda:
+                    "Tools/star.yaml"
+                shell:
+                    "STAR --runThreadN {threads} --runMode genomeGenerate "
+                    "--genomeDir {output} --genomeFastaFiles {input.GENOME} "
+                    "--sjdbGTFfile {input.GTF}"
+            index = rules.star_index.output
+        else:
+            index =  config["Index_rnaseq"]
+ 
         rule star:
             input:
                 fq1 = OUTcut + "/{samples}_R1.fastq.gz",
-                fq2 = OUTcut + "/{samples}_R2.fastq.gz"
+                fq2 = OUTcut + "/{samples}_R2.fastq.gz",
+                GENOMEdir =index
             output:
                 config["Output_Directory"] + "/star/{samples}/Aligned.toTranscriptome.out.bam"
             params:
                 OUT = config["Output_Directory"] + "/star/{samples}/",
-                GENOMEdir = config["Index_rnaseq"],
                 GTF = config["GTF"]
             threads:
                 config["THREADS"]
@@ -397,7 +467,7 @@ if config["Do_rnaseq"] == "yes":
                 "--quantMode TranscriptomeSAM "
                 "--quantTranscriptomeBan IndelSoftclipSingleend "
                 "--outFileNamePrefix {params.OUT} "
-                "--genomeDir {params.GENOMEdir} "
+                "--genomeDir {input.GENOMEdir} "
                 "--sjdbGTFfile {params.GTF} "
                 "--readFilesIn {input.fq1} {input.fq2}"
 
@@ -407,7 +477,8 @@ if config["Do_rnaseq"] == "yes":
             output:
                 "data/rsem/gen.seq"
             params:
-                GEN = config["Genome"]
+                GEN = config["Genome"],
+                REF = "data/rsem/gen"
             threads:
                 config["THREADS"]
             conda:
@@ -416,13 +487,13 @@ if config["Do_rnaseq"] == "yes":
                 "rsem-prepare-reference "
                 "-p {threads} "
                 "--gtf {input} "
-                "{params} "
-                "{output}"
+                "{params.GEN} "
+                "{params.REF}"
 
         rule RSEM:
             input:
                 BAM = config["Output_Directory"] + "/star/{samples}/Aligned.toTranscriptome.out.bam",
-                REF = "data/rsem/gen.seq"
+                PREV = rules.RSEM_ref.output
             output:
                 config["Output_Directory"] + "/rsem/{samples}.genes.results"
             params:
@@ -466,7 +537,7 @@ if config["Do_deconv"] == "yes":
     if config["Do_rnaseq"] == "yes":
         DECONV_INPUT = config["Output_Directory"] + "/all_sample_quantified.txt"
     else:
-        DECONV_INPUT = config["Input_Directory"]
+        DECONV_INPUT = config["Input"]
 
     rule deconvolution:
         input:

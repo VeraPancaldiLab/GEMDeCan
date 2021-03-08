@@ -1,8 +1,8 @@
 # General info
 Output_Directory:
   outputs
-Input_Directory: # location of your data
-  /home/julien/Documents/data/Eq9_and_21/
+Input: # location of your data
+  input_test
 THREADS: # number of threads to use
   14
 
@@ -10,38 +10,38 @@ THREADS: # number of threads to use
 Do_rnaseq: # run the rna-seq pipeline ? "yes" or "no", don't forget the ""
   "yes"
 Samples: # link to file containing the list of samples name
-  samples.txt
+  data/samples.txt
 
-# Conversion BCL to FASTQ format  
+# Conversion BCL to FASTQ format
 Convert_bcl2fastq: # Do you need to convert from raw illumina bcl to fastq ?  "yes" or "no", don't forget the ""
-  "yes"
+  "no"
 Sample_Sheet:
-  /home/julien/Documents/data/Eq9_and_21/SampleSheetCLL-1.csv
+  data/SampleSheetCLL-1.csv
 
 # Trimming process
 Trim_with: # Trimmomatic or Trimgalore
   Trimmomatic
 Adapter: # illumina adapter
-  /home/julien/Documents/pipeline_rnaseq/data/TruSeqAdapt.fa
+  data/TruSeqAdapt.fa
 Quantification_with: # STAR or kallisto or salmon
-  kallisto
-Index_rnaseq: # path to kallisto Index file location or Salmon or STAR Index folder location
-  /home/julien/Documents/pipeline_rnaseq/data/genome/transcript.idx
+  STAR
+Index_rnaseq: # path to kallisto Index file location or Salmon or STAR 2.7.6a Index folder location
+   
 
-############## STAR specific files ##############
-GTF: # in case of STAR method is chosen. Path to the GTF file. It must be full path for R, and not zipped format
-  /home/julien/Documents/pipeline_rnaseq/data/genome/homo_grch38.gtf
-Genome: # in case of STAR method is chosen? Path to the reference genome sequence. It must be fasta format.
+# If you can't provide the index :
+Compute_index:
+  "yes"
+CDNA: # Required for Salmon and Kallisto
+  data/genome/homo_grch38_cdna.fa.gz
+  # Computing indexes requires the 2 following files. They are also required if you chose to run STAR+RSEM
+GTF: # If STAR method is chosen. Path to the GTF file. Not a zipped format
+  data/genome/homo_grch38.gtf
+Genome: # If STAR method is chosen. Path to the reference genome sequence. It must be fasta format.
   data/genome/homo_grch38_dna.fasta
 
 # Deconvolution option
 Do_deconv: # run the deconvolution ? "yes" or "no", don't forget the ""
   "no"
-Deconvolution_method: # quantiseq, deconRNAseq, epidish or mcpcounter
-  epidish
-Signature: # gene signature for deconvolution
-  /mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/DNA_WGBS_methylation/signature/BPRNACan+.tsv
-
 
 Signatures:
   data/signatures
