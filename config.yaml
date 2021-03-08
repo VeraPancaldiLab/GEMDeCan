@@ -43,4 +43,6 @@ Signature: # gene signature for deconvolution
   /mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Common/DNA_WGBS_methylation/signature/BPRNACan+.tsv
 
 
+Signatures:
+  data/signatures
 

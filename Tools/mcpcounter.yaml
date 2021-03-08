@@ -1,4 +1,0 @@
-channels:
-  - bioconda
-dependencies:
-  - r-mcpcounter=1.1.0

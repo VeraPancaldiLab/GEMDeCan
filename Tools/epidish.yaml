@@ -1,4 +1,0 @@
-channels:
-  - bioconda
-dependencies:
-  - bioconductor-epidish= 2.2.0

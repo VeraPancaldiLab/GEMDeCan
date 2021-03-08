@@ -4,3 +4,7 @@ dependencies:
     - r-rmarkdown =2.3
     - r-hmisc =4.4.1
     - r-viridis =0.5.1
+    - r-rcolorbrewer
+    - r-pheatmap
+    - r-corrplot
+    - r-dplyr
