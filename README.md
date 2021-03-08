@@ -32,7 +32,28 @@ Once the snakemake environment is activated, you need to add the following chann
 * `conda config --add channels conda-forge`
 
 Note that officialy only Linux is supported for this pipeline. This also requires an internet connection in order to use conda auto-generated environements for all necessary softwares and packages.
-This pipeline was tested under R version 4. You may experience packages conflicts while running previous version of R.
+All R scripts within this pipeline were written with R version 4.0.3. You may experience packages conflicts while running previous version of R.
+
+## Dependencies
+All dependencies are automatically installed by snakemake using the .yaml configuration files. The following versions of libraries are used : 
+* r-rmarkdown =2.3
+* r-hmisc =4.4.1
+* r-viridis =0.5.1
+* bcl2fastq =2.19.0
+* r-immunedeconv =2.0.1
+* bioconductor-deconrnaseq= 1.28.0
+* bioconductor-epidish= 2.2.0
+* r-mcpcounter=1.1.0
+* fastqc =0.11.9
+* bioconductor-tximport= 1.18.0
+* bioconductor-rhdf5= 2.34.0
+* bioconductor-organism.dplyr= 1.18.0
+* bioconductor-org.hs.eg.db= 3.12.0
+* bioconductor-txdb.hsapiens.ucsc.hg38.knowngene= 3.10.0
+* rename=1.601
+* rsem =1.3.3
+* salmon =1.1.0
+* star =2.7.6a
 
 ## Configure your workspace
 The snakefile shouldn't be modified. A provided `config.yaml` file takes as input all needed directories and files.
