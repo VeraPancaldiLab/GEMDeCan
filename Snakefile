@@ -28,10 +28,10 @@ configfile: "config.yaml"
 # Define paths
 OUTbcl = config["Output_Directory"] + "/bcl2raw"
 OUTfastqc = config["Output_Directory"] + "/fastqc_raw"
-OUTfastqc2 = config["Output_Directory"] + "/fastqc_cutadapter"
+OUTfastqc2 = config["Output_Directory"] + "/fastqc_after_trimming"
 OUTmultiqc = config["Output_Directory"] + "/multiqc_raw"
-OUTmultiqc2 = config["Output_Directory"] + "/multiqc_after_cutadapter"
-OUTcut = config["Output_Directory"] + "/data_after_cutadapter"
+OUTmultiqc2 = config["Output_Directory"] + "/multiqc_after_trimming"
+OUTcut = config["Output_Directory"] + "/data_after_trimming"
 QUANTIF = config["Output_Directory"] + "/Quantification"
 
 SIG_name = ""
@@ -118,7 +118,7 @@ elif config["Do_deconv"] == "no" and config["Do_rnaseq"] == "yes":
         input:
             OUTmultiqc + "/multiqc_report.html",
             OUTmultiqc2 + "/multiqc_report.html",
-            config["Output_Directory"] + "/all_sample_quantified.txt"
+            config["Output_Directory"] + "/TPM.txt"
 
 ########################
 ####### RNA-SEQ #######
@@ -338,7 +338,7 @@ if config["Do_rnaseq"] == "yes":
             input:
                 expand(QUANTIF + "/{samples}/abundance.h5", samples= SAMPLES)
             output:
-                config["Output_Directory"] + "/all_sample_quantified.txt"
+                config["Output_Directory"] + "/TPM.txt"
             params:
                 QUANTIF,
                 SAMPLES
@@ -405,7 +405,7 @@ if config["Do_rnaseq"] == "yes":
             input:
                 expand(QUANTIF + "/{samples}/quant.sf", samples= SAMPLES)
             output:
-                config["Output_Directory"] + "/all_sample_quantified.txt"
+                config["Output_Directory"] + "/TPM.txt"
             params:
                 QUANTIF,
                 SAMPLES
@@ -520,7 +520,7 @@ if config["Do_rnaseq"] == "yes":
             input:
                 expand(config["Output_Directory"] + "/rsem/{samples}.genes.results", samples= SAMPLES)
             output:
-                config["Output_Directory"] + "/all_sample_quantified.txt"
+                config["Output_Directory"] + "/TPM.txt"
             params:
                 config["Output_Directory"] + "/rsem",
                 SAMPLES
@@ -535,7 +535,7 @@ if config["Do_rnaseq"] == "yes":
 
 if config["Do_deconv"] == "yes":
     if config["Do_rnaseq"] == "yes":
-        DECONV_INPUT = config["Output_Directory"] + "/all_sample_quantified.txt"
+        DECONV_INPUT = config["Output_Directory"] + "/TPM.txt"
     else:
         DECONV_INPUT = config["Input"]
 
