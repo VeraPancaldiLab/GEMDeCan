@@ -19,7 +19,7 @@ txi <- tximport(files, type = "rsem", txIn = T, txOut = T)
 txi <- summarizeToGene(txi, tx2gene)
 # Get TPM
 txi_TPM <- as.data.frame(cbind(Gene = rownames(txi$abundance), txi$abundance))
-write.table(txi_TPM, "../all_sample_quantified.txt", sep = "\t", quote = F, row.names = F)
+write.table(txi_TPM, "../TPM.txt", sep = "\t", quote = F, row.names = F)
 # Output Gene counts for good measure
 txi_count <- as.data.frame(cbind(Gene = rownames(txi$counts), txi$counts))
 write.table(txi_count, "../gene_counts.txt", sep = "\t", quote = F, row.names = F)
