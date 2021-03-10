@@ -1,10 +1,9 @@
-README
+# Pipeline for RNA-seq and deconvolution analysis
 
-# Pipeline for RNA-seq deconvolution analysis
+## Introduction
 
-## What am I looking at ?
+This computational pipeline takes as input BCL or FASTQ files of RNA-seq reads, performs trimming, quantification and deconvolution with the following softwares :
 
-This pipeline goes from converting raw Illumina data to quantification and deconvolution with user-chosen softwares :
 ![diagram](/diagram.png?raw=true "Pipeline Diagram")
 
 **Trimming** : 
@@ -16,11 +15,13 @@ This pipeline goes from converting raw Illumina data to quantification and decon
 * STAR + RSEM
 * Salmon
 
-**Deconvolution** :
+**Deconvolution** (all methods are performed):
 * QuantiSeq
 * MCP Counter
 * deconRNAseq
 * EpiDish
+
+
 
 ## Installation
 
