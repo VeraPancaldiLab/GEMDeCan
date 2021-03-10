@@ -4,7 +4,7 @@
 
 This computational pipeline takes as input BCL or FASTQ files of RNA-seq reads, performs trimming, quantification and deconvolution with the following softwares :
 
-![diagram](/diagram.png?raw=true "Pipeline Diagram")
+![diagram](/diagram2.png?raw=true "Pipeline Diagram")
 
 **Trimming** : 
 * Trim-galore
