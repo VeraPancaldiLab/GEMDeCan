@@ -1,23 +1,24 @@
 README
 
-# Pipeline for lungProject RNA-seq analysis
+# Pipeline for RNA-seq deconvolution analysis
 
 ## What am I looking at ?
-This pipeline goes from converting raw Illumina data to quantification and deconvolution with user-chosen software between :
-* Kallisto *
-* STAR + RSEM *
-* Salmon *
+
+This pipeline goes from converting raw Illumina data to quantification and deconvolution with user-chosen softwares :
+** Trimming : 
+* Trim-galore
+* Trimmomatic
+
+** RNASeq quantification :
+* Kallisto
+* STAR + RSEM
+* Salmon
+
+** Deconvolution :
 * QuantiSeq
 * MCP Counter
 * deconRNAseq
 * EpiDish
-
-User also gets to chose his favorite trimmer between:
-* Trim-galore
-* Trimmomatic
-
-\* Please do take note that genome indexing isn't performed in this pipeline. If you don't have a genome index for the software you chose, it won't perform. An additional script `compute_indexes.sh` is provided to help you into building one if you need it.
-This script is for command line usage like so : `bash compute_indexes.sh [method] [input] [output] [number_of_threads]`
 
 ## Installation
 
@@ -64,25 +65,25 @@ The snakefile shouldn't be modified. A provided `config.yaml` file takes as inpu
  * **Threads** : number of threads allowed for each job.
 
 ### Options 
- * **Do_deconv** : should the pipeline run a deconvolution method ?
- * **Do_rnaseq** : should the pipeline run the RNAseq analysis part ?
+ * **Do_deconv** : should the pipeline run a deconvolution method ? "yes" or "no"
+ * **Do_rnaseq** : should the pipeline run the RNAseq analysis part ? "yes" or "no"
+ * **Convert_bcl2fastq** : do you need to convert `.bcl` to `.fastq` ? "yes" or "no"
+ * **Compute_index** : do you need to perform genome indexing ? "yes" or "no". If "yes", provide the required files to compute the indexes according to your quantification method. If "no", i.e. if you already have a genome index ready to use, simply the path(s) to the index or folder in the configuration file
 
 ### RNASeq
  * **Quantification_with** : STAR, Kallisto or Salmon to be used for quantification analysis
- * **Index** : index location for Kallisto or Salmon
- * **Sample_sheet** results from illumina sequencing. It is needed for Illumina `.bcl` to `.fastq` conversion.
- * **Adapter** : adapter used for illumina sequencing that is to be trimmed. Required for Trimmomatic, but not for Trim-galore.
+ * **Index_rnaseq** : index file location for Kallisto or Salmon, index folder location for STAR method
+ * **Sample_sheet** results from illumina sequencing. It is needed for Illumina `.bcl` to `.fastq` conversion (Convert_bcl2fastq = "yes").
+ * **Adapter** : Path to the adapter used for illumina sequencing that is to be trimmed. Required for Trimmomatic, but not for Trim-galore.
  * **Samples** : the list of all samples to be analysed. It should be a path to a `.txt` file with the list of samples in it. If you are using bcl2fastq, simply copy/paste the column sample_name from your sample sheet.
-  * **Convert_bcl2fastq** : do you need to convert `.bcl` to `.fastq` ? "yes" or "no"
   * **Trim_with** : chose between one of the two trimmer 
  
  ### STAR specific files
- * **Genome** file in fasta format
- * **GTF** file in absolute path (mendatory !). Can be compressed or not.
+ * **Genome** : Patht to genome file in fasta format. E.g. : Homo_sapiens.GRCh38.dna.primary_assembly.fa
+ * **GTF** : Path to file (absolute path is mandatory). E.g. : Homo_sapiens.GRCh38.103.gtf
  
 ### Deconvolution 
-  * **Deconvolution_method** : run the deconvolution with QuantiSeq, deconRNAseq or MCPCounter. 
- * **Signature** : a regular signature to use with deconRNAseq or EpiDish
+ * **Signatures** : Path to folder containing signatures to use for the deconvolution
  
 
 
@@ -106,5 +107,9 @@ DeconRNASeq and EpiDish both allow the user to chose his own signature.
 
 Please do take note that all methods require a quantification matrix as input, in a tabulated format with a preference for **TPM** normalization (we also provide a quick R function of convert from FPKM). The signature is also in a tab separated file. You can find our signature from the publication [link to publication] in the `Signature/` directory of this repository.
 
-## Exemple
-You can run an exemple of this pipeline using ressources provided in the `Exemple/` directory of this repository.
+## Output files
+### RNASeq quantification
+### Deconvolution
+
+## Example
+You can run an example of this pipeline using ressources provided in the `Exemple/` directory of this repository.
