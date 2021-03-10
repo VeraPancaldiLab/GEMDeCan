@@ -5,16 +5,18 @@ README
 ## What am I looking at ?
 
 This pipeline goes from converting raw Illumina data to quantification and deconvolution with user-chosen softwares :
-** Trimming : 
+![diagram](/diagram.png?raw=true "Pipeline Diagram")
+
+**Trimming** : 
 * Trim-galore
 * Trimmomatic
 
-** RNASeq quantification :
+**RNASeq quantification** :
 * Kallisto
 * STAR + RSEM
 * Salmon
 
-** Deconvolution :
+**Deconvolution** :
 * QuantiSeq
 * MCP Counter
 * deconRNAseq
