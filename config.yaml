@@ -24,7 +24,7 @@ Trim_with: # Trimmomatic or Trimgalore
 Adapter: # illumina adapter
   /home/julien/Documents/pipeline_rnaseq/data/TruSeqAdapt.fa
 Quantification_with: # STAR or kallisto or salmon
-  STAR
+  salmon
 Index_rnaseq: # path to kallisto Index file location or Salmon or STAR 2.7.6a Index folder location
   /path/to/index/
 
@@ -33,11 +33,11 @@ Compute_index:
   "yes"
 CDNA: # Required for Salmon and Kallisto
   /home/julien/Documents/pipeline_rnaseq/data/genome/homo_grch38_cdna.fa.gz
-  # Computing indexes requires the 2 following files. They are also required if you chose to run STAR+RSEM
-GTF: # If STAR method is chosen. Path to the GTF file. Not a zipped format
-  /home/julien/Documents/pipeline_rnaseq/data/genome/homo_grch38.gtf
-Genome: # If STAR method is chosen. Path to the reference genome sequence. It must be fasta format.
+  # Computing indexes requires the 2 following files. They are
+Genome: # Path to the reference genome sequence. It must be fasta format. Required for Salmon and STAR
   /home/julien/Documents/pipeline_rnaseq/data/genome/homo_grch38_dna.fasta
+GTF: # Path to the GTF file. Not a zipped format.  Required if you chose to run STAR+RSEM
+  /home/julien/Documents/pipeline_rnaseq/data/genome/homo_grch38.gtf
 
 # Deconvolution option
 Do_deconv: # run the deconvolution ? "yes" or "no", don't forget the ""
