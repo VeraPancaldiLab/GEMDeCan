@@ -71,18 +71,21 @@ The snakefile shouldn't be modified. A provided `config.yaml` file takes as inpu
  * **Do_deconv** : should the pipeline run a deconvolution method ? "yes" or "no"
  * **Do_rnaseq** : should the pipeline run the RNAseq analysis part ? "yes" or "no"
  * **Convert_bcl2fastq** : do you need to convert `.bcl` to `.fastq` ? "yes" or "no"
- * **Compute_index** : do you need to perform genome indexing ? "yes" or "no". If "yes", provide the required files to compute the indexes according to your quantification method. If "no", i.e. if you already have a genome index ready to use, simply the path(s) to the index or folder in the configuration file
+ * **Compute_index** : do you need to perform genome indexing ? "yes" or "no". If "yes", provide the required files to compute the indexes according to your quantification method. If "no", i.e. if you already have a genome index ready to use, simply the path(s) to the index or folder in the configuration file. 
 
 ### RNASeq
  * **Quantification_with** : STAR, Kallisto or Salmon to be used for quantification analysis
- * **Index_rnaseq** : index file location for Kallisto or Salmon, index folder location for STAR method
+ * **Index_rnaseq** : index file location for Kallisto or Salmon, index folder location for STAR method. Make sure the index you're using was build with the right version of the method selected.
  * **Sample_sheet** results from illumina sequencing. It is needed for Illumina `.bcl` to `.fastq` conversion (Convert_bcl2fastq = "yes").
  * **Adapter** : Path to the adapter used for illumina sequencing that is to be trimmed. Required for Trimmomatic, but not for Trim-galore.
- * **Samples** : the list of all samples to be analysed. It should be a path to a `.txt` file with the list of samples in it. If you are using bcl2fastq, simply copy/paste the column sample_name from your sample sheet.
+ * **Samples** : the list of all samples to be analysed. It should be a path to a `.txt` file with the list of samples in it. Only required if you don't run `bcl2fastq`.
   * **Trim_with** : chose between one of the two trimmer 
  
+ ### Index builing
+ * **CDNA** : Requiered for Salmon and Kallisto. Path to the CDNA file. E.g : Homo_sapiens.GRCh38_cdna.fa.gz
+ * **Genome** : Path to genome file in fasta format. Note that this is also required to run STAR + RSEM, even if you don't build the index. E.g. : Homo_sapiens.GRCh38.dna.primary_assembly.fa
+ 
  ### STAR specific files
- * **Genome** : Patht to genome file in fasta format. E.g. : Homo_sapiens.GRCh38.dna.primary_assembly.fa
  * **GTF** : Path to file (absolute path is mandatory). E.g. : Homo_sapiens.GRCh38.103.gtf
  
 ### Deconvolution 
@@ -96,7 +99,7 @@ Activate your conda environement and launch the pipeline using a single bash lin
 `snakemake -j <number_of_threads> --use-conda`
 The `<number_of_threads>` parameter in the command line can be different from the parameter in the config file. For exemple, if you give 4 threads in the config file and 8 in the snakemake command line, 2 jobs can run in parallel. 
 
-Note that Kallisto and Salmon and faster than STAR, as they are pseudo-aligner.
+Note that Kallisto and Salmon are faster than STAR+RSEM, as they are pseudo-aligner.
 
 ### Containers
 The pipeline is ready to be executed using **[Singularity](https://sylabs.io/singularity/)** containers\
