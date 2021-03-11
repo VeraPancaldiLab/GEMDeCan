@@ -425,7 +425,7 @@ if config["Do_rnaseq"] == "yes":
                     GENOME = config["Genome"],
                     GTF = config["GTF"]
                 output:
-                    directory("data/star")
+                    directory("data/genome/star")
                 threads:
                     config["THREADS"]
                 benchmark:
