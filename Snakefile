@@ -298,7 +298,7 @@ if config["Do_rnaseq"] == "yes":
                 input:
                     config["CDNA"]
                 output:
-                    "data/genome/transcript.idx"
+                    "data/genome/kallisto_transcript.idx"
                 message:
                     "Building Kallisto index"
                 conda:
