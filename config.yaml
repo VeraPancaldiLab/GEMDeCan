@@ -43,7 +43,7 @@ Samples:
 Trim_with:
   Trimmomatic
 
-# If Do_rnaseq = “yes” and Trim_with = Trimmomaticthis is a required parameter for the trimming process. Please provide the path to the fasta Illumina adapter file.
+# If Do_rnaseq = “yes” and Trim_with = Trimmomatic this is a required parameter for the trimming process. Please provide the path to the fasta Illumina adapter file.
 Adapter:
   Path_to_TruSeqAdapt.fa
 
@@ -55,7 +55,7 @@ Quantification_with:
 Compute_index:
   "yes"
 
-# If Compute_index = “yes” and Quantification_with = kallisto, please provide the path to the CDNA file. The generated index will be created under data/genome/transcript.idx
+# If Compute_index = “yes” and Quantification_with = kallisto, please provide the path to the CDNA file. The generated index will be created under data/genome/kallisto_transcript.idx
 # If Compute_index = “yes” and Quantification_with = salmon, please provide the path to the CDNA file. The generated index folder will be created at the location data/genome/salmon_index
 CDNA:
   Path_to_index_data
