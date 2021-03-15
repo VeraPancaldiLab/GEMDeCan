@@ -1,46 +1,94 @@
-# General info
+############################################
+############# General info #################
+############################################
+
+## All parameters must be preceded by 2 white spaces
+
+# Path to the output directory
 Output_Directory:
-  ../outputs
-Input: # location of your data
-  /home/julien/Documents/testou
-THREADS: # number of threads to use
-  14
+  Path_to_output
 
-# Conversion BCL to FASTQ format
-Convert_bcl2fastq: # Do you need to convert from raw illumina bcl to fastq ?  "yes" or "no", don't forget the ""
-  "no"
-Sample_Sheet:
-  /home/julien/Documents/data/Eq9_and_21/SampleSheetCLL-1.csv
+# If you start from BCL files : path to the folder containing your Illumina RNASeq data. 
+# If you start from FASTQ files : path to the folder containing the FASTQ files.
+# If you start directly from quantified RNAseq data to perform only deconvolution : path to the TPM counts file.
+Input:
+  Path_to_input
 
-# Rnaseq quantification option
-Do_rnaseq: # run the rna-seq pipeline ? "yes" or "no", don't forget the ""
+# Number of threads to use.
+THREADS:
+  12
+
+############################################
+###### RNAseq quantification options #######
+############################################
+
+# Do you want to run conversion from raw illumina BCL to FASTQ files ? "yes" or "no", don't forget the ""
+Convert_bcl2fastq:
   "yes"
-Samples: # link to file containing the list of samples name
-  ../samples.txt
 
-# Trimming process
-Trim_with: # Trimmomatic or Trimgalore
+# If Convert_bcl2fastq = “yes”, provide the path to the .csv samplesheet provided by Illumina
+Sample_Sheet:
+  Path_to_sample_sheet.csv
+
+# Do you want to run the RNA-seq quantification ? "yes" or "no", don't forget the ""
+Do_rnaseq:
+  "yes"
+
+# If Do_rnaseq = “yes” and Convert_bcl2fastq = “no”, provide the path to the file listing your samples’ names.
+# If Do_rnaseq = “yes” and Convert_bcl2fastq = “yes”, the pipeline will automatically create the file listing your samples’ names, based on the .csv Illumina samplesheet. This file will be created under the main directory.
+Samples:
+  Path_to_samples.txt
+
+# If Do_rnaseq = “yes”, this is a required parameter for the trimming process : Trimmomatic or Trimgalore
+Trim_with:
   Trimmomatic
-Adapter: # illumina adapter
-  /home/julien/Documents/pipeline_rnaseq/data/TruSeqAdapt.fa
-Quantification_with: # STAR or kallisto or salmon
-  salmon
-Index_rnaseq: # path to kallisto Index file location or Salmon or STAR 2.7.6a Index folder location
-  /path/to/index/
 
-# If you can't provide the index :
+# If Do_rnaseq = “yes” and Trim_with = Trimmomaticthis is a required parameter for the trimming process. Please provide the path to the fasta Illumina adapter file.
+Adapter:
+  Path_to_TruSeqAdapt.fa
+
+# If Do_rnaseq = “yes”, this is a required parameter for indicating which RNAseq quantification method you would like to use : STAR, kallisto or salmon
+Quantification_with:
+  STAR
+
+# If Do_rnaseq = “yes”, this is a required parameter. Do you want to run index computation? "yes" or "no", don't forget the "". The created index file or folder will be required for all downstream RNAseq quantification methods.
 Compute_index:
   "yes"
-CDNA: # Required for Salmon and Kallisto
-  /home/julien/Documents/pipeline_rnaseq/data/genome/homo_grch38_cdna.fa.gz
-  # Computing indexes requires the 2 following files. They are
-Genome: # Path to the reference genome sequence. It must be fasta format. Required for Salmon and STAR
-  /home/julien/Documents/pipeline_rnaseq/data/genome/homo_grch38_dna.fasta
-GTF: # Path to the GTF file. Not a zipped format.  Required if you chose to run STAR+RSEM
-  /home/julien/Documents/pipeline_rnaseq/data/genome/homo_grch38.gtf
 
-# Deconvolution option
-Do_deconv: # run the deconvolution ? "yes" or "no", don't forget the ""
-  "no"
+# If Compute_index = “yes” and Quantification_with = kallisto, please provide the path to the CDNA file. The generated index will be created under data/genome/transcript.idx
+# If Compute_index = “yes” and Quantification_with = salmon, please provide the path to the CDNA file. The generated index folder will be created at the location data/genome/salmon_index
+CDNA:
+  Path_to_index_data
+
+# If Compute_index = “yes” and Quantification_with = STAR, please provide the path to the GTF file as it is required to create the STAR index file. The generated index folder will be created at data/genome/star
+# If Compute_index = “no” and Quantification_with = STAR, please also provide the path to the GTF file as it is required to perform the quantification with the STAR/RSEM method.
+# The GTF file must be provided as a .gtf formatted file (not compressed)
+GTF:
+  Path_to_index_data
+
+# If Compute_index = “yes” and Quantification_with = STAR, please provide the path to the Reference Genome file as it is required to create the STAR index file.
+# If Compute_index = “yes” and Quantification_with = salmon, please provide the path to the Reference Genome file as it is required to create the STAR index file.
+# If Compute_index = “no” and Quantification_with = STAR, please also provide the path to the Reference Genome file as it is required to perform the quantification with the STAR/RSEM method.
+# The Reference Genome file must be provided as a .fa formatted file (not compressed)  
+Genome:
+  Path_to_genome.fa
+
+# If Do_rnaseq = “yes” and Compute_index = “no”, this is a required parameter to provide the index. 
+# If you are using the kallisto quantification method, please provide the path to the kallisto index file. 
+# If you are using the salmon quantification method, please provide the path to the salmon index folder
+# If you are using the STAR/RSEM quantification method, please provide the path to the STAR index folder
+Index_rnaseq:
+  Path_to_index_data
+
+
+############################################
+########## Deconvolution options ###########
+############################################
+
+# Do you want to run the deconvolution ? "yes" or "no", don't forget the ""
+Do_deconv:
+  "yes"
+
+# If Do_deconv = yes, please provide the path to the folder containing the signatures. You can use the ones provided with this pipeline under data/signatures
 Signatures:
-  data/signatures
+  Path_to_signatures
