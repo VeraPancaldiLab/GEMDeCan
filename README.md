@@ -116,7 +116,12 @@ Please do take note that all methods require a quantification matrix as input, i
 
 ## Output files
 ### RNASeq quantification
+This part outputs 2 files :
+* **TPM.txt** : matrix of quantification normalized in TPM, this is the one used to run dconvolution.
+* **gene_counts.txt** : matrix of quantification without normalization. Not used in the rest of the pipeline bu might be usefull for the user.
 ### Deconvolution
+* **deconvolution.txt** : results of deconvolution : a table of cell type per sample.
+* An HTML summary report of the deconvolution results. 
 
 ## Example
 You can run an example of this pipeline using ressources provided in the `Exemple/` directory of this repository.
