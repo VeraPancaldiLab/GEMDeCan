@@ -1,6 +1,5 @@
 #' ---
 #' title: Analysis on deconvolution results
-#' author: Julien Pernet
 #' date:
 #' output:
 #'    html_document:
