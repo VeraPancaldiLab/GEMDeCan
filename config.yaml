@@ -9,7 +9,7 @@ Output_Directory:
   Path_to_output
 
 # If you start from BCL files : path to the folder containing your Illumina RNASeq data. 
-# If you start from FASTQ files : path to the folder containing the FASTQ files.
+# If you start from FASTQ files : path to the folder containing the FASTQ files. Note that your .fastq files should end with "R1" and "R2" to be properly processed by the pipeline
 # If you start directly from quantified RNAseq data to perform only deconvolution : path to the TPM counts file.
 Input:
   Path_to_input
