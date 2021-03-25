@@ -60,8 +60,7 @@ The snakefile shouldn't be modified. A provided `config.yaml` file takes as inpu
  * **GTF** file in absolute path (mendatory !). Can be compressed or not.
  
 ### Deconvolution 
-  * **Deconvolution_method** : run the deconvolution with QuantiSeq, deconRNAseq or MCPCounter. 
- * **Signature** : a regular signature to use with deconRNAseq or EpiDish
+ * **Signatures** : path to the folder containing the signatures to use with the deconvolution methods
  
 
 
