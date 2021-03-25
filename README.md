@@ -40,7 +40,7 @@ Note that officialy only Linux is supported for this pipeline. This also require
 All R scripts within this pipeline were written with R version 4.0.3. You may experience packages conflicts while running previous version of R.
 
 ## Dependencies
-All dependencies are automatically installed by snakemake using the .yaml configuration files. The following versions of libraries are used : 
+All dependencies are automatically installed by snakemake using the .yaml configuration files in Tools. So the user does not need to configure the conda environments as it is done within the pipeline. For information, here are the versions of libraries that are used : 
 * r-rmarkdown =2.3
 * r-hmisc =4.4.1
 * r-viridis =0.5.1
@@ -65,7 +65,7 @@ The snakefile shouldn't be modified. A provided `config.yaml` file takes as inpu
 
 ### General informations
  * **Output directory** : directory for all outputs. If you have multiple dataset, make one for each dataset.
- * **Input** : directory where your RNASeq data are located (`.fastq` or `.bcl`). If using only deconvolution, the path to your quantification matrix file (tab-separated TPM values).
+ * **Input** : directory where your RNASeq data are located (`.fastq` or `.bcl`). If using only deconvolution, the path to your quantification matrix file (tab-separated TPM values). Note that your .fastq files should end with "R1" and "R2" to be properly processed by the pipeline.
  * **Threads** : number of threads allowed for each job.
 
 ### Options 
