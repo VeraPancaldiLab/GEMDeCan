@@ -1,0 +1,12 @@
+HBR_Rep1_ERCC-Mix2_Build37-ErccTranscripts-chr22
+HBR_Rep1_ERCC-Mix2_Build37-ErccTranscripts-chr22
+HBR_Rep2_ERCC-Mix2_Build37-ErccTranscripts-chr22
+HBR_Rep2_ERCC-Mix2_Build37-ErccTranscripts-chr22
+HBR_Rep3_ERCC-Mix2_Build37-ErccTranscripts-chr22
+HBR_Rep3_ERCC-Mix2_Build37-ErccTranscripts-chr22
+UHR_Rep1_ERCC-Mix1_Build37-ErccTranscripts-chr22
+UHR_Rep1_ERCC-Mix1_Build37-ErccTranscripts-chr22
+UHR_Rep2_ERCC-Mix1_Build37-ErccTranscripts-chr22
+UHR_Rep2_ERCC-Mix1_Build37-ErccTranscripts-chr22
+UHR_Rep3_ERCC-Mix1_Build37-ErccTranscripts-chr22
+UHR_Rep3_ERCC-Mix1_Build37-ErccTranscripts-chr22
