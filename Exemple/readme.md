@@ -1,5 +1,5 @@
 You can get exemple files in the following links :
-* Fasta : `wget ftp://ftp.ensembl.org/pub/release-103/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_rm.chromosome.22.fa.gz`
+* Genome Fasta : `wget ftp://ftp.ensembl.org/pub/release-103/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_rm.chromosome.22.fa.gz`
 * GTF : `wget ftp://ftp.ensembl.org/pub/release-103/gtf/homo_sapiens/Homo_sapiens.GRCh38.103.chr.gtf.gz`
 * CDNA : `wget ftp://ftp.ensembl.org/pub/release-103/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz`
 * Reads : http://genomedata.org/rnaseq-tutorial/HBR_UHR_ERCC_ds_5pc.tar
@@ -11,10 +11,10 @@ And on this example dataset :
 `rename 's/.read2/_R2/g' *.fastq.gz`
 
 Once this is done, copy the `samples.txt` and `config.yaml` files of this directory.
-* `samples.txt` goes in `Data/`
-* `config.yaml` shall be placed at the same level of the `Snakefile`
+* `samples.txt` should be located in the `data/` folder located at the level of the `Snakefile`
+* `config.yaml` should be located at the level of the `Snakefile`
 
-Make sure all data (GTF, Genome fasta, CDNA, samples.txt  and reads) are in the `data/` folder.
+To reproduce this example based on the config.yaml, make sure all other source data (GTF, Genome Fasta, CDNA, samples.txt and reads) are also in the same `data/` folder.
 
 In the end you should end up with a `data/` folder looking like this :
 ```
