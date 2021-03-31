@@ -2,7 +2,7 @@
 Output_Directory:
   outputs
 Input: # location of your data
- data
+  data
 THREADS: # number of threads to use
   14
 
@@ -10,7 +10,7 @@ THREADS: # number of threads to use
 Convert_bcl2fastq: # Do you need to convert from raw illumina bcl to fastq ?  "yes" or "no", don't forget the ""
   "no"
 Sample_Sheet:
-  path/to/sample/sheet # not used in the exemple
+  #path/to/sample/sheet # not used in this example as inputs are already fastq
 
 # Rnaseq quantification option
 Do_rnaseq: # run the rna-seq pipeline ? "yes" or "no", don't forget the ""
@@ -26,7 +26,7 @@ Adapter: # illumina adapter
 Quantification_with: # STAR or kallisto or salmon
   salmon
 Index_rnaseq: # path to kallisto Index file location or Salmon or STAR 2.7.6a Index folder location
-  /path/to/index/
+  #/path/to/index/ # not used in this example as index is newly generated (Compute_index = 'yes')
 
 # If you can't provide the index :
 Compute_index:
@@ -36,11 +36,11 @@ CDNA: # Required for Salmon and Kallisto
   # Computing indexes requires the 2 following files. They are
 Genome: # Path to the reference genome sequence. It must be fasta format. Required for Salmon and STAR
   data/Homo_sapiens.GRCh38.dna_rm.chromosome.22.fa
-GTF: # Path to the GTF file. Not a zipped format.  Required if you chose to run STAR+RSEM
+GTF: # Path to the GTF file. Not a zipped format. Required if you chose to run STAR+RSEM
   data/Homo_sapiens.GRCh38.103.chr.gtf
 
 # Deconvolution option
 Do_deconv: # run the deconvolution ? "yes" or "no", don't forget the ""
   "yes"
 Signatures:
-  data/signatures
+  data/signatures # provided signatures with Xie et al. Several methods and signatures will be used, check the paper for more details.
