@@ -4,7 +4,9 @@ You can get exemple files in the following links :
 * CDNA : `wget ftp://ftp.ensembl.org/pub/release-103/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz`
 * Reads : http://genomedata.org/rnaseq-tutorial/HBR_UHR_ERCC_ds_5pc.tar
 
-You will need to rename the reads files, we suggest you use the `rename` command (you may need to install it : `sudo apt-get install rename`) in bash like so :  
+Here, you will need to rename the reads files - as they don't end by 'R1' and 'R2', we suggest to use the `rename` command in Bash.
+You may need to install it : `sudo apt-get install rename` or 'conda install rename'.
+And on this example dataset :  
 `rename 's/.read1/_R1/g' *.fastq.gz`  
 `rename 's/.read2/_R2/g' *.fastq.gz`
 
