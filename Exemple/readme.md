@@ -1,5 +1,6 @@
 You can get exemple files in the following links :
 * Genome Fasta : `wget ftp://ftp.ensembl.org/pub/release-103/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_rm.chromosome.22.fa.gz`
+* and unzip it : gzip -d Homo_sapiens.GRCh38.dna_rm.chromosome.22.fa.gz
 * GTF : `wget ftp://ftp.ensembl.org/pub/release-103/gtf/homo_sapiens/Homo_sapiens.GRCh38.103.chr.gtf.gz`
 * CDNA : `wget ftp://ftp.ensembl.org/pub/release-103/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz`
 * Reads : http://genomedata.org/rnaseq-tutorial/HBR_UHR_ERCC_ds_5pc.tar
