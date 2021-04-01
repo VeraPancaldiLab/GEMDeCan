@@ -25,12 +25,12 @@ This computational pipeline takes as input BCL or FASTQ files of RNA-seq reads, 
 
 
 ## Installation
+Conda is required for this pipeline, here's the installation process :
+* [Linux](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
 
 Snakemake allows for a very efficient and user friendly way of using pipelines. It is designed so all you need to install is Conda (required to install Snakemake) and Snakemake itself.
 You can refer to this link for installation, using the "Installation via Conda" chapter : [Install Snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html)
 
-Note that if you don't use Conda, this pipeline won't work. In case you need it, here's the installation process :
-* [Linux](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
 
 Once the snakemake environment is activated, you need to add the following channels :
 * `conda config --add channels bioconda`
