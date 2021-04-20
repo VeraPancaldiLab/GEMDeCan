@@ -107,6 +107,15 @@ The pipeline is ready to be executed using **[Singularity](https://sylabs.io/sin
 Simply install the last version of _Singularity_ following the [official documentation](https://sylabs.io/guides/3.6/user-guide/quick_start.html#quick-installation-steps) and add the **`--use-singularity`** flag.\
 `snakemake -j <number_of_threads> --use-conda --use-singularity`
 
+### Running in an HPC/Cluster/Supercomputer
+To facilitate the process, a *Singularity Definition File* is provided so **[Singularity](https://sylabs.io/singularity/)** has to be installed in the local machine to generate the container and in the HPC to be able to run it.
+
+To generate the Singularity container simply execute the next command in your local machine (sudo/root permissions are required)\
+`sudo singularity build --force singularity_container.sif singularity.def`
+
+To run the pipeline in the HPC (without sudo/root permissions):\
+`singularity run singularity_container.sif snakemake --cores all`
+
 ## Deconvolution
 Last part of the pipeline runs a deconvolution algorithm on the quantified samples. 
 We here chose to run QuantiSeq through the R `immunedeconv` package which wraps several other algorithms.\
