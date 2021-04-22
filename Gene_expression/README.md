@@ -124,4 +124,4 @@ This part outputs 2 files :
 * An HTML summary report of the deconvolution results. 
 
 ## Example
-You can run an example of this pipeline using ressources provided in the `Exemple/` directory of this repository.
+You can run an example of this pipeline using ressources provided in the `Example/` directory of this repository.
