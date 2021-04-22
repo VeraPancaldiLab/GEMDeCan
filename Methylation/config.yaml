@@ -1,0 +1,20 @@
+Output:
+  output
+Phenotype_file:
+  /home/julien/Documents/lungMethylation/pipeline/Data/TCGA_AML/phenotype.csv
+Data:
+  /home/julien/Documents/lungMethylation/pipeline/Data/TCGA_AML
+Annotation_file:
+  /home/julien/Documents/lungMethylation/Methylomes_Lucille_Vera/MethylationEPIC_v-1-0_B4.csv
+Threads:
+  14
+Signature:
+  /home/julien/Documents/lungMethylation/pipeline/Data/signatures
+
+Do_deconv:
+  "yes"
+Do_beta_values:
+  "yes"
+
+Array_type: # 450K or EPIC
+  450K

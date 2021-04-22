@@ -1,0 +1,7 @@
+channels:
+    - bioconda
+    - conda-forge
+dependencies:
+    - bioconductor-champ =2.16.0
+    - bioconductor-minfi =1.32.0
+    - r-zoo =1.8_8
