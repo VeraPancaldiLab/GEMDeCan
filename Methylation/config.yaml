@@ -1,20 +1,22 @@
 Output:
-  output
-Phenotype_file:
-  /home/julien/Documents/lungMethylation/pipeline/Data/TCGA_AML/phenotype.csv
+ output
 Data:
-  /home/julien/Documents/lungMethylation/pipeline/Data/TCGA_AML
+ Data/TCGA_AML
+
+Phenotype_file:
+ Data/TCGA_AML/phenotype.csv
 Annotation_file:
-  /home/julien/Documents/lungMethylation/Methylomes_Lucille_Vera/MethylationEPIC_v-1-0_B4.csv
+ MethylationEPIC_v-1-0_B4.csv
+
 Threads:
-  14
-Signature:
-  /home/julien/Documents/lungMethylation/pipeline/Data/signatures
+ 14
 
-Do_deconv:
-  "yes"
 Do_beta_values:
-  "yes"
-
+ "yes"
 Array_type: # 450K or EPIC
-  450K
+ 450K
+  
+Do_deconv:
+ "yes"
+Signature:
+ Data/signatures 
