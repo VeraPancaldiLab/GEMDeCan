@@ -4,7 +4,7 @@
 
 This computational pipeline takes as input `.bcl` files and process them into a beta vlues matrix before running deconvolution with EpiDish.
 <p align="center">
-  <img src="/diagram.png?raw=true" />
+  <img src="diagram.png?raw=true" />
 </p>
 
 ## Installation 
