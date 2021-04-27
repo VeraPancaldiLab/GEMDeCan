@@ -1,9 +1,9 @@
 # GEMDeCan
-GEMDeCan: Gene expression and methylation based deconvolution for Cancer
+GEMDeCan: Gene Expression and Methylation based Deconvolution for Cancer
 
 ## Welcome to the GEMDeCan repository.  
 You will find here two snakemake pipelines to process and perform deconvolution on gene expression and methylation data, in the respectively named folders.  
-Each pipeline comes with a readme detailing its installation and usage.  
+Each pipeline comes with a readme detailing its installation and usage.
   
 ## Citation 
 To cite the pipeline, refer to our paper on [BiorXiv](https://www.biorxiv.org/content/10.1101/2021.04.09.439207v2) :  
