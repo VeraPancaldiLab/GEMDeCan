@@ -1,6 +1,5 @@
 """
 Train ElasticNet penalized Logistic regression on deconvolution data
-only to assess how important/ usefull new Ting's signatures are.
 """
 
 # %%
