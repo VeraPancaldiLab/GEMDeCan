@@ -45,4 +45,4 @@ rownames(final_deconv) = final_deconv[,1]
 final_deconv = final_deconv[,-1]
 
 message(">>> Deconvolution sucessfull. Writing output.")
-write.table(final_deconv, snakemake@output[[1]], sep = "\t", quote = F, row.names = F, col.names = T)
+write.table(final_deconv, snakemake@output[[1]], sep = "\t", quote = F, row.names = T, col.names = T)
