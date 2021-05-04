@@ -1,7 +1,7 @@
 suppressPackageStartupMessages({
-  require(ChAMP)
-  require(minfi)
-   require(zoo)
+  library(ChAMP)
+  library(minfi)
+  library(zoo)
 })
 
 
