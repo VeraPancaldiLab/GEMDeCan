@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This computational pipeline takes as input `.bcl` files and process them into a beta vlues matrix before running deconvolution with EpiDish.
+This computational pipeline takes as input `.bcl` files and process them into a beta values matrix before running deconvolution with EpiDish.
 <p align="center">
   <img src="diagram.png?raw=true" />
 </p>
