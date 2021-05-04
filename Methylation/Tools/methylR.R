@@ -13,8 +13,6 @@ pheno <- snakemake@params[[2]]
 cores = snakemake@params[[3]]
 array_type = snakemake@params[[4]]
 
-dir.create("Outputs/results/plots", showWarnings = FALSE, recursive = TRUE)
-
 Phenotype <- read.csv(pheno, header = T, sep = ",")
 anno_epic <- read.csv(epicAnnot, as.is = TRUE, skip = 7)
 anno_epic <- anno_epic[, c("CHR", "MAPINFO", "Name", "UCSC_RefGene_Name")]
@@ -47,7 +45,7 @@ RawBeta <- champ.load(wd, arraytype = array_type)
 
 # Normalization ------------
 message(">>> Computing beta values")
-BMIQ <- champ.norm(beta = RawBeta$beta, arraytype = array_type, cores = cores, resultsDir = "Outputs/BMIQ_Normalization/", method = "BMIQ")
+BMIQ <- champ.norm(beta = RawBeta$beta, arraytype = array_type, cores = cores, resultsDir = paste0(snakemake@output[[1]],"/BMIQ_Normalization/"), method = "BMIQ")
 
 # final output for snakemake is written at the end
 message(">>> Writing final output")
