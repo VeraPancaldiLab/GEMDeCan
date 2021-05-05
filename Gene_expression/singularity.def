@@ -1,0 +1,15 @@
+https://www.javaer101.com/en/article/34887163.html
+Bootstrap: docker
+From: continuumio/miniconda3:4.9.2
+
+%files
+  singularity_conda_environment.yaml
+
+%post
+  conda create --yes --name mamba --channel conda-forge mamba
+  . /opt/conda/etc/profile.d/conda.sh
+  conda activate mamba
+  mamba env create --file singularity_conda_environment.yaml
+  echo ". /opt/conda/etc/profile.d/conda.sh" >> $SINGULARITY_ENVIRONMENT
+  echo "conda activate /opt/conda/envs/mamba/envs/singularity_conda_environment" >> $SINGULARITY_ENVIRONMENT
+
