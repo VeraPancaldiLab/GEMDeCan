@@ -165,7 +165,7 @@ if config["Do_rnaseq"] == "yes":
                 """
 
     # declare QCINPUT for next processing
-    if  config["Convert_bcl2fastq"] == "yes":
+    if config["Convert_bcl2fastq"] == "yes":
         QCINPUT = OUTbcl
     else:
         QCINPUT = config["Input"]
