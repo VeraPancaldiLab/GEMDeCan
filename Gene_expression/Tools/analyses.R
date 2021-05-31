@@ -19,17 +19,17 @@ cells.mat <- as.matrix(cells)
 
 cells.mat.no.zero <- cells.mat[, -which(colSums(cells.mat) == 0)]
 
-pheatmap::pheatmap(t(cells.mat.no.zero), scale = "row", main = "Estimation of cell type abundance", fontsize_row = 10 - nrow(cells.mat.no.zero) / 5, fontsize_col = 10 - ncol(cells.mat.no.zero) / 20)
+pheatmap::pheatmap(t(cells.mat.no.zero), scale = "row", main = "Estimation of cell type abundance", fontsize_row = 10, fontsize_col = 10)
 
 cor_samples <- Hmisc::rcorr(t(cells.mat))
 # cor_samples <- cor_samples$r[cor_samples$P < 0.05, cor_samples$P < 0.05]
 # cor$r[is.nan(cor$r)] <- 0
 # corrplot::corrplot(cor$r, tl.cex = 25 / ncol(cor$r), title = "Correlation between cell types", mar = c(0, 0, 1, 0))
 
-corrplot::corrplot(cor_samples$r, tl.cex = 25 / ncol(cor_samples$r), title = "Correlation between cell types", mar = c(0, 0, 1, 0))
+corrplot::corrplot(cor_samples$r, tl.cex = 1, title = "Correlation between cell types", mar = c(0, 0, 1, 0))
 
 
-pheatmap::pheatmap(cor_samples$r, main = "Correlation between samples", fontsize_row = 10 - nrow(cells.mat.no.zero) / 15, fontsize_col = 10 - ncol(cor_samples$r) / 15)
+pheatmap::pheatmap(cor_samples$r, main = "Correlation between samples", fontsize_row = 10, fontsize_col = 10)
 
 deconvolution_methods <- unique(sapply(colnames(cells.mat.no.zero), function(colname) {
   stringr::str_split(colname, "_")[[1]][[1]]
@@ -38,7 +38,7 @@ deconvolution_methods <- unique(sapply(colnames(cells.mat.no.zero), function(col
 for (method in deconvolution_methods) {
   mat <- cells.mat.no.zero[, grepl(method, colnames(cells.mat.no.zero))]
   cor_cell_types <- Hmisc::rcorr(mat)
-  pheatmap::pheatmap(cor_cell_types$r, main = stringr::str_c(method, " correlation between cell types"), fontsize_row = 10 - nrow(cor_cell_types$r) / 5, fontsize_col = 10 - ncol(cor_cell_types$r) / 10)
+  pheatmap::pheatmap(cor_cell_types$r, main = stringr::str_c(method, " correlation between cell types"), fontsize_row = 10, fontsize_col = 10)
 }
 
 # cor <- Hmisc::rcorr(cells.mat)
