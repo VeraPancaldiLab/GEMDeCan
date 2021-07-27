@@ -34,7 +34,7 @@ p_GSE132203_100_BPmet_all <- ggplot(melt_GSE132203_100_BPmet, aes(x = FACS, y = 
   geom_point(shape = 19, size = 4) +
   theme_bw() +
   scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta", "deepskyblue")) +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"ALL") +
   scale_x_continuous(name = NULL, limits = c(0, 1)) +
   scale_y_continuous(name = NULL, limits = c(0, 1)) +
@@ -49,7 +49,7 @@ p_GSE132203_100_BPmet_all_longly <- ggplot(melt_GSE132203_100_BPmet, aes(x = FAC
   geom_point(shape = 19, size = 4) +
   theme_bw() +
   scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta", "deepskyblue")) +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"BPmet") +
   scale_x_continuous(name = NULL, limits = c(0, 1)) +
   scale_y_continuous(name = NULL, limits = c(0, 1)) +
@@ -86,7 +86,7 @@ RMSE <- data.frame(
 p_GSE132203_100_BPmet[[1]] <- ggplot(melt_GSE132203_100_BPmet[[1]], aes(x = value, y = V)) +
   geom_point(colour = c("red"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL) +
   scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
@@ -101,7 +101,7 @@ p_GSE132203_100_BPmet[[1]] <- ggplot(melt_GSE132203_100_BPmet[[1]], aes(x = valu
 p_GSE132203_100_BPmet[[2]] <- ggplot(melt_GSE132203_100_BPmet[[2]], aes(x = value, y = V)) +
   geom_point(colour = c("green"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.5)) +
@@ -117,7 +117,7 @@ p_GSE132203_100_BPmet[[2]] <- ggplot(melt_GSE132203_100_BPmet[[2]], aes(x = valu
 p_GSE132203_100_BPmet[[3]] <- ggplot(melt_GSE132203_100_BPmet[[3]], aes(x = value, y = V)) +
   geom_point(colour = c("blue"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
@@ -133,7 +133,7 @@ p_GSE132203_100_BPmet[[3]] <- ggplot(melt_GSE132203_100_BPmet[[3]], aes(x = valu
 p_GSE132203_100_BPmet[[4]] <- ggplot(melt_GSE132203_100_BPmet[[4]], aes(x = value, y = V)) +
   geom_point(colour = c("darkgoldenrod1"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.2)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.3)) +
@@ -148,7 +148,7 @@ p_GSE132203_100_BPmet[[4]] <- ggplot(melt_GSE132203_100_BPmet[[4]], aes(x = valu
 p_GSE132203_100_BPmet[[5]] <- ggplot(melt_GSE132203_100_BPmet[[5]], aes(x = value, y = V)) +
   geom_point(colour = c("darkmagenta"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.15)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.2)) +
@@ -163,7 +163,7 @@ p_GSE132203_100_BPmet[[5]] <- ggplot(melt_GSE132203_100_BPmet[[5]], aes(x = valu
 p_GSE132203_100_BPmet[[6]] <- ggplot(melt_GSE132203_100_BPmet[[6]], aes(x = value, y = V)) +
   geom_point(colour = c("deepskyblue"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 1)) +
   scale_y_continuous(name = NULL, limits = c(0, 1)) +
@@ -201,7 +201,7 @@ p_GSE132203_100_MethylCIBERSORT_WB_all <- ggplot(melt_GSE132203_100_MethylCIBERS
   geom_point(shape = 19, size = 4) +
   theme_bw() +
   scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta", "deepskyblue")) +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"ALL") +
   scale_x_continuous(name = NULL, limits = c(0, 1)) +
   scale_y_continuous(name = NULL, limits = c(0, 1)) +
@@ -216,7 +216,7 @@ p_GSE132203_100_MethylCIBERSORT_WB_all_lonly <- ggplot(melt_GSE132203_100_Methyl
   geom_point(shape = 19, size = 4) +
   theme_bw() +
   scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta", "deepskyblue")) +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"MethylCIBERSORT") +
   scale_x_continuous(name = NULL, limits = c(0, 1)) +
   scale_y_continuous(name = NULL, labels = NULL, breaks = NULL) +
@@ -253,7 +253,7 @@ RMSE <- data.frame(
 p_GSE132203_100_MethylCIBERSORT[[1]] <- ggplot(melt_GSE132203_100_MethylCIBERSORT_WB[[1]], aes(x = value, y = V)) +
   geom_point(colour = c("red"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL) +
   scale_y_continuous(name = NULL) +
@@ -269,7 +269,7 @@ p_GSE132203_100_MethylCIBERSORT[[1]] <- ggplot(melt_GSE132203_100_MethylCIBERSOR
 p_GSE132203_100_MethylCIBERSORT[[2]] <- ggplot(melt_GSE132203_100_MethylCIBERSORT_WB[[2]], aes(x = value, y = V)) +
   geom_point(colour = c("green"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
@@ -284,7 +284,7 @@ p_GSE132203_100_MethylCIBERSORT[[2]] <- ggplot(melt_GSE132203_100_MethylCIBERSOR
 p_GSE132203_100_MethylCIBERSORT[[3]] <- ggplot(melt_GSE132203_100_MethylCIBERSORT_WB[[3]], aes(x = value, y = V)) +
   geom_point(colour = c("blue"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
@@ -299,7 +299,7 @@ p_GSE132203_100_MethylCIBERSORT[[3]] <- ggplot(melt_GSE132203_100_MethylCIBERSOR
 p_GSE132203_100_MethylCIBERSORT[[4]] <- ggplot(melt_GSE132203_100_MethylCIBERSORT_WB[[4]], aes(x = value, y = V)) +
   geom_point(colour = c("darkgoldenrod1"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.2)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.2)) +
@@ -314,7 +314,7 @@ p_GSE132203_100_MethylCIBERSORT[[4]] <- ggplot(melt_GSE132203_100_MethylCIBERSOR
 p_GSE132203_100_MethylCIBERSORT[[5]] <- ggplot(melt_GSE132203_100_MethylCIBERSORT_WB[[5]], aes(x = value, y = V)) +
   geom_point(colour = c("darkmagenta"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.15)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.2)) +
@@ -329,7 +329,7 @@ p_GSE132203_100_MethylCIBERSORT[[5]] <- ggplot(melt_GSE132203_100_MethylCIBERSOR
 p_GSE132203_100_MethylCIBERSORT[[6]] <- ggplot(melt_GSE132203_100_MethylCIBERSORT_WB[[6]], aes(x = value, y = V)) +
   geom_point(colour = c("deepskyblue"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 1)) +
   scale_y_continuous(name = NULL, limits = c(0, 1)) +
@@ -368,7 +368,7 @@ p_melt_GSE132203_100_DHS_all <- ggplot(melt_GSE132203_100_DHS, aes(x = FACS, y =
   geom_point(shape = 19, size = 4) +
   theme_bw() +
   scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta", "deepskyblue")) +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"ALL") +
   scale_x_continuous(name = NULL, limits = c(0, 1)) +
   scale_y_continuous(name = NULL, limits = c(0, 1)) +
@@ -383,7 +383,7 @@ p_melt_GSE132203_100_DHS_all_longly <- ggplot(melt_GSE132203_100_DHS, aes(x = FA
   geom_point(shape = 19, size = 4) +
   theme_bw() +
   scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta", "deepskyblue")) +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"DHS") +
   scale_x_continuous(name = NULL, limits = c(0, 1)) +
   scale_y_continuous(name = NULL, labels = NULL, breaks = NULL) +
@@ -421,7 +421,7 @@ RMSE <- data.frame(
 p_GSE132203_100_DHS[[1]] <- ggplot(melt_GSE132203_100_DHS[[1]], aes(x = value, y = V)) +
   geom_point(colour = c("red"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL) +
   scale_y_continuous(name = NULL) +
@@ -437,7 +437,7 @@ p_GSE132203_100_DHS[[1]] <- ggplot(melt_GSE132203_100_DHS[[1]], aes(x = value, y
 p_GSE132203_100_DHS[[2]] <- ggplot(melt_GSE132203_100_DHS[[2]], aes(x = value, y = V)) +
   geom_point(colour = c("green"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
@@ -452,7 +452,7 @@ p_GSE132203_100_DHS[[2]] <- ggplot(melt_GSE132203_100_DHS[[2]], aes(x = value, y
 p_GSE132203_100_DHS[[3]] <- ggplot(melt_GSE132203_100_DHS[[3]], aes(x = value, y = V)) +
   geom_point(colour = c("blue"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
@@ -467,7 +467,7 @@ p_GSE132203_100_DHS[[3]] <- ggplot(melt_GSE132203_100_DHS[[3]], aes(x = value, y
 p_GSE132203_100_DHS[[4]] <- ggplot(melt_GSE132203_100_DHS[[4]], aes(x = value, y = V)) +
   geom_point(colour = c("darkgoldenrod1"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.2)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.2)) +
@@ -482,7 +482,7 @@ p_GSE132203_100_DHS[[4]] <- ggplot(melt_GSE132203_100_DHS[[4]], aes(x = value, y
 p_GSE132203_100_DHS[[5]] <- ggplot(melt_GSE132203_100_DHS[[5]], aes(x = value, y = V)) +
   geom_point(colour = c("darkmagenta"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.15)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.3)) +
@@ -497,7 +497,7 @@ p_GSE132203_100_DHS[[5]] <- ggplot(melt_GSE132203_100_DHS[[5]], aes(x = value, y
 p_GSE132203_100_DHS[[6]] <- ggplot(melt_GSE132203_100_DHS[[6]], aes(x = value, y = V)) +
   geom_point(colour = c("deepskyblue"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 1)) +
   scale_y_continuous(name = NULL, limits = c(0, 1.1)) +
@@ -537,7 +537,7 @@ p_GSE77797_six_BPmet_all <- ggplot(melt_GSE77797_six_BPmet, aes(x = FACS, y = BP
   geom_point(shape = 19, size = 4) +
   theme_bw() +
   scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta", "deepskyblue")) +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"ALL") +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.3)) +
@@ -552,7 +552,7 @@ p_GSE77797_six_BPmet_all_longly <- ggplot(melt_GSE77797_six_BPmet, aes(x = FACS,
   geom_point(shape = 19, size = 4) +
   theme_bw() +
   scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta", "deepskyblue")) +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"BPmet") +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.3)) +
@@ -590,7 +590,7 @@ RMSE <- data.frame(
 G6_BPmet[[1]] <- ggplot(melt_GSE77797_six_BPmet[[1]], aes(x = value, y = V)) +
   geom_point(colour = c("red"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.3)) +
@@ -606,7 +606,7 @@ G6_BPmet[[1]] <- ggplot(melt_GSE77797_six_BPmet[[1]], aes(x = value, y = V)) +
 G6_BPmet[[2]] <- ggplot(melt_GSE77797_six_BPmet[[2]], aes(x = value, y = V)) +
   geom_point(colour = c("green"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL) +
   scale_y_continuous(name = NULL, limits = c(0, 0.3)) +
@@ -621,7 +621,7 @@ G6_BPmet[[2]] <- ggplot(melt_GSE77797_six_BPmet[[2]], aes(x = value, y = V)) +
 G6_BPmet[[3]] <- ggplot(melt_GSE77797_six_BPmet[[3]], aes(x = value, y = V)) +
   geom_point(colour = c("blue"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.09)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.2)) +
@@ -637,7 +637,7 @@ G6_BPmet[[3]] <- ggplot(melt_GSE77797_six_BPmet[[3]], aes(x = value, y = V)) +
 G6_BPmet[[4]] <- ggplot(melt_GSE77797_six_BPmet[[4]], aes(x = value, y = V)) +
   geom_point(colour = c("darkgoldenrod1"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.09)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.15)) +
@@ -653,7 +653,7 @@ G6_BPmet[[4]] <- ggplot(melt_GSE77797_six_BPmet[[4]], aes(x = value, y = V)) +
 G6_BPmet[[5]] <- ggplot(melt_GSE77797_six_BPmet[[5]], aes(x = value, y = V)) +
   geom_point(colour = c("darkmagenta"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.05)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.15)) +
@@ -691,7 +691,7 @@ p_GSE77797_six_MethylCIBERSORT_all <- ggplot(melt_GSE77797_six_MethylCIBERSORT_W
   geom_point(shape = 19, size = 4) +
   theme_bw() +
   scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta", "deepskyblue")) +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"ALL") +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.3)) +
@@ -706,7 +706,7 @@ p_GSE77797_six_MethylCIBERSORT_all_longly <- ggplot(melt_GSE77797_six_MethylCIBE
   geom_point(shape = 19, size = 4) +
   theme_bw() +
   scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta", "deepskyblue")) +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"MethylCIBERSORT") +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL, breaks = NULL, labels = NULL) +
@@ -743,7 +743,7 @@ RMSE <- data.frame(
 G6_MethylCIBERSORT_WB[[1]] <- ggplot(melt_GSE77797_six_MethylCIBERSORT_WB[[1]], aes(x = value, y = V)) +
   geom_point(colour = c("red"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL) +
@@ -759,7 +759,7 @@ G6_MethylCIBERSORT_WB[[1]] <- ggplot(melt_GSE77797_six_MethylCIBERSORT_WB[[1]], 
 G6_MethylCIBERSORT_WB[[2]] <- ggplot(melt_GSE77797_six_MethylCIBERSORT_WB[[2]], aes(x = value, y = V)) +
   geom_point(colour = c("green"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL) +
   scale_y_continuous(name = NULL, limits = c(0, 0.2)) +
@@ -774,7 +774,7 @@ G6_MethylCIBERSORT_WB[[2]] <- ggplot(melt_GSE77797_six_MethylCIBERSORT_WB[[2]], 
 G6_MethylCIBERSORT_WB[[3]] <- ggplot(melt_GSE77797_six_MethylCIBERSORT_WB[[3]], aes(x = value, y = V)) +
   geom_point(colour = c("blue"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.09)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.15)) +
@@ -789,7 +789,7 @@ G6_MethylCIBERSORT_WB[[3]] <- ggplot(melt_GSE77797_six_MethylCIBERSORT_WB[[3]], 
 G6_MethylCIBERSORT_WB[[4]] <- ggplot(melt_GSE77797_six_MethylCIBERSORT_WB[[4]], aes(x = value, y = V)) +
   geom_point(colour = c("darkgoldenrod1"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.09)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.15)) +
@@ -805,7 +805,7 @@ G6_MethylCIBERSORT_WB[[4]] <- ggplot(melt_GSE77797_six_MethylCIBERSORT_WB[[4]], 
 G6_MethylCIBERSORT_WB[[5]] <- ggplot(melt_GSE77797_six_MethylCIBERSORT_WB[[5]], aes(x = value, y = V)) +
   geom_point(colour = c("darkmagenta"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.05)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.2)) +
@@ -853,7 +853,7 @@ p_GSE77797_six_DHS_all <- ggplot(melt_GSE77797_six_DHS, aes(x = FACS, y = DHS, c
   geom_point(shape = 19, size = 4) +
   theme_bw() +
   scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta", "deepskyblue")) +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"ALL") +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.3)) +
@@ -868,7 +868,7 @@ p_GSE77797_six_DHS_all_longly <- ggplot(melt_GSE77797_six_DHS, aes(x = FACS, y =
   geom_point(shape = 19, size = 4) +
   theme_bw() +
   scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta", "deepskyblue")) +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"DHS") +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL, breaks = NULL, labels = NULL) +
@@ -907,7 +907,7 @@ RMSE <- data.frame(
 G6_DHS[[1]] <- ggplot(melt_GSE77797_six_DHS[[1]], aes(x = value, y = V)) +
   geom_point(colour = c("red"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
@@ -922,7 +922,7 @@ G6_DHS[[1]] <- ggplot(melt_GSE77797_six_DHS[[1]], aes(x = value, y = V)) +
 G6_DHS[[2]] <- ggplot(melt_GSE77797_six_DHS[[2]], aes(x = value, y = V)) +
   geom_point(colour = c("green"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL) +
   scale_y_continuous(name = NULL, limits = c(0, 0.2)) +
@@ -937,7 +937,7 @@ G6_DHS[[2]] <- ggplot(melt_GSE77797_six_DHS[[2]], aes(x = value, y = V)) +
 G6_DHS[[3]] <- ggplot(melt_GSE77797_six_DHS[[3]], aes(x = value, y = V)) +
   geom_point(colour = c("blue"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.09)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.15)) +
@@ -952,7 +952,7 @@ G6_DHS[[3]] <- ggplot(melt_GSE77797_six_DHS[[3]], aes(x = value, y = V)) +
 G6_DHS[[4]] <- ggplot(melt_GSE77797_six_DHS[[4]], aes(x = value, y = V)) +
   geom_point(colour = c("darkgoldenrod1"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.08)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.15)) +
@@ -967,7 +967,7 @@ G6_DHS[[4]] <- ggplot(melt_GSE77797_six_DHS[[4]], aes(x = value, y = V)) +
 G6_DHS[[5]] <- ggplot(melt_GSE77797_six_DHS[[5]], aes(x = value, y = V)) +
   geom_point(colour = c("darkmagenta"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.06)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.15)) +
@@ -1057,7 +1057,7 @@ melt_TCGA_LUAD_BPmetCan_MethylCIBERSORT <- melt(TCGA_LUAD_BPmetCan_MethylCIBERSO
 p_TCGA_LUAD_BPmetCan_MethylCIBERSORT <- ggplot(melt_TCGA_LUAD_BPmetCan_MethylCIBERSORT, aes(x = value, y = ABSOLUTE)) +
   geom_point(colour = "brown") +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable, ncol = 2) +
   scale_x_continuous(name = "Method purity estimate", limits = c(0, 1)) +
   scale_y_continuous(name = "ABSOLUTE estimate", limits = c(0, 1)) +
@@ -1090,7 +1090,7 @@ melt_TCGA_BRCA_BPmetCan_MethylCIBERSORT <- melt(TCGA_BRCA_BPmetCan_MethylCIBERSO
 p_TCGA_BRCA_BPmetCan_MethylCIBERSORT <- ggplot(melt_TCGA_BRCA_BPmetCan_MethylCIBERSORT, aes(x = value, y = ABSOLUTE)) +
   geom_point(colour = "brown") +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable, ncol = 2) +
   scale_x_continuous(name = "Method purity estimate", limits = c(0, 1)) +
   scale_y_continuous(name = "ABSOLUTE estimate", limits = c(0, 1)) +
@@ -1129,7 +1129,7 @@ colnames(TCGA_LUAD_BPmetCan_Neutrophils) <- c("estimate", "facs")
 p_TCGA_LUAD_BPmetCan_lymphocytes <- ggplot(as.data.frame(TCGA_LUAD_BPmetCan_lymphocytes), aes(x = facs, y = estimate)) +
   geom_point(colour = c("darkslategrey")) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"lymphocytes") +
   scale_x_continuous(name = NULL) +
   scale_y_continuous(name = NULL) +
@@ -1143,7 +1143,7 @@ p_TCGA_LUAD_BPmetCan_lymphocytes <- ggplot(as.data.frame(TCGA_LUAD_BPmetCan_lymp
 p_TCGA_LUAD_BPmetCan_Macrophages <- ggplot(as.data.frame(TCGA_LUAD_BPmetCan_Macrophages), aes(x = estimate, y = facs)) +
   geom_point(colour = c("coral")) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"Macrophages") +
   scale_x_continuous(name = NULL) +
   scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
@@ -1157,7 +1157,7 @@ p_TCGA_LUAD_BPmetCan_Macrophages <- ggplot(as.data.frame(TCGA_LUAD_BPmetCan_Macr
 p_TCGA_LUAD_BPmetCan_Neutrophils <- ggplot(as.data.frame(TCGA_LUAD_BPmetCan_Neutrophils[-144, ]), aes(x = facs, y = estimate)) +
   geom_point(colour = c("deepskyblue")) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"Neutrophils") +
   scale_x_continuous(name = NULL, limits = c(0, 0.03)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
@@ -1193,7 +1193,7 @@ colnames(TCGA_LUAD_MethylCIBERSORT_Neutrophils) <- c("estimate", "facs")
 p_TCGA_LUAD_MethylCIBERSORT_lymphocytes <- ggplot(as.data.frame(TCGA_LUAD_MethylCIBERSORT_lymphocytes), aes(x = facs, y = estimate)) +
   geom_point(colour = c("darkslategrey")) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"lymphocytes") +
   scale_x_continuous(name = NULL) +
   scale_y_continuous(name = NULL) +
@@ -1207,7 +1207,7 @@ p_TCGA_LUAD_MethylCIBERSORT_lymphocytes <- ggplot(as.data.frame(TCGA_LUAD_Methyl
 p_TCGA_LUAD_MethylCIBERSORT_Macrophages <- ggplot(as.data.frame(TCGA_LUAD_MethylCIBERSORT_Macrophages), aes(x = facs, y = estimate)) +
   geom_point(colour = c("coral")) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"Macrophages") +
   scale_x_continuous(name = NULL) +
   scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
@@ -1221,7 +1221,7 @@ p_TCGA_LUAD_MethylCIBERSORT_Macrophages <- ggplot(as.data.frame(TCGA_LUAD_Methyl
 p_TCGA_LUAD_MethylCIBERSORT_Neutrophils <- ggplot(as.data.frame(TCGA_LUAD_MethylCIBERSORT_Neutrophils), aes(x = facs, y = estimate)) +
   geom_point(colour = c("deepskyblue")) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"Neutrophils") +
   scale_x_continuous(name = NULL, limits = c(0, 0.03)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
@@ -1340,7 +1340,7 @@ p_melt_GSE107011_BPRNA_EpiDISH_modify_all <- ggplot(melt_GSE107011_BPRNA_EpiDISH
   geom_point(shape = 19, size = 4) +
   theme_bw() +
   scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta", "deepskyblue")) +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"ALL") +
   scale_x_continuous(name = NULL, limits = c(0, 0.4)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.8)) +
@@ -1356,7 +1356,7 @@ p_melt_GSE107011_BPRNA_EpiDISH_modify_all_longly <- ggplot(melt_GSE107011_BPRNA_
   geom_point(shape = 19, size = 4) +
   theme_bw() +
   scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta", "deepskyblue")) +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"BPRNA") +
   scale_x_continuous(name = NULL, limits = NULL) +
   scale_y_continuous(name = NULL, breaks = NULL, labels = NULL) +
@@ -1393,7 +1393,7 @@ RMSE <- data.frame(
 melt_GSE107011_BPRNA_EpiDISH[[1]] <- ggplot(melt_GSE107011_BPRNA_EpiDISH_modify[[1]], aes(x = value, y = V)) +
   geom_point(colour = c("red"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.4)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.8)) +
@@ -1409,7 +1409,7 @@ melt_GSE107011_BPRNA_EpiDISH[[1]] <- ggplot(melt_GSE107011_BPRNA_EpiDISH_modify[
 melt_GSE107011_BPRNA_EpiDISH[[2]] <- ggplot(melt_GSE107011_BPRNA_EpiDISH_modify[[2]], aes(x = value, y = V)) +
   geom_point(colour = c("green"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.15)) +
@@ -1424,7 +1424,7 @@ melt_GSE107011_BPRNA_EpiDISH[[2]] <- ggplot(melt_GSE107011_BPRNA_EpiDISH_modify[
 melt_GSE107011_BPRNA_EpiDISH[[3]] <- ggplot(melt_GSE107011_BPRNA_EpiDISH_modify[[3]], aes(x = value, y = V)) +
   geom_point(colour = c("blue"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.4)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.5)) +
@@ -1440,7 +1440,7 @@ melt_GSE107011_BPRNA_EpiDISH[[3]] <- ggplot(melt_GSE107011_BPRNA_EpiDISH_modify[
 melt_GSE107011_BPRNA_EpiDISH[[4]] <- ggplot(melt_GSE107011_BPRNA_EpiDISH_modify[[4]], aes(x = value, y = V)) +
   geom_point(colour = c("darkgoldenrod1"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = NULL) +
   scale_y_continuous(name = NULL, limits = c(0, 0.5)) +
@@ -1455,7 +1455,7 @@ melt_GSE107011_BPRNA_EpiDISH[[4]] <- ggplot(melt_GSE107011_BPRNA_EpiDISH_modify[
 melt_GSE107011_BPRNA_EpiDISH[[5]] <- ggplot(melt_GSE107011_BPRNA_EpiDISH_modify[[5]], aes(x = value, y = V)) +
   geom_point(colour = c("darkmagenta"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.2)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.2)) +
@@ -1470,7 +1470,7 @@ melt_GSE107011_BPRNA_EpiDISH[[5]] <- ggplot(melt_GSE107011_BPRNA_EpiDISH_modify[
 melt_GSE107011_BPRNA_EpiDISH[[6]] <- ggplot(melt_GSE107011_BPRNA_EpiDISH_modify[[6]], aes(x = value, y = V)) +
   geom_point(colour = c("deepskyblue"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.08)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.04)) +
@@ -1527,7 +1527,7 @@ melt_merge_melt_PBMCs <- merge_melt_PBMCs %>%
 melt_merge_melt_PBMCs$new_Var2 <- rownames(GSE107011_PBMCs_pvalue)
 melt_merge_melt_PBMCs$new_Var2 <- factor(melt_merge_melt_PBMCs$new_Var2, levels = unique(melt_merge_melt_PBMCs$new_Var2))
 
-PBMCs_figure <- ggplot(melt_merge_melt_PBMCs, aes(new_Var2, variable)) +
+PBMCs_figure <- ggplot(melt_merge_melt_PBMCs, aes(variable, new_Var2)) +
   geom_tile(aes(fill = value), colour = "grey", size = 1) +
   scale_fill_gradient2(low = "#5C5DAF", mid = "white", high = "#EA2E2D") +
   geom_text(aes(label = text), col = "black", size = 8) +
@@ -1589,7 +1589,7 @@ p_GSE107011_CCLE_TIL10_EpiDISH_modify_all <- ggplot(melt_GSE107011_CCLE_TIL10_Ep
   geom_point(shape = 19, size = 4) +
   theme_bw() +
   scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta", "deepskyblue")) +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"ALL") +
   scale_x_continuous(name = NULL, limits = c(0, 0.4)) +
   scale_y_continuous(name = "CCLE_TIL10 estimate", limits = c(0, 0.6)) +
@@ -1604,7 +1604,7 @@ p_GSE107011_CCLE_TIL10_EpiDISH_modify_all_longly <- ggplot(melt_GSE107011_CCLE_T
   geom_point(shape = 19, size = 4) +
   theme_bw() +
   scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta", "deepskyblue")) +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"CCLE_TIL10") +
   scale_x_continuous(name = NULL, limits = c(0, 0.4)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
@@ -1642,7 +1642,7 @@ RMSE <- data.frame(
 melt_GSE107011_CCLE_TIL10_EpiDISH[[1]] <- ggplot(melt_GSE107011_CCLE_TIL10_EpiDISH_modify[[1]], aes(x = value, y = V)) +
   geom_point(colour = c("red"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.4)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.5)) +
@@ -1658,7 +1658,7 @@ melt_GSE107011_CCLE_TIL10_EpiDISH[[1]] <- ggplot(melt_GSE107011_CCLE_TIL10_EpiDI
 melt_GSE107011_CCLE_TIL10_EpiDISH[[2]] <- ggplot(melt_GSE107011_CCLE_TIL10_EpiDISH_modify[[2]], aes(x = value, y = V)) +
   geom_point(colour = c("green"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.3)) +
@@ -1673,7 +1673,7 @@ melt_GSE107011_CCLE_TIL10_EpiDISH[[2]] <- ggplot(melt_GSE107011_CCLE_TIL10_EpiDI
 melt_GSE107011_CCLE_TIL10_EpiDISH[[3]] <- ggplot(melt_GSE107011_CCLE_TIL10_EpiDISH_modify[[3]], aes(x = value, y = V)) +
   geom_point(colour = c("blue"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.4)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.5)) +
@@ -1689,7 +1689,7 @@ melt_GSE107011_CCLE_TIL10_EpiDISH[[3]] <- ggplot(melt_GSE107011_CCLE_TIL10_EpiDI
 melt_GSE107011_CCLE_TIL10_EpiDISH[[4]] <- ggplot(melt_GSE107011_CCLE_TIL10_EpiDISH_modify[[4]], aes(x = value, y = V)) +
   geom_point(colour = c("darkgoldenrod1"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.2)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.2)) +
@@ -1704,7 +1704,7 @@ melt_GSE107011_CCLE_TIL10_EpiDISH[[4]] <- ggplot(melt_GSE107011_CCLE_TIL10_EpiDI
 melt_GSE107011_CCLE_TIL10_EpiDISH[[5]] <- ggplot(melt_GSE107011_CCLE_TIL10_EpiDISH_modify[[5]], aes(x = value, y = V)) +
   geom_point(colour = c("darkmagenta"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.2)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.2)) +
@@ -1719,7 +1719,7 @@ melt_GSE107011_CCLE_TIL10_EpiDISH[[5]] <- ggplot(melt_GSE107011_CCLE_TIL10_EpiDI
 melt_GSE107011_CCLE_TIL10_EpiDISH[[6]] <- ggplot(melt_GSE107011_CCLE_TIL10_EpiDISH_modify[[6]], aes(x = value, y = V)) +
   geom_point(colour = c("deepskyblue"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.08)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.08)) +
@@ -1754,7 +1754,7 @@ p_melt_GSE107011_BPRNACan_EpiDISH_modify_all <- p_melt_GSE107011_BPRNACan_EpiDIS
   geom_point(shape = 19, size = 4) +
   theme_bw() +
   scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta", "deepskyblue")) +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"ALL") +
   scale_x_continuous(name = NULL, limits = c(0, 0.4)) +
   scale_y_continuous(name = "BPRNACan estimate", limits = c(0, 0.6)) +
@@ -1770,7 +1770,7 @@ p_melt_GSE107011_BPRNACan_EpiDISH_modify_all_longly <- ggplot(melt_GSE107011_BPR
   geom_point(shape = 19, size = 4) +
   theme_bw() +
   scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta", "deepskyblue")) +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"BPRNACan") +
   scale_x_continuous(name = NULL, limits = c(0, 0.4)) +
   scale_y_continuous(name = "BPRNACan estimate", limits = c(0, 0.6)) +
@@ -1807,7 +1807,7 @@ RMSE <- data.frame(
 melt_GSE107011_BPRNACan_EpiDISH[[1]] <- ggplot(melt_GSE107011_BPRNACan_EpiDISH_modify[[1]], aes(x = value, y = V)) +
   geom_point(colour = c("red"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.4)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.5)) +
@@ -1823,7 +1823,7 @@ melt_GSE107011_BPRNACan_EpiDISH[[1]] <- ggplot(melt_GSE107011_BPRNACan_EpiDISH_m
 melt_GSE107011_BPRNACan_EpiDISH[[2]] <- ggplot(melt_GSE107011_BPRNACan_EpiDISH_modify[[2]], aes(x = value, y = V)) +
   geom_point(colour = c("green"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.15)) +
@@ -1838,7 +1838,7 @@ melt_GSE107011_BPRNACan_EpiDISH[[2]] <- ggplot(melt_GSE107011_BPRNACan_EpiDISH_m
 melt_GSE107011_BPRNACan_EpiDISH[[3]] <- ggplot(melt_GSE107011_BPRNACan_EpiDISH_modify[[3]], aes(x = value, y = V)) +
   geom_point(colour = c("blue"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.4)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.5)) +
@@ -1854,7 +1854,7 @@ melt_GSE107011_BPRNACan_EpiDISH[[3]] <- ggplot(melt_GSE107011_BPRNACan_EpiDISH_m
 melt_GSE107011_BPRNACan_EpiDISH[[4]] <- ggplot(melt_GSE107011_BPRNACan_EpiDISH_modify[[4]], aes(x = value, y = V)) +
   geom_point(colour = c("darkgoldenrod1"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.2)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.3)) +
@@ -1869,7 +1869,7 @@ melt_GSE107011_BPRNACan_EpiDISH[[4]] <- ggplot(melt_GSE107011_BPRNACan_EpiDISH_m
 melt_GSE107011_BPRNACan_EpiDISH[[5]] <- ggplot(melt_GSE107011_BPRNACan_EpiDISH_modify[[5]], aes(x = value, y = V)) +
   geom_point(colour = c("darkmagenta"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.2)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.15)) +
@@ -1884,7 +1884,7 @@ melt_GSE107011_BPRNACan_EpiDISH[[5]] <- ggplot(melt_GSE107011_BPRNACan_EpiDISH_m
 melt_GSE107011_BPRNACan_EpiDISH[[6]] <- ggplot(melt_GSE107011_BPRNACan_EpiDISH_modify[[6]], aes(x = value, y = V)) +
   geom_point(colour = c("deepskyblue"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.08)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.08)) +
@@ -1952,7 +1952,7 @@ for (i in c(1:11)) {
   p_benchmarker_CCLE_TIL10[[i]] <- ggplot(melt_benchmarker_CCLE_TIL10[[i]], aes(x = value, y = V)) +
     geom_point(colour = c("cyan1", "red", "green", "blue", "darkorange1", "deeppink", "darkgoldenrod1", "darkmagenta", "deepskyblue", "darkgreen", "midnightblue")[i]) +
     theme_bw() +
-    stat_smooth(method = lm, color = "black") +
+    stat_smooth(method = lm, color = "black", fullrange = T) +
     facet_wrap(~variable) +
     scale_x_continuous(name = NULL, limits = c(0, 1)) +
     scale_y_continuous(name = NULL, limits = c(0, 1)) +
@@ -1975,7 +1975,7 @@ for (i in c(2:11)) {
   p_benchmarker_CCLE_TIL10[[i]] <- ggplot(melt_benchmarker_CCLE_TIL10[[i]], aes(x = value, y = V)) +
     geom_point(colour = c("cyan1", "red", "green", "blue", "darkorange1", "deeppink", "darkgoldenrod1", "darkmagenta", "deepskyblue", "darkgreen", "midnightblue")[i]) +
     theme_bw() +
-    stat_smooth(method = lm, color = "black") +
+    stat_smooth(method = lm, color = "black", fullrange = T) +
     facet_wrap(~variable) +
     scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
     scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
@@ -2018,7 +2018,7 @@ RMSE <- data.frame(
 bench_BPRNACan[[1]] <- ggplot(melt_benchmarker_BPRNACan_150[[1]], aes(x = value, y = V)) +
   geom_point(colour = c("cyan1")) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL) +
   scale_y_continuous(name = NULL) +
@@ -2034,7 +2034,7 @@ bench_BPRNACan[[1]] <- ggplot(melt_benchmarker_BPRNACan_150[[1]], aes(x = value,
 bench_BPRNACan[[2]] <- ggplot(melt_benchmarker_BPRNACan_150[[2]], aes(x = value, y = V)) +
   geom_point(colour = c("red")) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL) +
@@ -2050,7 +2050,7 @@ bench_BPRNACan[[2]] <- ggplot(melt_benchmarker_BPRNACan_150[[2]], aes(x = value,
 bench_BPRNACan[[3]] <- ggplot(melt_benchmarker_BPRNACan_150[[3]], aes(x = value, y = V)) +
   geom_point(colour = c("green")) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL) +
@@ -2065,7 +2065,7 @@ bench_BPRNACan[[3]] <- ggplot(melt_benchmarker_BPRNACan_150[[3]], aes(x = value,
 bench_BPRNACan[[4]] <- ggplot(melt_benchmarker_BPRNACan_150[[4]], aes(x = value, y = V)) +
   geom_point(colour = c("blue")) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL) +
@@ -2080,7 +2080,7 @@ bench_BPRNACan[[4]] <- ggplot(melt_benchmarker_BPRNACan_150[[4]], aes(x = value,
 bench_BPRNACan[[5]] <- ggplot(melt_benchmarker_BPRNACan_150[[5]], aes(x = value, y = V)) +
   geom_point(colour = c("darkorange1")) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL) +
@@ -2095,7 +2095,7 @@ bench_BPRNACan[[5]] <- ggplot(melt_benchmarker_BPRNACan_150[[5]], aes(x = value,
 bench_BPRNACan[[6]] <- ggplot(melt_benchmarker_BPRNACan_150[[6]], aes(x = value, y = V)) +
   geom_point(colour = c("deeppink")) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.4)) +
   scale_y_continuous(name = NULL) +
@@ -2110,7 +2110,7 @@ bench_BPRNACan[[6]] <- ggplot(melt_benchmarker_BPRNACan_150[[6]], aes(x = value,
 bench_BPRNACan[[7]] <- ggplot(melt_benchmarker_BPRNACan_150[[7]], aes(x = value, y = V)) +
   geom_point(colour = c("darkgoldenrod1")) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL) +
@@ -2125,7 +2125,7 @@ bench_BPRNACan[[7]] <- ggplot(melt_benchmarker_BPRNACan_150[[7]], aes(x = value,
 bench_BPRNACan[[8]] <- ggplot(melt_benchmarker_BPRNACan_150[[8]], aes(x = value, y = V)) +
   geom_point(colour = c("darkmagenta")) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL) +
@@ -2140,7 +2140,7 @@ bench_BPRNACan[[8]] <- ggplot(melt_benchmarker_BPRNACan_150[[8]], aes(x = value,
 bench_BPRNACan[[9]] <- ggplot(melt_benchmarker_BPRNACan_150[[9]], aes(x = value, y = V)) +
   geom_point(colour = c("deepskyblue")) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
   scale_y_continuous(name = NULL) +
@@ -2218,7 +2218,7 @@ colnames(TCGA_LUAD_CCLE_TIL10_Neutrophils) <- c("estimate", "facs")
 p_TCGA_LUAD_CCLE_TIL10_lymphocytes <- ggplot(as.data.frame(TCGA_LUAD_CCLE_TIL10_lymphocytes), aes(x = facs, y = estimate)) +
   geom_point(colour = c("darkslategrey")) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"Lymphocytes") +
   scale_x_continuous(name = NULL) +
   scale_y_continuous(name = NULL) +
@@ -2232,7 +2232,7 @@ p_TCGA_LUAD_CCLE_TIL10_lymphocytes <- ggplot(as.data.frame(TCGA_LUAD_CCLE_TIL10_
 p_TCGA_LUAD_CCLE_TIL10_Macrophages <- ggplot(as.data.frame(TCGA_LUAD_CCLE_TIL10_Macrophages), aes(x = estimate, y = facs)) +
   geom_point(colour = c("coral")) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"Macrophages") +
   scale_x_continuous(name = NULL, limits = c(0, 0.8)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
@@ -2246,7 +2246,7 @@ p_TCGA_LUAD_CCLE_TIL10_Macrophages <- ggplot(as.data.frame(TCGA_LUAD_CCLE_TIL10_
 p_TCGA_LUAD_CCLE_TIL10_Neutrophils <- ggplot(as.data.frame(TCGA_LUAD_CCLE_TIL10_Neutrophils), aes(x = facs, y = estimate)) +
   geom_point(colour = c("deepskyblue")) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"Neutrophils") +
   scale_x_continuous(name = NULL, limits = c(0, 0.03)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.05)) +
@@ -2307,7 +2307,7 @@ colnames(TCGA_LUAD_BPRNACan_Neutrophils) <- c("estimate", "facs")
 p_TCGA_LUAD_BPRNACan_lymphocytes <- ggplot(as.data.frame(TCGA_LUAD_BPRNACan_lymphocytes), aes(x = facs, y = estimate)) +
   geom_point(colour = c("darkslategrey")) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"Lymphocytes") +
   scale_x_continuous(name = NULL) +
   scale_y_continuous(name = NULL) +
@@ -2321,7 +2321,7 @@ p_TCGA_LUAD_BPRNACan_lymphocytes <- ggplot(as.data.frame(TCGA_LUAD_BPRNACan_lymp
 p_TCGA_LUAD_BPRNACan_Macrophages <- ggplot(as.data.frame(TCGA_LUAD_BPRNACan_Macrophages), aes(x = estimate, y = facs)) +
   geom_point(colour = c("coral")) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"Macrophages") +
   scale_x_continuous(name = NULL, limits = c(0, 0.05)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
@@ -2335,7 +2335,7 @@ p_TCGA_LUAD_BPRNACan_Macrophages <- ggplot(as.data.frame(TCGA_LUAD_BPRNACan_Macr
 p_TCGA_LUAD_BPRNACan_Neutrophils <- ggplot(as.data.frame(TCGA_LUAD_BPRNACan_Neutrophils), aes(x = facs, y = estimate)) +
   geom_point(colour = c("deepskyblue")) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"Neutrophils") +
   scale_x_continuous(name = NULL, limits = c(0, 0.03)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.008)) +
@@ -2390,7 +2390,7 @@ RMSE <- data.frame(
 Th[[1]] <- ggplot(melt_Thomas_RNAseq_BPRNACan_150[[1]], aes(x = value, y = V)) +
   geom_point(colour = c("red"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"CD4") +
   scale_x_continuous(name = NULL, limits = c(0, 0.18)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.25)) +
@@ -2405,7 +2405,7 @@ Th[[1]] <- ggplot(melt_Thomas_RNAseq_BPRNACan_150[[1]], aes(x = value, y = V)) +
 Th[[2]] <- ggplot(melt_Thomas_RNAseq_BPRNACan_150[[2]][-9, ], aes(x = value, y = V)) +
   geom_point(colour = c("green"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"CD8") +
   scale_x_continuous(name = NULL) +
   scale_y_continuous(name = NULL, limits = c(0, 0.05)) +
@@ -2420,7 +2420,7 @@ Th[[2]] <- ggplot(melt_Thomas_RNAseq_BPRNACan_150[[2]][-9, ], aes(x = value, y =
 Th[[3]] <- ggplot(melt_Thomas_RNAseq_BPRNACan_150[[3]], aes(x = value, y = V)) +
   geom_point(colour = c("darkmagenta"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.08)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.04)) +
@@ -2470,7 +2470,7 @@ RMSE <- data.frame(
 Thq[[1]] <- ggplot(melt_Thomas_quanTIseq_M[[1]], aes(x = value, y = V)) +
   geom_point(colour = c("red"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.2)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.12)) +
@@ -2486,7 +2486,7 @@ Thq[[1]] <- ggplot(melt_Thomas_quanTIseq_M[[1]], aes(x = value, y = V)) +
 Thq[[2]] <- ggplot(melt_Thomas_quanTIseq_M[[2]], aes(x = value, y = V)) +
   geom_point(colour = c("green"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL) +
   scale_y_continuous(name = NULL, limits = c(0, 0.08)) +
@@ -2501,7 +2501,7 @@ Thq[[2]] <- ggplot(melt_Thomas_quanTIseq_M[[2]], aes(x = value, y = V)) +
 Thq[[3]] <- ggplot(melt_Thomas_quanTIseq_M[[3]], aes(x = value, y = V)) +
   geom_point(colour = c("darkmagenta"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.08)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.08)) +
@@ -2561,7 +2561,7 @@ RMSE <- data.frame(
 Thm[[1]] <- ggplot(melt_Thomas_Thomas_MCP_counter_M[[1]], aes(x = value, y = V)) +
   geom_point(colour = c("red"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.2)) +
   scale_y_continuous(name = NULL) +
@@ -2577,7 +2577,7 @@ Thm[[1]] <- ggplot(melt_Thomas_Thomas_MCP_counter_M[[1]], aes(x = value, y = V))
 Thm[[2]] <- ggplot(melt_Thomas_Thomas_MCP_counter_M[[2]], aes(x = value, y = V)) +
   geom_point(colour = c("green"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL) +
   scale_y_continuous(name = NULL) +
@@ -2592,7 +2592,7 @@ Thm[[2]] <- ggplot(melt_Thomas_Thomas_MCP_counter_M[[2]], aes(x = value, y = V))
 Thm[[3]] <- ggplot(melt_Thomas_Thomas_MCP_counter_M[[3]], aes(x = value, y = V)) +
   geom_point(colour = c("darkmagenta"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.08)) +
   scale_y_continuous(name = NULL, limits = c(0, 6)) +
@@ -2640,7 +2640,7 @@ RMSE <- data.frame(
 p_GSE72056_BPRNACan_EpiDISH[[1]] <- ggplot(melt_GSE72056_BPRNACan_EpiDISH[[1]], aes(x = value, y = V)) +
   geom_point(colour = c("cyan1"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 1)) +
   scale_y_continuous(name = NULL, limits = c(0, 1)) +
@@ -2655,7 +2655,7 @@ p_GSE72056_BPRNACan_EpiDISH[[1]] <- ggplot(melt_GSE72056_BPRNACan_EpiDISH[[1]], 
 p_GSE72056_BPRNACan_EpiDISH[[2]] <- ggplot(melt_GSE72056_BPRNACan_EpiDISH[[2]], aes(x = value, y = V)) +
   geom_point(colour = c("red"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.8)) +
   scale_y_continuous(name = NULL, limits = c(0, 1)) +
@@ -2670,7 +2670,7 @@ p_GSE72056_BPRNACan_EpiDISH[[2]] <- ggplot(melt_GSE72056_BPRNACan_EpiDISH[[2]], 
 p_GSE72056_BPRNACan_EpiDISH[[3]] <- ggplot(melt_GSE72056_BPRNACan_EpiDISH[[3]], aes(x = value, y = V)) +
   geom_point(colour = c("green"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 1)) +
   scale_y_continuous(name = NULL, limits = c(0, 1)) +
@@ -2685,7 +2685,7 @@ p_GSE72056_BPRNACan_EpiDISH[[3]] <- ggplot(melt_GSE72056_BPRNACan_EpiDISH[[3]], 
 p_GSE72056_BPRNACan_EpiDISH[[4]] <- ggplot(melt_GSE72056_BPRNACan_EpiDISH[[4]], aes(x = value, y = V)) +
   geom_point(colour = c("coral"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.15)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.1)) +
@@ -2700,7 +2700,7 @@ p_GSE72056_BPRNACan_EpiDISH[[4]] <- ggplot(melt_GSE72056_BPRNACan_EpiDISH[[4]], 
 p_GSE72056_BPRNACan_EpiDISH[[5]] <- ggplot(melt_GSE72056_BPRNACan_EpiDISH[[5]], aes(x = value, y = V)) +
   geom_point(colour = c("darkgoldenrod1"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.5)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.8)) +
@@ -2715,7 +2715,7 @@ p_GSE72056_BPRNACan_EpiDISH[[5]] <- ggplot(melt_GSE72056_BPRNACan_EpiDISH[[5]], 
 p_GSE72056_BPRNACan_EpiDISH[[6]] <- ggplot(melt_GSE72056_BPRNACan_EpiDISH[[6]], aes(x = value, y = V)) +
   geom_point(colour = c("darkmagenta"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.08)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.015)) +
@@ -2779,7 +2779,7 @@ RMSE <- data.frame(
 p_GSE72056_quanTIseq[[1]] <- ggplot(melt_GSE72056_quanTIseq[[1]], aes(x = value, y = V)) +
   geom_point(colour = c("red"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.8)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
@@ -2795,7 +2795,7 @@ p_GSE72056_quanTIseq[[1]] <- ggplot(melt_GSE72056_quanTIseq[[1]], aes(x = value,
 p_GSE72056_quanTIseq[[2]] <- ggplot(melt_GSE72056_quanTIseq[[2]], aes(x = value, y = V)) +
   geom_point(colour = c("green"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 1)) +
   scale_y_continuous(name = NULL, limits = c(0, 1)) +
@@ -2810,7 +2810,7 @@ p_GSE72056_quanTIseq[[2]] <- ggplot(melt_GSE72056_quanTIseq[[2]], aes(x = value,
 p_GSE72056_quanTIseq[[3]] <- ggplot(melt_GSE72056_quanTIseq[[3]], aes(x = value, y = V)) +
   geom_point(colour = c("coral"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.15)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.1)) +
@@ -2825,7 +2825,7 @@ p_GSE72056_quanTIseq[[3]] <- ggplot(melt_GSE72056_quanTIseq[[3]], aes(x = value,
 p_GSE72056_quanTIseq[[4]] <- ggplot(melt_GSE72056_quanTIseq[[4]], aes(x = value, y = V)) +
   geom_point(colour = c("darkgoldenrod1"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.5)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.2)) +
@@ -2840,7 +2840,7 @@ p_GSE72056_quanTIseq[[4]] <- ggplot(melt_GSE72056_quanTIseq[[4]], aes(x = value,
 p_GSE72056_quanTIseq[[5]] <- ggplot(melt_GSE72056_quanTIseq[[5]], aes(x = value, y = V)) +
   geom_point(colour = c("darkmagenta"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL) +
   scale_y_continuous(name = NULL, limits = c(0, 0.2)) +
@@ -2855,7 +2855,7 @@ p_GSE72056_quanTIseq[[5]] <- ggplot(melt_GSE72056_quanTIseq[[5]], aes(x = value,
 p_GSE72056_quanTIseq[[6]] <- ggplot(melt_GSE72056_quanTIseq[[6]], aes(x = value, y = V)) +
   geom_point(colour = c("darkgreen"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.08)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.2)) +
@@ -2906,7 +2906,7 @@ RMSE <- data.frame(
 p_GSE72056_MCPcounter[[1]] <- ggplot(melt_GSE72056_MCPcounter[[1]], aes(x = value, y = V)) +
   geom_point(colour = c("green"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 1)) +
   scale_y_continuous(name = NULL, limits = c(0, 5)) +
@@ -2922,7 +2922,7 @@ p_GSE72056_MCPcounter[[1]] <- ggplot(melt_GSE72056_MCPcounter[[1]], aes(x = valu
 p_GSE72056_MCPcounter[[2]] <- ggplot(melt_GSE72056_MCPcounter[[2]], aes(x = value, y = V)) +
   geom_point(colour = c("coral"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.2)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.8)) +
@@ -2937,7 +2937,7 @@ p_GSE72056_MCPcounter[[2]] <- ggplot(melt_GSE72056_MCPcounter[[2]], aes(x = valu
 p_GSE72056_MCPcounter[[3]] <- ggplot(melt_GSE72056_MCPcounter[[3]], aes(x = value, y = V)) +
   geom_point(colour = c("darkgoldenrod1"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.5)) +
   scale_y_continuous(name = NULL, limits = c(0, 2.5)) +
@@ -2952,7 +2952,7 @@ p_GSE72056_MCPcounter[[3]] <- ggplot(melt_GSE72056_MCPcounter[[3]], aes(x = valu
 p_GSE72056_MCPcounter[[4]] <- ggplot(melt_GSE72056_MCPcounter[[4]], aes(x = value, y = V)) +
   geom_point(colour = c("darkmagenta"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.08)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
@@ -2967,7 +2967,7 @@ p_GSE72056_MCPcounter[[4]] <- ggplot(melt_GSE72056_MCPcounter[[4]], aes(x = valu
 p_GSE72056_MCPcounter[[5]] <- ggplot(melt_GSE72056_MCPcounter[[5]], aes(x = value, y = V)) +
   geom_point(colour = c("chartreuse"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.08)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.3)) +
@@ -2982,7 +2982,7 @@ p_GSE72056_MCPcounter[[5]] <- ggplot(melt_GSE72056_MCPcounter[[5]], aes(x = valu
 p_GSE72056_MCPcounter[[6]] <- ggplot(melt_GSE72056_MCPcounter[[6]], aes(x = value, y = V)) +
   geom_point(colour = c("darkorchid"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.12)) +
   scale_y_continuous(name = NULL) +
@@ -3018,7 +3018,7 @@ Fig_6a <- annotate_figure(annotate_TCGA_LUAD_CCLE_TIL10_BPRNACan, bottom = text_
 
 Figure_6b <-
   ggdraw() + draw_plot(annotate_TCGA_LUAD_CCLE_TIL10_BPRNACan, x = 0.05, y = 0.5, width = 0.9, height = 0.5) +
-  draw_plot(All_Methods_TCGA_LUAD_HE, x = 0, y = 0, width = 1, height = 0.5) +
+  draw_plot(All_Methods_TCGA_LUAD_HE, x = 0, y = 0, width = 1, height = 0.5) + # reverse x and y on this
   draw_plot_label(label = c("a", "b"), size = 20, x = c(0.01, 0.01), y = c(1, 0.5))
 ```
 
@@ -3067,7 +3067,7 @@ Figure_6c <- annotate_figure(Mix_figure_BPRNACan_quanTIseq_M_MCP_counter,
 p_GSE72056_BPRNACan_EpiDISH[[3]] <- ggplot(melt_GSE72056_BPRNACan_EpiDISH[[3]], aes(x = value, y = V)) +
   geom_point(colour = c("green"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 1)) +
   scale_y_continuous(name = NULL, limits = c(0, 1)) +
@@ -3082,7 +3082,7 @@ p_GSE72056_BPRNACan_EpiDISH[[3]] <- ggplot(melt_GSE72056_BPRNACan_EpiDISH[[3]], 
 p_GSE72056_BPRNACan_EpiDISH[[4]] <- ggplot(melt_GSE72056_BPRNACan_EpiDISH[[4]], aes(x = value, y = V)) +
   geom_point(colour = c("coral"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.15)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.1)) +
@@ -3097,7 +3097,7 @@ p_GSE72056_BPRNACan_EpiDISH[[4]] <- ggplot(melt_GSE72056_BPRNACan_EpiDISH[[4]], 
 p_GSE72056_BPRNACan_EpiDISH[[5]] <- ggplot(melt_GSE72056_BPRNACan_EpiDISH[[5]], aes(x = value, y = V)) +
   geom_point(colour = c("darkgoldenrod1"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.5)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.8)) +
@@ -3112,7 +3112,7 @@ p_GSE72056_BPRNACan_EpiDISH[[5]] <- ggplot(melt_GSE72056_BPRNACan_EpiDISH[[5]], 
 p_GSE72056_BPRNACan_EpiDISH[[6]] <- ggplot(melt_GSE72056_BPRNACan_EpiDISH[[6]], aes(x = value, y = V)) +
   geom_point(colour = c("darkmagenta"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.08)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.015)) +
@@ -3135,7 +3135,7 @@ figure_GSE72056_BPRNACan_EpiDISH_c <- annotate_figure(figure_GSE72056_BPRNACan_E
 p_GSE72056_quanTIseq[[2]] <- ggplot(melt_GSE72056_quanTIseq[[2]], aes(x = value, y = V)) +
   geom_point(colour = c("green"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 1)) +
   scale_y_continuous(name = NULL, limits = c(0, 1)) +
@@ -3150,7 +3150,7 @@ p_GSE72056_quanTIseq[[2]] <- ggplot(melt_GSE72056_quanTIseq[[2]], aes(x = value,
 p_GSE72056_quanTIseq[[3]] <- ggplot(melt_GSE72056_quanTIseq[[3]], aes(x = value, y = V)) +
   geom_point(colour = c("coral"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.15)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.1)) +
@@ -3165,7 +3165,7 @@ p_GSE72056_quanTIseq[[3]] <- ggplot(melt_GSE72056_quanTIseq[[3]], aes(x = value,
 p_GSE72056_quanTIseq[[4]] <- ggplot(melt_GSE72056_quanTIseq[[4]], aes(x = value, y = V)) +
   geom_point(colour = c("darkgoldenrod1"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.5)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.2)) +
@@ -3180,7 +3180,7 @@ p_GSE72056_quanTIseq[[4]] <- ggplot(melt_GSE72056_quanTIseq[[4]], aes(x = value,
 p_GSE72056_quanTIseq[[5]] <- ggplot(melt_GSE72056_quanTIseq[[5]], aes(x = value, y = V)) +
   geom_point(colour = c("darkmagenta"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.08)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.2)) +
@@ -3204,7 +3204,7 @@ figure_GSE72056_quanTIseq_c <- annotate_figure(figure_GSE72056_quanTIseq_c, left
 p_GSE72056_MCPcounter[[1]] <- ggplot(melt_GSE72056_MCPcounter[[1]], aes(x = value, y = V)) +
   geom_point(colour = c("green"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 1)) +
   scale_y_continuous(name = NULL, limits = c(0, 6)) +
@@ -3220,7 +3220,7 @@ p_GSE72056_MCPcounter[[1]] <- ggplot(melt_GSE72056_MCPcounter[[1]], aes(x = valu
 p_GSE72056_MCPcounter[[2]] <- ggplot(melt_GSE72056_MCPcounter[[2]], aes(x = value, y = V)) +
   geom_point(colour = c("coral"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.2)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.8)) +
@@ -3235,7 +3235,7 @@ p_GSE72056_MCPcounter[[2]] <- ggplot(melt_GSE72056_MCPcounter[[2]], aes(x = valu
 p_GSE72056_MCPcounter[[3]] <- ggplot(melt_GSE72056_MCPcounter[[3]], aes(x = value, y = V)) +
   geom_point(colour = c("darkgoldenrod1"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.5)) +
   scale_y_continuous(name = NULL, limits = c(0, 3)) +
@@ -3250,7 +3250,7 @@ p_GSE72056_MCPcounter[[3]] <- ggplot(melt_GSE72056_MCPcounter[[3]], aes(x = valu
 p_GSE72056_MCPcounter[[4]] <- ggplot(melt_GSE72056_MCPcounter[[4]], aes(x = value, y = V)) +
   geom_point(colour = c("darkmagenta"), size = 6) +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.08)) +
   scale_y_continuous(name = NULL, limits = c(0, 0.5)) +
@@ -3294,7 +3294,7 @@ melt_CCLE_TIL10 <- melt(TCGA_LUAD_RNAseq_CCLE_TIL10, id.vars = "CCLE_TIL10", mea
 p_CCLE_TIL10 <- ggplot(melt_CCLE_TIL10, aes(x = value, y = CCLE_TIL10)) +
   geom_point(colour = "brown") +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 1)) +
   scale_y_continuous(name = "CCLE_TIL10 estimate", limits = c(0, 1)) +
@@ -3322,7 +3322,7 @@ melt_BPRNACan <- melt(TCGA_LUAD_RNAseq_BPRNACan_150, id.vars = "BPRNACan", measu
 p_BPRNACan <- ggplot(melt_BPRNACan, aes(x = value, y = BPRNACan)) +
   geom_point(colour = "brown") +
   theme_bw() +
-  stat_smooth(method = lm, color = "black") +
+  stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 1)) +
   scale_y_continuous(name = "BPRNACan estimate", limits = c(0.8, 1)) +
