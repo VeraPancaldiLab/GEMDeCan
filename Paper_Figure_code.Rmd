@@ -5,13 +5,13 @@ editor_options:
   chunk_output_type: console
 ---
 
-################ Methylation paper Figure ################ 
+################ Methylation paper Figure
 
 # Start Figure 3 and Figure S1-S2
 
-############# 100 WB GSE132203_100 samples methylation ###############
+############# 100 WB GSE132203_100 samples methylation
 
-###############   BPmet  ###################
+############### BPmet
 
 ```{r}
 library(Metrics)
@@ -182,7 +182,7 @@ figure_GSE132203_100_BPmet_each_together <- ggarrange(p_GSE132203_100_BPmet_all,
 figure_GSE132203_100_BPmet_each_together <- annotate_figure(figure_GSE132203_100_BPmet_each_together, left = text_grob("BPmet estimate", color = "black", size = 20, rot = 90))
 ```
 
-###############   MethylCIBERSORT  ##################
+############### MethylCIBERSORT
 
 ```{r}
 
@@ -350,7 +350,7 @@ figure_GSE132203_100_MethylCIBERSORT_together <- ggarrange(p_GSE132203_100_Methy
 figure_GSE132203_100_MethylCIBERSORT_together <- annotate_figure(figure_GSE132203_100_MethylCIBERSORT_together, left = text_grob("MethylCIBERSORT estimate", color = "black", size = 20, rot = 90))
 ```
 
-###############   DHS  ##################
+############### DHS
 
 ```{r}
 
@@ -518,10 +518,9 @@ figure_GSE132203_100_DHS_all_together <- ggarrange(p_melt_GSE132203_100_DHS_all,
 figure_GSE132203_100_DHS_all_together <- annotate_figure(figure_GSE132203_100_DHS_all_together, left = text_grob("DHS estimate", color = "black", size = 20, rot = 90), bottom = text_grob("Gold standard", color = "black", size = 20))
 ```
 
+############## methylation 6 WB samples GSE77797
 
-############## methylation 6 WB samples GSE77797 ############## 
-
-############## BPmet ###################
+############## BPmet
 
 ```{r}
 
@@ -673,7 +672,7 @@ figure_GSE77797_six_BPmet_together <- ggarrange(p_GSE77797_six_BPmet_all, p_GSE7
 figure_GSE77797_six_BPmet_together <- annotate_figure(figure_GSE77797_six_BPmet_together, left = text_grob("BPmet estimate", color = "black", size = 20, rot = 90))
 ```
 
-###################### MethylCIBERSORT_WB #########################
+###################### MethylCIBERSORT_WB
 
 ```{r}
 
@@ -833,7 +832,7 @@ figure_GSE77797_six_MethylCIBERSORT_WB_together <- annotate_figure(figure_GSE777
 # annotate_figure(figure_GSE77797_six_MethylCIBERSORT_each, bottom = text_grob("Gold standard", color = "black", size = 20), left = text_grob("EpiDISH estimate", color = "black", size = 20, rot = 90))
 ```
 
-###################### DHS #########################
+###################### DHS
 
 ```{r}
 
@@ -1001,7 +1000,7 @@ annotate_figure(figure_GSE77797_six_BPmet_MethylCIBERSORT_DHS_together, bottom =
 # annotate_figure(figure_GSE77797_six_DHS_each, bottom = text_grob("Gold standard", color = "black", size = 20), left = text_grob("EpiDISH estimate", color = "black", size = 20, rot = 90))
 ```
 
-# Figure 3 and Figure S1-S2  
+# Figure 3 and Figure S1-S2
 
 ```{r}
 
@@ -1025,21 +1024,13 @@ Figure_S2c <- figure_GSE77797_six_DHS_together
 # figure_GSE132203_100_DHS_all_together <- annotate_figure(figure_GSE132203_100_DHS_all_together, bottom = text_grob("Gold standard", color = "black", size = 20))
 ```
 
-
-
-
 # Start Figure 4
 
-##########  methylation TCGA-LUAD with previous tumor purity methods ############
+########## methylation TCGA-LUAD with previous tumor purity methods
 
-############## BPmetCan and MethylCIBERSORT_Luad ###################
+############## BPmetCan and MethylCIBERSORT_Luad
 
 ```{r}
-library(reshape2)
-library(scales)
-library(ggpubr)
-library(EpiDISH)
-
 load("~/Documents/Ting_paper/Code/all_figures/Figure3 and S3/Figure3_and_S3.RData")
 
 out.l <- epidish(ABSOLUTE.LUAD.Aran, BPmetCan, "RPC", maxit = 100)
@@ -1069,9 +1060,9 @@ p_TCGA_LUAD_BPmetCan_MethylCIBERSORT <- ggplot(melt_TCGA_LUAD_BPmetCan_MethylCIB
   theme(axis.title.y = element_text(vjust = 1.5)) #+ labs(tag = "a")
 ```
 
-##########  methylation TCGA-BRCA with previous tumor purity methods ########## 
+########## methylation TCGA-BRCA with previous tumor purity methods
 
-############## BPmetCan and MethylCIBERSORT_breast ###################
+############## BPmetCan and MethylCIBERSORT_breast
 
 ```{r}
 
@@ -1102,9 +1093,9 @@ p_TCGA_BRCA_BPmetCan_MethylCIBERSORT <- ggplot(melt_TCGA_BRCA_BPmetCan_MethylCIB
   theme(axis.title.y = element_text(vjust = 1.5)) #+ labs(tag = "b")
 ```
 
-############################ DNA methylation lymphocytes ###################################
+############################ DNA methylation lymphocytes
 
-############################ BPmetCan ###################################
+############################ BPmetCan
 
 # Lymphocytes: CD4 + Tregs + CD8 + B + NK
 
@@ -1169,13 +1160,14 @@ p_TCGA_LUAD_BPmetCan_Neutrophils <- ggplot(as.data.frame(TCGA_LUAD_BPmetCan_Neut
   theme(axis.title.x = element_text(vjust = -0.5))
 ```
 
-############## MethylCIBERSORT #####################
+############## MethylCIBERSORT
 
 # Lymphocytes: CD4 + Tregs + CD8 + B + NK
 
 # Monocytes/Macrophages lineage: Monocytes
 
 # Neutrophiles: Neutrophils
+
 ```{r}
 
 out.l <- epidish(TCGA_LUAD_Methylation, MethylCIBERSORT_LUAD, "RPC")
@@ -1242,7 +1234,7 @@ figure_TCGA_LUAD_MethylCIBERSORT <- ggarrange(p_TCGA_LUAD_MethylCIBERSORT_lympho
 # annotate_TCGA_LUAD_BPmetCan_MethylCIBERSORT <- annotate_figure(annotate_TCGA_LUAD_BPmetCan_MethylCIBERSORT, bottom = text_grob("H&E estimate", color = "black", size = 20))
 ```
 
-############## Options DHS #####################
+############## Options DHS
 
 # Lymphocytes: CD4 + CD8 + B + NK
 
@@ -1277,10 +1269,11 @@ figure_TCGA_LUAD_MethylCIBERSORT <- ggarrange(p_TCGA_LUAD_MethylCIBERSORT_lympho
 #
 ```
 
-# Figure 4 and Figure S3  
+# Figure 4 and Figure S3
+
 ```{r}
 
-#### Figure 3 #####
+#### Figure 4 #####
 
 figure_LUAD_methy <- ggarrange(p_TCGA_LUAD_BPmetCan_MethylCIBERSORT, ncol = 1, nrow = 1, labels = "a", font.label = list(size = 20, color = "black"))
 
@@ -1308,22 +1301,16 @@ Figure4 <- ggarrange(figure_LUAD_methy, annotate_TCGA_LUAD_BPmetCan_MethylCIBERS
 Figure_S3 <- ggarrange(p_TCGA_BRCA_BPmetCan_MethylCIBERSORT, ncol = 1, nrow = 1)
 ```
 
+# Start Figure 5
 
+############################ RNAseq lymphocytes
 
+########## RNAseq GSE107011 PBMC Monaco
 
-
-# Start Figure 5 
-
-############################ RNAseq lymphocytes ###################################
-
-##########  RNAseq GSE107011 PBMC Monaco ############
-
-############## BPRNA ###################
+############## BPRNA
 
 ```{r}
-library(Metrics)
-
-# load("~/deconvolution/Final methylation paper/figure/Figure4/GSE107011_PBMCs_Fig4.RData")
+load("~/Documents/Ting_paper/Code/all_figures/Figure4/GSE107011_PBMCs_Fig4.RData")
 
 out.l <- epidish(GSE107011, as.matrix(BPRNA), "RPC", maxit = 100)
 BPRNA_EpiDISH <- data.frame(out.l$estF)
@@ -1348,7 +1335,7 @@ p_melt_GSE107011_BPRNA_EpiDISH_modify_all <- ggplot(melt_GSE107011_BPRNA_EpiDISH
   font("xy.text", size = 18, color = "black") +
   theme(axis.title.x = element_text(vjust = -0.5)) +
   theme(axis.title.y = element_text(vjust = 1.5)) +
-  theme(legend.justification = c(0.05, 0.95), legend.position = c(0.05, 0.95), legend.title = element_blank(), legend.key.size = unit(0.8, "cm")) +
+  theme(legend.justification = c(0.05, 0.95), legend.position = c(0.05, 0.95), legend.title = element_blank(), legend.key.size = unit(0.8, "cm"), legend.background = element_rect(fill = "transparent")) +
   annotate("text", x = 0.3, y = 0, label = paste("R = ", round(cor.test(as.matrix(GSE107011_BPRNA_EpiDISH_modify), as.matrix(FACS_GSE107011[, c(1, 2, 4, 3, 5, 6)]))$est, 2)), parse = F, size = 8)
 
 
@@ -1364,7 +1351,7 @@ p_melt_GSE107011_BPRNA_EpiDISH_modify_all_longly <- ggplot(melt_GSE107011_BPRNA_
   font("xy.text", size = 18, color = "black") +
   theme(axis.title.x = element_text(vjust = -0.5)) +
   theme(axis.title.y = element_text(vjust = 1.5)) +
-  theme(legend.justification = c(0.05, 0.95), legend.position = c(0.05, 0.95), legend.title = element_blank(), legend.key.size = unit(0.8, "cm")) +
+  theme(legend.justification = c(0.05, 0.95), legend.position = c(0.05, 0.95), legend.title = element_blank(), legend.key.size = unit(0.8, "cm"), legend.background = element_rect(fill = "transparent")) +
   annotate("text", x = 0.29, y = 0.07, label = paste("R = ", round(cor.test(as.matrix(GSE107011_BPRNA_EpiDISH_modify), as.matrix(FACS_GSE107011[, c(1, 2, 4, 3, 5, 6)]))$est, 2)), parse = F, size = 8)
 
 #### each cell types
@@ -1483,8 +1470,6 @@ melt_GSE107011_BPRNA_EpiDISH[[6]] <- ggplot(melt_GSE107011_BPRNA_EpiDISH_modify[
   annotate("text", x = 0.018, y = 0.0275, label = as.character(as.expression(substitute(paste(RMSE, " = ", r), list(r = round(RMSE$rmse[6], 2))))), parse = TRUE, size = 6)
 
 
-
-# left = text_grob("BPRNA estimate", color = "black", size = 20, rot = 90),
 ```
 
 # Figure 5
@@ -1501,11 +1486,6 @@ p_GSE107011_BPRNA_EpiDISH_each <- ggarrange(melt_GSE107011_BPRNA_EpiDISH[[1]], m
 figure_GSE107011_BPRNA_EpiDISH_together <- ggarrange(p_melt_GSE107011_BPRNA_EpiDISH_modify_all, p_GSE107011_BPRNA_EpiDISH_each, ncol = 2, labels = "a", nrow = 1, font.label = list(size = 20, color = "black"), widths = c(1, 2.5)) # , labels = "b"
 
 Fig_5a <- annotate_figure(figure_GSE107011_BPRNA_EpiDISH_together, bottom = text_grob("Gold standard", color = "black", size = 20), left = text_grob("BPRNA estimate", color = "black", size = 20, rot = 90))
-
-
-
-# GSE107011_PBMCs <- read.table("~/paper1.txt", row.names = 1, header = T)
-# GSE107011_PBMCs_pvalue <- read.table("~/paper1.txt", row.names = 1, header = T)
 
 melt_PBMCs <- melt(GSE107011_PBMCs)
 melt_PBMCs_Pvalue <- melt(GSE107011_PBMCs_pvalue)
@@ -1547,30 +1527,11 @@ PBMCs_figure <- ggplot(melt_merge_melt_PBMCs, aes(variable, new_Var2)) +
 
 Figure_5b <- ggarrange(PBMCs_figure, ncol = 1, labels = "b", nrow = 1, font.label = list(size = 20, color = "black"))
 
-# Figure_4 <- ggarrange(figure_GSE107011_BPRNA_EpiDISH_together ,PBMCs_figure, ncol = 1, nrow=2, font.label = list(size = 20, color = "black"))
-
-
-# ggdraw()+ draw_plot(p_GSE107011_CCLE_TIL10_EpiDISH_modify_all, x=0, y=0.6, width=0.5, height = 0.4)+
-#     draw_plot(p_melt_GSE107011_BPRNA_EpiDISH_modify_all, x=0.5, y= 0.6, width=0.5, height = 0.4) +
-#     draw_plot(p_melt_GSE107011_BPRNACan_EpiDISH_modify_all, x=1, y=0.6, width = 0.5, height = 0.4)+
-#     draw_plot(PBMCs_figure, x=0, y= 0, width = 1, height = 0.6)+
-#     draw_plot_label(label = c("a", "b", "c", "d"), size = 18, x=c(0, 0.5, 1, 0), y=c(1, 1, 1, 0.58))
-#
-#
-# ggdraw()+ draw_plot(figure_GSE107011_all_together, x = 0.05, y = 0.5, width = 0.9, height = 0.5)+
-#     draw_plot(PBMCs_figure, x=0, y= 0, width = 1, height = 0.5) +
-#     draw_plot_label(label = c("a", "b"), size = 20, x = c(0.01, 0.01), y=c(1, 0.5))
-#
-#
-# ggarrange(PBMCs_figure, labels = "b", nrow=1, ncol = 1, font.label = list(size = 20, color = "black"), widths = c(1,1))
 ```
 
+######### Not Run
 
-
-
-######### Not Run ##### 
-
-######### CCLE_TIL10 ###################
+######### CCLE_TIL10
 
 ```{r}
 library(dplyr)
@@ -1739,7 +1700,7 @@ figure_GSE107011_CCLE_TIL10_EpiDISH_each_together <- ggarrange(p_GSE107011_CCLE_
 figure_GSE107011_CCLE_TIL10_EpiDISH_each_together <- annotate_figure(figure_GSE107011_CCLE_TIL10_EpiDISH_each_together, left = text_grob("CCLE_TIL10 estimate", color = "black", size = 20, rot = 90))
 ```
 
-############## BPRNACan ###################
+############## BPRNACan
 
 ```{r}
 GSE107011_BPRNACan_EpiDISH_modify <- cbind(GSE107011_BPRNACan_EpiDISH[, c(3, 4, 8, 1, 10, 9)])
@@ -1904,7 +1865,7 @@ figure_GSE107011_BPRNACan_EpiDISH_together <- ggarrange(p_melt_GSE107011_BPRNACa
 figure_GSE107011_BPRNACan_EpiDISH_together <- annotate_figure(figure_GSE107011_BPRNACan_EpiDISH_together, left = text_grob("BPRNACan estimate", color = "black", size = 20, rot = 90), bottom = text_grob("Gold standard", color = "black", size = 20))
 ```
 
-############## PBMC GSE107011  ###################
+############## PBMC GSE107011
 
 ```{r}
 figure_GSE107011_all_together <- ggarrange(p_GSE107011_CCLE_TIL10_EpiDISH_modify_all, p_melt_GSE107011_BPRNA_EpiDISH_modify_all, p_melt_GSE107011_BPRNACan_EpiDISH_modify_all, ncol = 3, nrow = 1, font.label = list(size = 20, color = "black"))
@@ -1912,21 +1873,19 @@ figure_GSE107011_all_together <- ggarrange(p_GSE107011_CCLE_TIL10_EpiDISH_modify
 figure_GSE107011_all_together <- annotate_figure(figure_GSE107011_all_together, bottom = text_grob("Gold standard", color = "black", size = 20))
 ```
 
-######### Not Run #####
+######### Not Run
 
+# Start Figure S4
 
+############################ 1700 in-silico mixture RNAseq benchmark
 
-# Start Figure S4 
-
-############################ 1700 in-silico mixture RNAseq benchmark ############################ 
-
-############################ CCLE_TIL10 ############################ 
+############################ CCLE_TIL10
 
 ```{r}
 
-# load("/home/ting/deconvolution/Final methylation paper/figure/Figure_S4/Silico_1700_RNAseq.RData")
+load("~/Documents/Ting_paper/Code/all_figures/Figure_S4/Figure_S4.RData")
 
-out.l <- epidish(silico_1700, CCLE_TIL10, "RPC", maxit = 200)
+out.l <- epidish(Silico_1700, CCLE_TIL10, "RPC", maxit = 200)
 benchmarker_CCLE_TIL10 <- data.frame(out.l$estF[, c(1, 8, 9, 5, 3, 4, 2, 7, 6, 10, 11)])
 benchmarker_CCLE_TIL10 <- cbind(benchmarker_CCLE_TIL10, Facs_Silico_1700)
 
@@ -1940,8 +1899,6 @@ p_benchmarker_CCLE_TIL10 <- list()
 for (i in c(1:11)) {
   rmse <- rmse(benchmarker_CCLE_TIL10[, i], Facs_Silico_1700[, i])
   melt_benchmarker_CCLE_TIL10[[i]] <- melt(benchmarker_CCLE_TIL10[, c(i, i + 11)], id.vars = colnames(benchmarker_CCLE_TIL10)[i], measure.vars = colnames(benchmarker_CCLE_TIL10)[i + 11])
-
-
 
 
   RMSE <- data.frame(
@@ -1989,7 +1946,7 @@ for (i in c(2:11)) {
 }
 ```
 
-############################ BPRNACan ############################ 
+############################ BPRNACan
 
 ```{r}
 
@@ -2153,10 +2110,6 @@ bench_BPRNACan[[9]] <- ggplot(melt_benchmarker_BPRNACan_150[[9]], aes(x = value,
   annotate("text", x = 0.062, y = 0.342, label = as.character(as.expression(substitute(paste(RMSE, " = ", r), list(r = round(RMSE$rmse[9], 2))))), parse = TRUE, size = 6)
 ```
 
-
-
-
-
 # Figure S4
 
 ```{r}
@@ -2177,14 +2130,11 @@ Figure_S4b <- annotate_figure(Figure_S4b,
 )
 ```
 
+# Start Figure 6
 
+############# H&E
 
-
-# Start Figure 6 
-
-#############  H&E #####################
-
-############## CCLE_TIL10 #####################
+############## CCLE_TIL10
 
 # Lymphocytes: CD4 + CD8 + B + NK + Tregs
 
@@ -2196,10 +2146,6 @@ Figure_S4b <- annotate_figure(Figure_S4b,
 
 load("/home/julien/Documents/Ting_paper/Code/all_figures/figure5/Figure_5.RData")
 
-library(reshape2)
-library(scales)
-library(ggpubr)
-library(EpiDISH)
 
 out.l <- epidish(LUAD_RNAseq_TPM, CCLE_TIL10, "RPC", maxit = 100)
 TCGA_LUAD_CCLE_TIL10_lymphocytes_deconv <- data.frame(out.l$estF)
@@ -2262,7 +2208,7 @@ figure_TCGA_LUAD_CCLE_TIL10 <- ggarrange(p_TCGA_LUAD_CCLE_TIL10_lymphocytes, p_T
 annotate_figure_TCGA_LUAD_CCLE_TIL10 <- annotate_figure(figure_TCGA_LUAD_CCLE_TIL10, left = text_grob("CCLE_TIL10 estimate", color = "black", size = 20, rot = 90))
 ```
 
-############## BPRNACan #####################
+############## BPRNACan
 
 # Lymphocytes: CD4 + CD8 + B + NK
 
@@ -2271,11 +2217,6 @@ annotate_figure_TCGA_LUAD_CCLE_TIL10 <- annotate_figure(figure_TCGA_LUAD_CCLE_TI
 # Neutrophiles: Neutrophils
 
 ```{r}
-
-library(reshape2)
-library(scales)
-library(ggpubr)
-library(EpiDISH)
 
 out.l <- epidish(LUAD_RNAseq_TPM, BPRNACan, "RPC", maxit = 100)
 TCGA_LUAD_BPRNACan_lymphocytes_deconv <- data.frame(out.l$estF)
@@ -2357,9 +2298,9 @@ annotate_TCGA_LUAD_CCLE_TIL10_BPRNACan <- ggarrange(annotate_figure_TCGA_LUAD_CC
 annotate_TCGA_LUAD_CCLE_TIL10_BPRNACan <- annotate_figure(annotate_TCGA_LUAD_CCLE_TIL10_BPRNACan, bottom = text_grob("H&E estimate", color = "black", size = 20))
 ```
 
-##########  RNAseq Ludo's data 59 multiple myeloma TME patients ############
+########## RNAseq Ludo's data 59 multiple myeloma TME patients
 
-############## BPRNACan ###################
+############## BPRNACan
 
 ```{r}
 
@@ -2433,12 +2374,9 @@ Th[[3]] <- ggplot(melt_Thomas_RNAseq_BPRNACan_150[[3]], aes(x = value, y = V)) +
   annotate("text", x = 0.022, y = 0.035, label = as.character(as.expression(substitute(paste(RMSE, " = ", r), list(r = round(RMSE$rmse[2], 2))))), parse = TRUE, size = 6)
 ```
 
-############## quanTIseq ###################
+############## quanTIseq
 
 ```{r}
-library(immunedeconv)
-library(textshape)
-library(dplyr)
 
 Thomas_quantiseq <- deconvolute(Thomas_RNAseq_part, "quantiseq", tumor = FALSE)
 
@@ -2518,7 +2456,7 @@ Thq[[3]] <- ggplot(melt_Thomas_quanTIseq_M[[3]], aes(x = value, y = V)) +
 #                 bottom = text_grob("Gold standard", color = "black", size = 20))
 ```
 
-######################### MCP-counter ######################################
+######################### MCP-counter
 
 ```{r}
 Thomas_MCP_counter <- deconvolute(Thomas_RNAseq_part, "mcp_counter")
@@ -2605,13 +2543,11 @@ Thm[[3]] <- ggplot(melt_Thomas_Thomas_MCP_counter_M[[3]], aes(x = value, y = V))
   annotate("text", x = 0.022, y = 5.15, label = as.character(as.expression(substitute(paste(RMSE, " = ", r), list(r = round(RMSE$rmse[2], 2))))), parse = TRUE, size = 6)
 ```
 
+############## scRNAseq GSE72056
 
-############## scRNAseq GSE72056  ###################
-
-############## BPRNACan ###################
+############## BPRNACan
 
 ```{r}
-library(Metrics)
 
 out.l <- epidish(Melanoma_GSE72056_no_malighant, BPRNACan, "RPC", maxit = 100)
 GSE72056_BPRNACan <- data.frame(cbind(out.l$estF[, 2:4], out.l$estF[, 5] + out.l$estF[, 6] + out.l$estF[, 7] + out.l$estF[, 8], out.l$estF[, 1], out.l$estF[, 10]))
@@ -2745,11 +2681,9 @@ p_GSE72056_BPRNACan_EpiDISH[[6]] <- ggplot(melt_GSE72056_BPRNACan_EpiDISH[[6]], 
 # p_CCLE_TIL10_mel_non_malighant_M_all <- ggplot(melt_CCLE_TIL10_mel_non_malighant_M_FACS,aes(x = FACS, y = ALL, colour = cell_type)) + geom_point(shape = 19 ,size=3) + theme_bw() + scale_color_manual(values = c("cyan1", "red", "green", "darkorange1","deeppink", "blue", "lightsalmon2","coral", "darkgoldenrod1", "darkmagenta", "darkgreen")) + stat_smooth(method = lm,color="black") + facet_wrap(~ "ALL") + scale_x_continuous(name = NULL) + scale_y_continuous(name = NULL) + theme(strip.text.x = element_text(size=18, color = "black", face="bold"),  text = element_text(size = 20)) + font("xy.text", size = 16, color = "black")  + theme(axis.title.x = element_text(vjust=-0.5)) + theme(axis.title.y = element_text(vjust=1.5))  + theme(legend.justification=c(0.05,0.95), legend.position=c(0.05,0.95), legend.title=element_blank(), legend.key.size = unit(0.8, "cm"))  + annotate("text", x = 0.4, y = 0.07, label = paste("R = ", round(cor.test(CCLE_TIL10_mel_non_malighant_M, as.matrix(FACS_GSE72056_CCLE_TIL10))$est,2)), parse = F, size = 8)
 ```
 
-############## quanTIseq ###################
+############## quanTIseq
 
 ```{r}
-library(immunedeconv)
-library(textshape)
 
 GSE72056_quanTIseq <- deconvolute(Melanoma_GSE72056_no_malighant, "quantiseq", tumor = TRUE)
 GSE72056_quanTIseq_TIL10 <- as.data.frame(t(column_to_rownames(GSE72056_quanTIseq, "cell_type")))
@@ -2872,7 +2806,7 @@ p_GSE72056_quanTIseq[[6]] <- ggplot(melt_GSE72056_quanTIseq[[6]], aes(x = value,
 # figure_GSE72056_quanTIseq <- annotate_figure(figure_GSE72056_quanTIseq, left = text_grob("quanTIseq estimate", color = "black", size = 20, rot = 90), bottom = text_grob("Ture cell fractions", color = "black", size = 20))
 ```
 
-############## MCP-counter ###################
+############## MCP-counter
 
 ```{r}
 
@@ -3001,16 +2935,12 @@ p_GSE72056_MCPcounter[[6]] <- ggplot(melt_GSE72056_MCPcounter[[6]], aes(x = valu
 # figure_GSE72056_MCPcounter <- annotate_figure(figure_GSE72056_MCPcounter, left = text_grob("MCP_counter estimate", color = "black", size = 20, rot = 90), bottom = text_grob("Ture cell fractions", color = "black", size = 20))
 ```
 
+# Figure 6
 
-
-
-# Figure 6 
-
-###################### Lymphocytes Figure_6a_b ###########################
+###################### Lymphocytes Figure_6a_b
 
 ```{r}
 ###################### Lymphocytes Figure_6a_b ###########################
-library(cowplot)
 
 annotate_TCGA_LUAD_CCLE_TIL10_BPRNACan <- ggarrange(annotate_figure_TCGA_LUAD_CCLE_TIL10, annotate_figure_TCGA_LUAD_BPRNACan, ncol = 1, nrow = 2, labels = "a", font.label = list(size = 20, color = "black"))
 
@@ -3022,7 +2952,7 @@ Figure_6b <-
   draw_plot_label(label = c("a", "b"), size = 20, x = c(0.01, 0.01), y = c(1, 0.5))
 ```
 
-###################### Figure_6c ###########################
+###################### Figure_6c
 
 ```{r}
 ###################### Ludo's Figure_6c ###########################
@@ -3058,7 +2988,7 @@ Figure_6c <- annotate_figure(Mix_figure_BPRNACan_quanTIseq_M_MCP_counter,
 )
 ```
 
-###################### scRNA-seq melanoma Figure_6d ###########################
+###################### scRNA-seq melanoma Figure_6d
 
 ```{r}
 ###################### scRNAseq ###########################
@@ -3270,14 +3200,11 @@ figure_GSE72056_MCPcounter_c <- annotate_figure(figure_GSE72056_MCPcounter_c, le
 figure6d <- annotate_figure(ggarrange(figure_GSE72056_BPRNACan_EpiDISH_c, figure_GSE72056_quanTIseq_c, figure_GSE72056_MCPcounter_c, ncol = 1, nrow = 3, font.label = list(size = 20, color = "black")), bottom = text_grob("Cell fraction estimates", color = "black", size = 20))
 ```
 
+# Start Figure S5
 
-  
+########## RNAseq TCGA-LUAD with previous tumor purity methods
 
-# Start Figure S5 
-
-##########  RNAseq TCGA-LUAD with previous tumor purity methods ############
-
-############## CCLE_TIL10 and BPRNACan ###################
+############## CCLE_TIL10 and BPRNACan
 
 ```{r}
 
@@ -3307,7 +3234,7 @@ p_CCLE_TIL10 <- ggplot(melt_CCLE_TIL10, aes(x = value, y = CCLE_TIL10)) +
   labs(tag = "a")
 ```
 
-########### BPRNACan ####################
+########### BPRNACan
 
 ```{r}
 
@@ -3346,11 +3273,8 @@ Figure_S5 <- annotate_figure(Figure_S5,
 )
 ```
 
+# Start Figure S6
 
-
-
-
-# Start Figure S6 
 Test CCLE_TIL10 and BPRNACan using all public datasets (except PBMC)
 
 ### silico_1700
@@ -3358,7 +3282,6 @@ Test CCLE_TIL10 and BPRNACan using all public datasets (except PBMC)
 ```{r}
 load("~/Documents/Ting_paper/Code/all_figures/Figure_S6/Figure_S6.RData")
 
-library(dplyr)
 
 melt_silico_1700 <- melt(silico_1700)
 
@@ -3400,7 +3323,7 @@ silico_1700_figure <- ggplot(melt_merge_melt_silico_1700, aes(new_Var2, variable
 Figure_S6a <- ggarrange(silico_1700_figure, ncol = 1, nrow = 1, labels = "a", font.label = list(size = 20, color = "black"))
 ```
 
-### LUAD H&E RNAseq ###
+### LUAD H&E RNAseq
 
 ```{r}
 
@@ -3445,7 +3368,7 @@ TCGA_LUAD_Lymphocytes_RNAseq_figure <- ggplot(melt_merge_TCGA_LUAD_Lymphocytes_R
 Figure_S6b <- ggarrange(TCGA_LUAD_Lymphocytes_RNAseq_figure, ncol = 1, nrow = 1, labels = "b", font.label = list(size = 20, color = "black"))
 ```
 
-### Melanoma_GSE72056 ###
+### Melanoma_GSE72056
 
 ```{r}
 
@@ -3489,7 +3412,7 @@ Melanoma_GSE72056_figure <- ggplot(melt_merge_Melanoma_GSE72056, aes(new_Var2, v
 Figure_S6c <- ggarrange(Melanoma_GSE72056_figure, ncol = 1, nrow = 1, labels = "c", font.label = list(size = 20, color = "black"))
 ```
 
-### Melanoma_GSE93722 ###
+### Melanoma_GSE93722
 
 ```{r}
 
