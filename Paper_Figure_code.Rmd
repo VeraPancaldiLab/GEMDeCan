@@ -665,7 +665,7 @@ G6_BPmet[[5]] <- ggplot(melt_GSE77797_six_BPmet[[5]], aes(x = value, y = V)) +
   annotate("text", x = 0.0138, y = 0.11, label = as.character(as.expression(substitute(paste(RMSE, " = ", r), list(r = round(RMSE$rmse[5], 2))))), parse = TRUE, size = 6)
 
 
-p_GSE77797_six_BPmet_each <- ggarrange(G6_BPmet[[1]], G6_BPmet[[2]], G6_BPmet[[3]], G6_BPmet[[4]], G6_BPmet[[5]], ncol = 2, nrow = 3)
+p_GSE77797_six_BPmet_each <- ggarrange(G6_BPmet[[1]], G6_BPmet[[2]], G6_BPmet[[3]], G6_BPmet[[4]], G6_BPmet[[5]], ncol = 2, nrow = 3, align = "hv")
 
 figure_GSE77797_six_BPmet_together <- ggarrange(p_GSE77797_six_BPmet_all, p_GSE77797_six_BPmet_each, ncol = 2, nrow = 1, labels = "a", font.label = list(size = 20, color = "black"), widths = c(1, 2))
 
@@ -979,9 +979,9 @@ G6_DHS[[5]] <- ggplot(melt_GSE77797_six_DHS[[5]], aes(x = value, y = V)) +
   annotate("text", x = 0.017, y = 0.11, label = as.character(as.expression(substitute(paste(RMSE, " = ", r), list(r = round(RMSE$rmse[5], 2))))), parse = TRUE, size = 6)
 
 
-p_GSE77797_six_DHS_each <- ggarrange(G6_DHS[[1]], G6_DHS[[2]], G6_DHS[[3]], G6_DHS[[4]], G6_DHS[[5]], ncol = 2, nrow = 3)
+p_GSE77797_six_DHS_each <- ggarrange(G6_DHS[[1]], G6_DHS[[2]], G6_DHS[[3]], G6_DHS[[4]], G6_DHS[[5]], ncol = 2, nrow = 3, align = "hv")
 
-figure_GSE77797_six_DHS_together <- ggarrange(p_GSE77797_six_DHS_all, p_GSE77797_six_DHS_each, ncol = 2, nrow = 1, labels = "c", font.label = list(size = 20, color = "black"), widths = c(1, 2))
+figure_GSE77797_six_DHS_together <- ggarrange(p_GSE77797_six_DHS_all, p_GSE77797_six_DHS_each, ncol = 2, nrow = 1, labels = "c", font.label = list(size = 20, color = "black"), widths = c(1, 2), align = "hv")
 
 figure_GSE77797_six_DHS_together <- annotate_figure(figure_GSE77797_six_DHS_together, left = text_grob("DHS estimate", color = "black", size = 20, rot = 90), bottom = text_grob("Gold standard", color = "black", size = 20))
 
@@ -989,7 +989,7 @@ figure_GSE77797_six_DHS_together <- annotate_figure(figure_GSE77797_six_DHS_toge
 
 
 
-figure_GSE77797_six_BPmet_MethylCIBERSORT_DHS_together <- ggarrange(figure_GSE77797_six_BPmet_together, figure_GSE77797_six_MethylCIBERSORT_WB_together, figure_GSE77797_six_DHS_together, ncol = 1, nrow = 3)
+figure_GSE77797_six_BPmet_MethylCIBERSORT_DHS_together <- ggarrange(figure_GSE77797_six_BPmet_together, figure_GSE77797_six_MethylCIBERSORT_WB_together, figure_GSE77797_six_DHS_together, ncol = 1, nrow = 3, align = "hv")
 
 annotate_figure(figure_GSE77797_six_BPmet_MethylCIBERSORT_DHS_together, bottom = text_grob("Gold standard", color = "black", size = 20))
 
@@ -1430,7 +1430,7 @@ melt_GSE107011_BPRNA_EpiDISH[[4]] <- ggplot(melt_GSE107011_BPRNA_EpiDISH_modify[
   stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = NULL) +
-  scale_y_continuous(name = NULL, limits = c(0, 0.5)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.50)) +
   theme(strip.text.x = element_text(size = 18, color = "black", face = "bold"), text = element_text(size = 20)) +
   font("xy.text", size = 18, color = "black") +
   stat_cor(method = "pearson", aes(label = paste(..r.label.., ..p.label.., sep = "\n")), label.x = 0, label.y = 0.475, size = 6) +
@@ -1480,7 +1480,7 @@ library(cowplot)
 library(dplyr)
 
 
-p_GSE107011_BPRNA_EpiDISH_each <- ggarrange(melt_GSE107011_BPRNA_EpiDISH[[1]], melt_GSE107011_BPRNA_EpiDISH[[2]], melt_GSE107011_BPRNA_EpiDISH[[3]], melt_GSE107011_BPRNA_EpiDISH[[4]], melt_GSE107011_BPRNA_EpiDISH[[5]], melt_GSE107011_BPRNA_EpiDISH[[6]], ncol = 2, nrow = 3)
+p_GSE107011_BPRNA_EpiDISH_each <- ggarrange(melt_GSE107011_BPRNA_EpiDISH[[1]], melt_GSE107011_BPRNA_EpiDISH[[2]], melt_GSE107011_BPRNA_EpiDISH[[3]], melt_GSE107011_BPRNA_EpiDISH[[4]], melt_GSE107011_BPRNA_EpiDISH[[5]], melt_GSE107011_BPRNA_EpiDISH[[6]], ncol = 2, nrow = 3, align = "hv")
 
 
 figure_GSE107011_BPRNA_EpiDISH_together <- ggarrange(p_melt_GSE107011_BPRNA_EpiDISH_modify_all, p_GSE107011_BPRNA_EpiDISH_each, ncol = 2, labels = "a", nrow = 1, font.label = list(size = 20, color = "black"), widths = c(1, 2.5)) # , labels = "b"
@@ -2114,7 +2114,7 @@ bench_BPRNACan[[9]] <- ggplot(melt_benchmarker_BPRNACan_150[[9]], aes(x = value,
 
 ```{r}
 
-Figure_4Sa <- ggarrange(p_benchmarker_CCLE_TIL10[[1]], p_benchmarker_CCLE_TIL10[[2]], p_benchmarker_CCLE_TIL10[[3]], p_benchmarker_CCLE_TIL10[[4]], p_benchmarker_CCLE_TIL10[[5]], p_benchmarker_CCLE_TIL10[[6]], p_benchmarker_CCLE_TIL10[[7]], p_benchmarker_CCLE_TIL10[[8]], p_benchmarker_CCLE_TIL10[[9]], p_benchmarker_CCLE_TIL10[[10]], p_benchmarker_CCLE_TIL10[[11]], ncol = 3, nrow = 4, labels = "a", font.label = list(size = 18, color = "black"))
+Figure_4Sa <- ggarrange(p_benchmarker_CCLE_TIL10[[1]], p_benchmarker_CCLE_TIL10[[2]], p_benchmarker_CCLE_TIL10[[3]], p_benchmarker_CCLE_TIL10[[4]], p_benchmarker_CCLE_TIL10[[5]], p_benchmarker_CCLE_TIL10[[6]], p_benchmarker_CCLE_TIL10[[7]], p_benchmarker_CCLE_TIL10[[8]], p_benchmarker_CCLE_TIL10[[9]], p_benchmarker_CCLE_TIL10[[10]], p_benchmarker_CCLE_TIL10[[11]], ncol = 3, nrow = 4, labels = "a", font.label = list(size = 18, color = "black"), align = "hv")
 
 Figure_4Sa <- annotate_figure(Figure_4Sa,
   bottom = text_grob("Gold standard", color = "black", size = 20),
@@ -2122,7 +2122,7 @@ Figure_4Sa <- annotate_figure(Figure_4Sa,
 )
 
 
-Figure_S4b <- ggarrange(bench_BPRNACan[[1]], bench_BPRNACan[[2]], bench_BPRNACan[[3]], bench_BPRNACan[[4]], bench_BPRNACan[[5]], bench_BPRNACan[[6]], bench_BPRNACan[[7]], bench_BPRNACan[[8]], bench_BPRNACan[[9]], ncol = 3, nrow = 3, labels = "b", font.label = list(size = 18, color = "black"))
+Figure_S4b <- ggarrange(bench_BPRNACan[[1]], bench_BPRNACan[[2]], bench_BPRNACan[[3]], bench_BPRNACan[[4]], bench_BPRNACan[[5]], bench_BPRNACan[[6]], bench_BPRNACan[[7]], bench_BPRNACan[[8]], bench_BPRNACan[[9]], ncol = 3, nrow = 3, labels = "b", font.label = list(size = 18, color = "black"), align = "hv")
 
 Figure_S4b <- annotate_figure(Figure_S4b,
   bottom = text_grob("Gold standard", color = "black", size = 20),
