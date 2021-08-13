@@ -1,7 +1,9 @@
 ---
 title: "R Notebook"
-output: html_notebook
-editor_options: 
+output:
+  html_document:
+    df_print: paged
+editor_options:
   chunk_output_type: console
 ---
 
@@ -19,6 +21,8 @@ library(reshape2)
 library(scales)
 library(ggpubr)
 library(EpiDISH)
+library(tidyverse)
+library(immunedeconv)
 
 load("~/Documents/Ting_paper/Code/all_figures/Figure2 and S1_S2/Figure2_RawData.RData")
 
@@ -1705,8 +1709,8 @@ figure_GSE107011_CCLE_TIL10_EpiDISH_each_together <- annotate_figure(figure_GSE1
 ```{r}
 GSE107011_BPRNACan_EpiDISH_modify <- cbind(GSE107011_BPRNACan_EpiDISH[, c(3, 4, 8, 1, 10, 9)])
 
-# melt_GSE107011_BPRNACan_EpiDISH_modify <- melt(GSE107011_BPRNACan_EpiDISH_modify)
-# melt_FACS_107 <- melt(FACS_GSE107011[, c(1,2,4,3,5,6)]/100)
+melt_GSE107011_BPRNACan_EpiDISH_modify <- melt(GSE107011_BPRNACan_EpiDISH_modify)
+melt_FACS_107 <- melt(FACS_GSE107011[, c(1,2,4,3,5,6)]/100)
 
 melt_GSE107011_BPRNACan_EpiDISH_modify_FACS <- melt(GSE107011_BPRNACan_EpiDISH_modify) %>% cbind(melt_FACS_107$value, .)
 colnames(melt_GSE107011_BPRNACan_EpiDISH_modify_FACS) <- c("FACS", "cell_type", "ALL")
@@ -2380,7 +2384,7 @@ Th[[3]] <- ggplot(melt_Thomas_RNAseq_BPRNACan_150[[3]], aes(x = value, y = V)) +
 
 Thomas_quantiseq <- deconvolute(Thomas_RNAseq_part, "quantiseq", tumor = FALSE)
 
-Thomas_quantiseq <- as.data.frame(t(column_to_rownames(Thomas_quantiseq)))
+Thomas_quantiseq <- as.data.frame(t(column_to_rownames(Thomas_quantiseq, var = "cell_type")))
 
 colnames(Thomas_quantiseq) <- c("B", "M1", "M2", "Mono", "Neu", "NK", "CD4", "CD8", "Tregs", "DCs", "UnCharcs")
 
@@ -2461,7 +2465,7 @@ Thq[[3]] <- ggplot(melt_Thomas_quanTIseq_M[[3]], aes(x = value, y = V)) +
 ```{r}
 Thomas_MCP_counter <- deconvolute(Thomas_RNAseq_part, "mcp_counter")
 
-Thomas_MCP_counter <- as.data.frame(t(column_to_rownames(Thomas_MCP_counter)))
+Thomas_MCP_counter <- as.data.frame(t(column_to_rownames(Thomas_MCP_counter, var = "cell_type")))
 
 Thomas_MCP_counter <- Thomas_MCP_counter[, -6]
 
