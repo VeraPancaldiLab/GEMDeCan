@@ -1334,7 +1334,7 @@ p_melt_GSE107011_BPRNA_EpiDISH_modify_all <- ggplot(melt_GSE107011_BPRNA_EpiDISH
   stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"ALL") +
   scale_x_continuous(name = NULL, limits = c(0, 0.4)) +
-  scale_y_continuous(name = NULL, limits = c(0, 0.8)) +
+  scale_y_continuous(name = NULL, limits = NULL) +
   theme(strip.text.x = element_text(size = 18, color = "black", face = "bold"), text = element_text(size = 20)) +
   font("xy.text", size = 18, color = "black") +
   theme(axis.title.x = element_text(vjust = -0.5)) +
@@ -1350,7 +1350,7 @@ p_melt_GSE107011_BPRNA_EpiDISH_modify_all_longly <- ggplot(melt_GSE107011_BPRNA_
   stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~"BPRNA") +
   scale_x_continuous(name = NULL, limits = NULL) +
-  scale_y_continuous(name = NULL, breaks = NULL, labels = NULL) +
+  scale_y_continuous(name = NULL, limits = NULL) +
   theme(strip.text.x = element_text(size = 18, color = "black", face = "bold"), text = element_text(size = 20)) +
   font("xy.text", size = 18, color = "black") +
   theme(axis.title.x = element_text(vjust = -0.5)) +
@@ -1464,7 +1464,7 @@ melt_GSE107011_BPRNA_EpiDISH[[6]] <- ggplot(melt_GSE107011_BPRNA_EpiDISH_modify[
   stat_smooth(method = lm, color = "black", fullrange = T) +
   facet_wrap(~variable) +
   scale_x_continuous(name = NULL, limits = c(0, 0.08)) +
-  scale_y_continuous(name = NULL, limits = c(0, 0.04)) +
+  scale_y_continuous(name = NULL, limits = NULL) +
   theme(strip.text.x = element_text(size = 18, color = "black", face = "bold"), text = element_text(size = 20)) +
   font("xy.text", size = 18, color = "black") +
   stat_cor(method = "pearson", aes(label = paste(..r.label.., ..p.label.., sep = "\n")), label.x = 0, label.y = 0.038, size = 6) +
