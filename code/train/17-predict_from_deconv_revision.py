@@ -56,12 +56,13 @@ if DROP_SCORES:
     dir_save = dir_save / "drop_scores"
 else:
     dir_save = dir_save / "keep_scores"
+dir_save_orig = dir_save
     
 dir_save.mkdir(parents=True, exist_ok=True)
 
 response = pd.read_csv(path_interm / "response_train.csv", index_col=0)
 
-datasets = ['Gide', 'Riaz', 'Hugo', 'Cloughesy']
+datasets = ['Gide', 'Riaz', 'Hugo']#, 'Cloughesy']
 deconv = None
 for dataset in datasets:
     path_data = path_interm / 'revision_deconv' / ('all_deconvolutions_' + dataset + '.txt')
@@ -117,9 +118,6 @@ dic_rename = {
 for key, val in dic_rename.items():
     new_cols = [x.replace(key, val) for x in df_all.columns]
     df_all.columns = new_cols
-# %%
-y_pred
-
 # %%
 condi = conditions[0]
 test_name = 'Gide'
@@ -241,7 +239,6 @@ l1_ratios_list = [
 
 start = time()
 
-dir_save_orig = dir_save
 # l1_name, l1_ratios = l1_ratios_list[0]
 for l1_name, l1_ratios in l1_ratios_list:
     dir_save = dir_save_orig / f'l1_ratios-{l1_name}'
@@ -425,14 +422,20 @@ print("-------------------------------------------")
 print("------------------- END -------------------")
 print("-------------------------------------------")
 print(f"Training took {duration}s")
+# %%
+dir_save / f'proportions_signature-{str_condi}.csv'
+
 # %% Check cell types proportions
+# cell types proportions predicted by each signature
+
 # from https://stackoverflow.com/questions/45664519/export-pandas-styled-table-to-image-file
 # install https://wkhtmltopdf.org/ 
 # and  https://github.com/jarrekk/imgkit
 
 import imgkit
 
-dir_save = dir_save_orig / f'cell_proportions'
+# dir_save = dir_save_orig / f'cell_proportions'
+dir_save = Path(f"../../data/processed/Deconvolution_paper/Deconvolution_paper_revision/all_signatures_old/no_bladder/drop_scores/cell_types_proportions")
 dir_save.mkdir(parents=True, exist_ok=True)
 for condi in conditions:
     var_idx = [x for x in df_all.columns if condi in x]
@@ -449,85 +452,81 @@ for condi in conditions:
     imgkit.from_string(html, dir_save / f'proportions_signature-{str_condi}.png')
 
 # %% Targeted comparison
+# comparison of cell types proportions predicted by each signature
+
+from itertools import combinations
+
 # condi1 = 'EpiDISH_BPRNACan3Dprom'
 # condi2 = 'deconRNASeq_BPRNACan'
-condi1 = 'EpiDISH_BPRNACan3DProMet'
-condi2 = 'deconRNASeq_BPRNACan'
-prop1 = pd.read_csv(dir_save / f'proportions_signature-{condi1}.csv', index_col=0)[['all']]
-prop2 = pd.read_csv(dir_save / f'proportions_signature-{condi2}.csv', index_col=0)[['all']]
+condis = [
+    'EpiDISH_BPRNACan3DProMet', 
+    'deconRNASeq_BPRNACan',
+#     'CBSX_CIBERSORTx_ref_rna-seq', # not same cell types
+]
 
-new_index = [x.split('_')[-1] for x in prop1.index]
-prop1.index = new_index
-prop1.columns = [condi1]
-new_index = [x.split('_')[-1] for x in prop2.index]
-prop2.index = new_index
-prop2.columns = [condi2]
+for comb in combinations(condis, 2):
+    condi1 = comb[0]
+    condi2 = comb[1]
+    
+    prop1 = pd.read_csv(dir_save / f'proportions_signature-{condi1}.csv', index_col=0)[['all']]
+    prop2 = pd.read_csv(dir_save / f'proportions_signature-{condi2}.csv', index_col=0)[['all']]
 
-prop = prop1.join(prop2)
-str_condi = '-'.join([condi1, condi2])
-prop.to_csv(dir_save / f'proportions_signature-{str_condi}.csv')
-styled_table = prop.style.background_gradient(cmap='RdYlGn_r', axis=1)
-html = styled_table.render()
-imgkit.from_string(html, dir_save / f'proportions_signature-{str_condi}.png')
+    new_index = [x.split('_')[-1] for x in prop1.index]
+    prop1.index = new_index
+    prop1.columns = [condi1]
+    new_index = [x.split('_')[-1] for x in prop2.index]
+    prop2.index = new_index
+    prop2.columns = [condi2]
+
+    prop = prop1.join(prop2)
+    str_condi = '-'.join([condi1, condi2])
+    prop.to_csv(dir_save / f'proportions_signature-{str_condi}.csv')
+    styled_table = prop.style.background_gradient(cmap='RdYlGn_r', axis=1)
+    html = styled_table.render()
+    imgkit.from_string(html, dir_save / f'proportions_signature-{str_condi}.png')
 
 # %%
+dir_load = r"../../data/processed/Deconvolution_paper/Deconvolution_paper_revision/all_signatures_old/no_bladder/drop_scores/l1_ratios-advised/"
+dir_save = dir_load
 
-coef_1 = pd.read_csv("../../data/processed/Deconvolution_paper_revision/all_signatures/no_bladder/l1_ratios-default/LogisticRegressionCV_coefficients_signature-deconRNASeq_BPRNACan3DProMet_split-CV-5folds.csv", index_col=0)
-new_index = [x.replace('deconRNASeq_BPRNACan3DProMet_', '') for x in coef_1.index]
-# new_index = [x.replace('BPRNACan3Dprom', 'BPRNACanProMet') for x in coef.index]
-# new_index = [x.replace('DeconRNA', 'deconRNAseq') for x in coef.index]
-coef_1.index = new_index
-nb_coef = coef_1.shape[0]
-coef_1.index.name = 'cell type'
+signatures = [
+    'EpiDISH_BPRNACan3DProMet',
+    'CBSX_CIBERSORTx_ref_rna-seq',
+    'XCELL',
+]
 
-coef_2 = pd.read_csv("../../data/processed/Deconvolution_paper_revision/all_signatures/no_bladder/l1_ratios-default/LogisticRegressionCV_coefficients_signature-deconRNAseq_BPRNACan_split-CV-5folds.csv", index_col=0)
-new_index = [x.replace('deconRNAseq_BPRNACan_', '') for x in coef_2.index]
-coef_2.index = new_index
-coef_2.index.name = 'cell type'
+for signature in signatures:
+    coef_1 = pd.read_csv(os.path.join(dir_load, "LogisticRegressionCV_coefficients_signature-"+signature+"_split-CV-5folds.csv"), index_col=0)
+    new_index = [x.replace(signature+'_', '') for x in coef_1.index]
+    # new_index = [x.replace('BPRNACan3Dprom', 'BPRNACanProMet') for x in coef.index]
+    # new_index = [x.replace('DeconRNA', 'deconRNAseq') for x in coef.index]
+    coef_1.index = new_index
+    nb_coef = coef_1.shape[0]
+    coef_1.index.name = 'cell type'
 
-# make same order of variable for the 2 plots, by max abs value
-abs_coef = coef_1['abs coef'] + coef_2['abs coef']
-abs_coef.sort_values(ascending=False, inplace=True)
-coef_1 = coef_1.loc[abs_coef.index, :]
-coef_2 = coef_2.loc[abs_coef.index, :]
+#     # make same order of variable for the 2 plots, by max abs value
+#     abs_coef = coef_1['abs coef']
+#     abs_coef.sort_values(ascending=False, inplace=True)
+#     coef_1 = coef_1.loc[abs_coef.index, :]
 
-# first plot
-# create dataset
-y_pos = np.arange(nb_coef)[::-1]
-# Create horizontal bars
-plt.figure()
-plt.barh(y_pos, coef_1['coef'].values)
-# Create names on the x-axis
-plt.yticks(y_pos, coef_1.index)
-plt.vlines(x=0, ymin=0, ymax=nb_coef-1, colors='gray', linestyles='dashed')
+    # first plot
+    # create dataset
+    y_pos = np.arange(nb_coef)[::-1]
+    # Create horizontal bars
+    plt.figure()
+    plt.barh(y_pos, coef_1['coef'].values)
+    # Create names on the x-axis
+    plt.yticks(y_pos, coef_1.index)
+    plt.vlines(x=0, ymin=0, ymax=nb_coef-1, colors='gray', linestyles='dashed')
 
-plt.xlabel('coefficient')
-plt.ylabel('cell type')
-plt.title('Epidish BPRNACanProMet')
-plt.savefig("../../data/processed/Deconvolution_paper_revision/all_signatures/no_bladder/l1_ratios-default/LogisticRegressionCV_coefficients_signature-EpiDISH_BPRNACanProMet_split-CV-5folds.png", bbox_inches='tight', facecolor='white')
+    plt.xlabel('coefficient')
+    plt.ylabel('cell type')
+    plt.title(signature)
+    plt.tight_layout()
+    plt.savefig(os.path.join(dir_save, "LogisticRegressionCV_coefficients_signature-"+signature+"_split-CV-5folds.png"), bbox_inches='tight', facecolor='white')
 
-maxi = coef_1['abs coef'].max() * 1.05
-plt.xlim([-maxi, maxi])
-plt.savefig("../../data/processed/Deconvolution_paper_revision/all_signatures/no_bladder/l1_ratios-default/LogisticRegressionCV_coefficients_signature-EpiDISH_BPRNACanProMet_split-CV-5folds_centered.png", bbox_inches='tight', facecolor='white')
-
-# second plot
-# create dataset
-y_pos = np.arange(nb_coef)[::-1]
-# Create horizontal bars
-plt.figure()
-plt.barh(y_pos, coef_2['coef'].values)
-# Create names on the x-axis
-plt.yticks(y_pos, coef_2.index)
-plt.vlines(x=0, ymin=0, ymax=nb_coef-1, colors='gray', linestyles='dashed')
-
-plt.xlabel('coefficient')
-plt.ylabel('cell type')
-plt.title('deconRNAseq BPRNACan')
-plt.savefig("../../data/processed/Deconvolution_paper_revision/all_signatures/no_bladder/l1_ratios-default/LogisticRegressionCV_coefficients_signature-deconRNAseq_BPRNACan_split-CV-5folds.png", bbox_inches='tight', facecolor='white')
-
-maxi = coef_2['abs coef'].max() * 1.05
-plt.xlim([-maxi, maxi])
-plt.savefig("../../data/processed/Deconvolution_paper_revision/all_signatures/no_bladder/l1_ratios-default/LogisticRegressionCV_coefficients_signature-deconRNAseq_BPRNACan_split-CV-5folds_centered.png", bbox_inches='tight', facecolor='white')
-plt.show()
+    maxi = coef_1['abs coef'].max() * 1.05
+    plt.xlim([-maxi, maxi])
+    plt.savefig(os.path.join(dir_save, "LogisticRegressionCV_coefficients_signature-"+signature+"_split-CV-5folds_centered.png"), bbox_inches='tight', facecolor='white')
 
 # %%
