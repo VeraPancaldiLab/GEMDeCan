@@ -1,8 +1,27 @@
-# %%
-"""
-Train ElasticNet penalized Logistic regression on deconvolution data
-only to assess how important/ usefull new signatures are.
-"""
+# ---
+# jupyter:
+#   jupytext:
+#     formats: ipynb,py:percent
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.13.0
+#   kernelspec:
+#     display_name: ml_interactive
+#     language: python
+#     name: ml_interactive
+# ---
+
+# %% [markdown]
+# # Predict from deconvolution - revision
+
+# %% [markdown]
+# Train ElasticNet penalized Logistic regression on deconvolution data
+# only to assess how important / usefull new signatures are.
+
+# %% [markdown]
+# ## Imports
 
 # %%
 import pandas as pd
@@ -37,17 +56,35 @@ from scipy.stats import loguniform
 
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer, SimpleImputer, KNNImputer
+
+
 # %%
-MERGE_OLD_SIG = False
+def write_log(file, message):
+    print(message)
+    file.write(message + '\n')
+
+
+# %% [markdown]
+# ## Data loading and preprocessing
+
+# %%
 ONLY_MELANOMA = True
-ALL_SIG = True
 DROP_SCORES = True   # discard XCELL's 'ImmuneScore', 'StromaScore' and 'MicroenvironmentScore'
+TEST_CLOUG = True    # models trained on all datasets are tested on the Cloughesy dataset
+CV_ADAPT = False     # increase k, the number of CV folds, if training didn't converged with previous k
+CV_TRAIN = 5         # default number of splits for CV
+CV_MAX = 10          # max splits if previous training failed
 
 path_interm = Path("../../data/intermediate/Deconvolution_paper")
-if MERGE_OLD_SIG:
-    dir_save = Path("../../data/processed/Deconvolution_paper_revision/new_and_old_signatures")
-elif ALL_SIG:
-    dir_save = Path("../../data/processed/Deconvolution_paper_revision/all_signatures")
+data_version = 'all_deconvolutions_2021-08-10'
+data_version = 'all_deconvolutions_2021-08-30'
+data_version = 'all_deconvolutions_2021-09-16'
+data_version = 'all_deconvolutions_2021-10-15'
+data_version = 'all_deconvolutions_2021-10-19'
+path_deconv = path_interm / 'revision_deconv' / data_version
+dir_save = Path("../../data/processed/Deconvolution_paper_revision")
+dir_save = dir_save / "data_version-{}".format(data_version)
+
 if ONLY_MELANOMA:
     dir_save = dir_save / "only_melanoma"
 else:
@@ -56,8 +93,11 @@ if DROP_SCORES:
     dir_save = dir_save / "drop_scores"
 else:
     dir_save = dir_save / "keep_scores"
-dir_save_orig = dir_save
-    
+if CV_ADAPT:
+    dir_save = dir_save / "cv_adapt-{}-{}".format(CV_TRAIN, CV_MAX)
+else:
+    dir_save = dir_save / "cv-{}".format(CV_TRAIN)    
+dir_save_orig = dir_save    
 dir_save.mkdir(parents=True, exist_ok=True)
 
 response = pd.read_csv(path_interm / "response_train.csv", index_col=0)
@@ -65,14 +105,12 @@ response = pd.read_csv(path_interm / "response_train.csv", index_col=0)
 datasets = ['Gide', 'Riaz', 'Hugo']#, 'Cloughesy']
 deconv = None
 for dataset in datasets:
-    path_data = path_interm / 'revision_deconv' / ('all_deconvolutions_' + dataset + '.txt')
+    path_data = path_deconv / ('all_deconvolutions_' + dataset + '.txt')
     if deconv is None:
         deconv = pd.read_csv(path_data, sep='\t', index_col=0)
     else:
         new_deconv = pd.read_csv(path_data, sep='\t', index_col=0)
         deconv = deconv.append(new_deconv)
-
-
 
 common_ids = set(response.index).intersection(deconv.index)
 df_all = deconv.loc[common_ids, :]
@@ -80,7 +118,10 @@ response = response.loc[df_all.index, :]
 
 # drop variables with unique values
 drop_col = [x for x in df_all.columns if df_all[x].unique().size == 1]
-print("dropping these columns because they have a unique value:")
+if len(drop_col) > 0:
+    print("dropping these columns because they have a unique value:")
+else:
+    print('there is no column with unique value')
 for i in drop_col:
     print("    ", i)
 matches = [] #['XCELL', 'TAMs', 'CD226']
@@ -112,115 +153,73 @@ nb_var = df_all.shape[1]
 # rename variables
 dic_rename = {
     'Epidish': 'EpiDISH',
-    'DeconRNASeq': 'deconRNASeq',
     'Quantiseq': 'quanTIseq',
+    # 'CBSX_CIBERSORTx_ref_rna-seq_': 'CBSX_melanoma_',
+    # 'CBSX_NSCLC_single-cell_': 'CBSX_NSCLC_',
+    'CBSX_Fig2ab-NSCLC_PBMCs_scRNAseq_refsample_single-cell': 'CBSX_NSCLC',
+    'CBSX_scRNA-Seq_reference_HNSCC_Puram_et_al_Fig2cd_single-cell': 'CBSX_HNSCC',
+    'CBSX_scRNA-Seq_reference_melanoma_Tirosh_SuppFig_3b-d_single-cell': 'CBSX_melanoma',
 }
 for key, val in dic_rename.items():
     new_cols = [x.replace(key, val) for x in df_all.columns]
     df_all.columns = new_cols
+# add CIBERSORTx method name where it's missing
+new_cols = ['CIBERSORTx_' + x if ('CBSX' in x and not ('EpiDISH' in x or 'DeconRNASeq' in x)) else x for x in df_all.columns]
+df_all.columns = new_cols
+
+if TEST_CLOUG:
+    path_data = path_deconv / ('all_deconvolutions_' + 'Cloughesy' + '.txt')
+    deconv_cloug = pd.read_csv(path_data, sep='\t', index_col=0)
+    deconv_cloug.index = ['Cloughesy_' + x for x in deconv_cloug.index]
+    response_cloug = pd.read_csv(path_interm / "response_train.csv", index_col=0)
+    common_ids_cloug = set(response_cloug.index).intersection(deconv_cloug.index)
+    deconv_cloug = deconv_cloug.loc[common_ids_cloug, :]
+    response_cloug = response_cloug.loc[deconv_cloug.index, :]
+    if len(drop_col) > 0:
+        deconv_cloug.drop(columns=drop_col, inplace=True)
+    # set inf values to nan
+    to_nan = ~np.isfinite(deconv_cloug.values)
+    nb_nan = to_nan.sum()
+    if nb_nan != 0:
+        print(f"There are {nb_nan} nan values")
+        deconv_cloug[to_nan] = np.nan
+        # impute non finite values (nan, +/-inf)
+        # imputer = IterativeImputer(max_iter=100, random_state=0)
+        imputer = KNNImputer(n_neighbors=5, weights="distance")
+        deconv_cloug.loc[:,:] = imputer.fit_transform(deconv_cloug.values)
+    for key, val in dic_rename.items():
+        new_cols = [x.replace(key, val) for x in deconv_cloug.columns]
+        deconv_cloug.columns = new_cols
+    # add CIBERSORTx method name where it's missing
+    new_cols = ['CIBERSORTx_' + x if ('CBSX' in x and not ('EpiDISH' in x or 'DeconRNASeq' in x)) else x for x in deconv_cloug.columns]
+    deconv_cloug.columns = new_cols
+
+# %% [markdown]
+# ## Setup training parameters
+
 # %%
-condi = conditions[0]
-test_name = 'Gide'
-
-var_idx = [x for x in df_all.columns if x.startswith(condi)]
-str_condi = condi.strip('_')
-
-score_split = {}
-
-
-print(f"    LODO training using {test_name} as test set")
-test_ids = [x for x in df_all.index if test_name in x]
-train_ids = [x for x in df_all.index if test_name not in x]
-X_train = df_all.loc[train_ids, var_idx].values
-X_test= df_all.loc[test_ids, var_idx].values
-y_train = response['BOR - binary'].loc[train_ids].values
-y_test = response['BOR - binary'].loc[test_ids].values
-# reverse labels to match "equaling progressive disease" objective
-y_train = -(y_train-1)
-y_test = -(y_test-1)
-# Standardize data to give same weight to regularization
-# scaler = PowerTransformer(method='yeo-johnson')
-scaler = StandardScaler()
-X_train = scaler.fit_transform(X_train)
-X_test = scaler.transform(X_test)
-
-clf = linear_model.LogisticRegressionCV(
-    Cs=20, 
-    penalty='elasticnet', 
-    # scoring='neg_log_loss', 
-    scoring='roc_auc', 
-    solver='saga', 
-    l1_ratios=l1_ratios,
-    max_iter=10000,
-    n_jobs=-1,  # or n_jobs-1 to leave one core available
-)
-clf = clf.fit(X_train, y_train)
-
-y_pred = clf.predict_proba(X_test)[:, 1]
-score = metrics.roc_auc_score(y_test, y_pred)
-score_split[test_name] = score
-print(f"         ROC AUC {test_name}: {score}")
-
-# Save model coefficients and plots
-param_string = f"signature-{str_condi}_split-lodo-{test_name}"
-l1_ratio = np.round(clf.l1_ratio_[0], decimals=4)
-C = np.round(clf.C_[0], decimals=4)
-
-coef = pd.DataFrame({'coef': clf.coef_.flatten()}, index=var_idx)
-coef['abs coef'] = coef['coef'].abs()
-coef = coef.sort_values(by='abs coef', ascending=False)
-coef['% total'] = coef['abs coef'] / coef['abs coef'].sum()
-coef['cum % total'] = coef['% total'].cumsum()
-nb_coef = coef.shape[0]
-
-nb_coef_plot = min(20, nb_coef)
-labels = coef.index[:nb_coef_plot]
-plt.figure()
-ax = coef.loc[labels, 'cum % total'].plot()
-ticks_pos = np.linspace(start=0, stop=nb_coef_plot-1, num=nb_coef_plot)
-# ticks_label = np.round(ticks_label, decimals=2)
-ax.set_xticks(ticks_pos)
-# ax.set_xticklabels(ticks_label)
-ax.set_xticklabels(labels, rotation=45, ha='right')
-plt.xlabel('variables')
-plt.ylabel('cumulative % coef')
-plt.title(param_string + f" l1_ratio {l1_ratio}, C {C}")
-
-# %% Compare models trained on single signatures
-
-if ALL_SIG:
-    # we use trailing underscores to avoid including derived signatures
-    # like EpiDISH_BPRNACan3Dprom --> EpiDISH_BPRNACan3Dprom-enhan
-    conditions = [
-        'quanTIseq',
-        'MCP',
-        'XCELL',
-        'EpiDISH_BPRNACan_',
-        'deconRNASeq_BPRNACan_',
-        'EpiDISH_BPRNACanProMet_',
-        'deconRNASeq_BPRNACanProMet_',
-        'EpiDISH_BPRNACan3DProMet_',
-        'deconRNASeq_BPRNACan3DProMet_',
-        'EpiDISH_CBSX_CIBERSORTx_ref_rna-seq_',
-        'deconRNASeq_CBSX_CIBERSORTx_ref_rna-seq_',
-        'EpiDISH_CBSX_NSCLC_single-cell_',
-        'deconRNASeq_CBSX_NSCLC_single-cell_',
-        'CBSX_CIBERSORTx_ref_rna-seq_',
-        'CBSX_NSCLC_single-cell_',
-    ]
-else:
-    conditions = [
-        'quanTIseq',
-        'MCP',
-        'EpiDISH_BPprom_314',
-        'DeconRNA_BPprom_314',
-        'EpiDISH_BPRNACan',
-        'DeconRNA_BPRNACan',
-        'EpiDISH_BPRNACan3DMet',
-        'DeconRNA_BPRNACan3DMet',
-        'EpiDISH_BPRNACanProMet3D',
-        'DeconRNA_BPRNACanProMet3D',
-    ]
+# we use trailing underscores to avoid including derived signatures
+# like EpiDISH_BPRNACan3Dprom --> EpiDISH_BPRNACan3Dprom-enhan
+conditions = [
+    'quanTIseq',
+    'MCP',
+    'XCELL',
+    'EpiDISH_BPRNACan_',
+    'DeconRNASeq_BPRNACan_',
+    'EpiDISH_BPRNACanProMet_',
+    'DeconRNASeq_BPRNACanProMet_',
+    'EpiDISH_BPRNACan3DProMet_',
+    'DeconRNASeq_BPRNACan3DProMet_',
+    'EpiDISH_CBSX_NSCLC_',
+    'DeconRNASeq_CBSX_NSCLC_',
+    'EpiDISH_CBSX_HNSCC_',
+    'DeconRNASeq_CBSX_HNSCC_',
+    'EpiDISH_CBSX_melanoma_',
+    'DeconRNASeq_CBSX_melanoma_',
+    'CIBERSORTx_CBSX_NSCLC_',
+    'CIBERSORTx_CBSX_HNSCC_',
+    'CIBERSORTx_CBSX_melanoma_',
+]
 
 if ONLY_MELANOMA or MERGE_OLD_SIG:
     datasets = ['Gide', 'Hugo', 'Riaz']
@@ -230,11 +229,303 @@ else:
 # l1_ratio = 1 the penalty is an L1 penalty (Lasso)
 
 # Test either one of those combinations
-# default parameter
 l1_ratios_list = [
     ['default', [0.5]],
     ['naive', np.linspace(0, 1, 21)],           # naive param grid
     ['advised', [.1, .5, .7, .9, .95, .99, 1]], # advised in scikit-learn documentation
+]
+
+# %% [markdown]
+# # Exploratory data analysis
+
+# %% [markdown]
+# We look at how clinical variables and cell types proportions correlate with response.
+
+# %% [markdown]
+# ## Clinical data
+
+# %%
+path_clin = path_interm / "clinic_train.csv"
+clin = pd.read_csv(path_clin, index_col=0)
+drop_rows = [x for x in clin.index if x.startswith('Cloug')]
+clin.drop(index=drop_rows, inplace=True)
+
+# %%
+df = response.join(clin)
+
+# %%
+df
+
+# %% [markdown]
+# ### EDA
+
+# %% [markdown]
+# The TMB is available for the datasets of Riaz and Hugo.  
+# The sex and age are available for the datasets of Hugo and Gide.
+
+# %%
+sns.countplot(x="SEX", hue="BOR - binary", data=df)
+
+# %%
+sns.boxplot(x="BOR - binary", y="AAGE", data=df);
+sns.swarmplot(x="BOR - binary", y="AAGE", data=df, color=".25");
+
+# %%
+ax = sns.boxplot(x="BOR - binary", y="TMB", data=df)
+sns.swarmplot(x="BOR - binary", y="TMB", data=df, color=".25");
+
+# %% [markdown]
+# The sex and age of patients don't seem to have a predictive power when considered individually, the distribution of TMB could indicate some predictive power.
+
+# %% [markdown]
+# ### Classifier
+
+# %% [markdown]
+# #### Clinical data only
+
+# %%
+for var_idx in ["SEX", "AAGE", "TMB"]:
+    np.random.seed(0)
+    select_samples = ~df[var_idx].isna()
+    
+    X = df.loc[:, var_idx].values
+    y = response['BOR - binary'].values
+    if var_idx == "SEX":
+        X[X == 'M'] = 0
+        X[X == 'F'] = 1
+
+    X = X[select_samples].reshape(-1, 1)
+    y = y[select_samples]
+    # stratify train / test by dataset and response
+    np.random.seed(0)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, 
+        test_size=0.25, 
+        random_state=0, 
+        shuffle=True, 
+    )
+    # reverse labels to match "equaling progressive disease" objective
+    y_train = -(y_train-1)
+    y_test = -(y_test-1)
+
+    clf = linear_model.LogisticRegression()
+    clf = clf.fit(X_train, y_train)
+
+    y_pred = clf.predict_proba(X_test)[:, 1]
+    score = metrics.roc_auc_score(y_test, y_pred)
+
+    print(f"ROC AUC model trained on {var_idx}: {score}")
+
+# %% [markdown]
+# TMB as a single variable can be used to predict response to immunotherapy.  
+# Beware, the TMB data is available only for **one dataset**, so there is a risk of overfitting, the model could not be generalizable to other datasets.
+
+# %% [markdown]
+# #### Clinical and deconvolution data
+
+# %%
+score_labels = [
+    'ROC AUC', # Receiver Operating Characteristic Area Under the Curve
+    'AP',      # Average Precision
+    'MCC',     # Matthews Correlation Coefficient
+]
+start = time()
+
+for l1_name, l1_ratios in l1_ratios_list:
+    dir_save = dir_save_orig / "joint_clinical_deconv" / f'l1_ratios-{l1_name}'
+    dir_save.mkdir(parents=True, exist_ok=True)
+    log_file = open(dir_save / "training_logs.txt","a")
+
+    score_condi = {}
+    for condi in conditions:
+        write_log(log_file, f"Training using {condi}")
+        var_idx = [x for x in df_all.columns if x.startswith(condi)]
+        str_condi = condi.strip('_')
+        
+        score_split = {}
+        # LODO splitting
+        for clin_col in ["SEX", "AAGE", "TMB"]: #for test_name in datasets:
+            test_name = clin_col
+            write_log(log_file, f"    LODO training using {clin_col} as clinical variable")
+            # select samples that have records in clinical variable and deconv data
+            valid_ids = list(set(clin.index[~clin.loc[:, clin_col].isna()]).intersection(set(df_all.index)))
+            # merge clinical data to deconv variables
+            add_clin = clin.loc[valid_ids, clin_col].copy()
+            if clin_col == "SEX":
+                add_clin = add_clin.map({'M': 0, 'F': 1})
+            X = df_all.loc[valid_ids, var_idx].join(add_clin).values
+            y = response['BOR - binary'].loc[valid_ids].values
+            # reverse labels to match "equaling progressive disease" objective
+            y = -(y-1)
+            # stratify train / test by response
+            np.random.seed(0)
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, 
+                test_size=0.25, 
+                random_state=0, 
+                shuffle=True, 
+            )
+            # Standardize data to give same weight to regularization
+            scaler = StandardScaler()
+            X_train = scaler.fit_transform(X_train)
+            X_test = scaler.transform(X_test)
+
+            training_succeeded = False
+            cv_used = CV_TRAIN
+            while not training_succeeded and cv_used <= CV_MAX:
+                np.random.seed(0)
+                clf = linear_model.LogisticRegressionCV(
+                    cv=cv_used,
+                    Cs=20, 
+                    penalty='elasticnet', 
+                    # scoring='neg_log_loss', 
+                    scoring='roc_auc', 
+                    solver='saga', 
+                    l1_ratios=l1_ratios,
+                    max_iter=10000,
+                    n_jobs=-1,  # or n_jobs-1 to leave one core available
+                )
+                clf = clf.fit(X_train, y_train)
+                training_succeeded = not np.all(clf.coef_ == 0)
+                if not training_succeeded:
+                    if CV_ADAPT:
+                        cv_used += 1
+                        write_log(log_file, f"        training failed, trying with cv = {cv_used}")
+                    else:
+                        write_log(log_file, f"        training failed")
+                        break
+                
+            if training_succeeded:
+                y_pred_proba = clf.predict_proba(X_test)[:, 1]
+                y_pred = clf.predict(X_test)
+                score = {
+                    'ROC AUC': metrics.roc_auc_score(y_test, y_pred_proba),
+                    'AP' : metrics.average_precision_score(y_test, y_pred_proba),
+                    'MCC': metrics.matthews_corrcoef(y_test, y_pred),
+                }
+            else:
+                score = {
+                    'ROC AUC': np.nan,
+                    'AP' : np.nan,
+                    'MCC': np.nan,
+                }
+                write_log(log_file, f"        training failed with cv <= {CV_MAX}")
+            for metric in score_labels:
+                score_split[test_name + ' - ' + metric] = score[metric]
+                write_log(log_file, f"        {metric} {test_name}: {score[metric]}")
+            
+
+            # Save model coefficients and plots
+            param_string = f"signature-{str_condi}_split-lodo-{clin_col}"
+            l1_ratio = np.round(clf.l1_ratio_[0], decimals=4)
+            C = np.round(clf.C_[0], decimals=4)
+            
+            if training_succeeded:
+                coef = pd.DataFrame({'coef': clf.coef_.flatten()}, index=var_idx + [clin_col])
+                coef['abs coef'] = coef['coef'].abs()
+                coef = coef.sort_values(by='abs coef', ascending=False)
+                coef['% total'] = coef['abs coef'] / coef['abs coef'].sum()
+                coef['cum % total'] = coef['% total'].cumsum()
+                coef['coef OR'] = np.exp(coef['coef'])
+                coef.to_csv(dir_save / f"LogisticRegressionCV_coefficients_{param_string}.csv")
+                nb_coef = coef.shape[0]
+
+                nb_coef_plot = min(20, nb_coef)
+                labels = coef.index[:nb_coef_plot]
+                plt.figure()
+                ax = coef.loc[labels, 'cum % total'].plot()
+                ticks_pos = np.linspace(start=0, stop=nb_coef_plot-1, num=nb_coef_plot)
+                # ticks_label = np.round(ticks_label, decimals=2)
+                ax.set_xticks(ticks_pos)
+                # ax.set_xticklabels(ticks_label)
+                ax.set_xticklabels(labels, rotation=45, ha='right')
+                plt.xlabel('variables')
+                plt.ylabel('cumulative % coef')
+                plt.title(param_string + f" l1_ratio {l1_ratio}, C {C}")
+                plt.savefig(dir_save / f"cumulative_abs_coef_{param_string}.png", bbox_inches='tight', facecolor='white')
+
+                plt.figure()
+                ax = coef.loc[labels, 'coef'].plot()
+                ax.hlines(y=0, xmin=0, xmax=nb_coef_plot-1, colors='gray', linestyles='dashed')
+                ticks_pos = np.linspace(start=0, stop=nb_coef_plot-1, num=nb_coef_plot)
+                # ticks_label = np.round(ticks_label, decimals=2)
+                ax.set_xticks(ticks_pos)
+                # ax.set_xticklabels(ticks_label)
+                ax.set_xticklabels(labels, rotation=45, ha='right')
+                plt.xlabel('variables')
+                plt.ylabel('coef')
+                plt.title(param_string + f" l1_ratio {l1_ratio}, C {C}")
+                plt.savefig(dir_save / f"coef_{param_string}.png", bbox_inches='tight', facecolor='white')
+        score_condi[str_condi] = score_split
+        plt.show()
+
+    scores = pd.DataFrame.from_dict(score_condi, orient='index')
+    scores.index.name = 'signature'
+    scores.to_csv(dir_save / 'ROC_AUC_single-signature.csv')
+
+end = time()
+duration = end - start
+print("\n"*5)
+print("-------------------------------------------")
+print("------------------- END -------------------")
+print("-------------------------------------------")
+write_log(log_file, f"Training took {duration}s")
+log_file.close()
+
+# %% [markdown]
+# ### Cell types proportions
+
+# %%
+y = response['BOR - binary'].values
+# reverse labels to match "equaling progressive disease" objective
+y = -(y-1)
+
+# %%
+from scipy import stats
+
+rhos = []
+pvals = []
+for col in df_all.columns:
+    rho, pval = stats.spearmanr(df_all[col], y)
+    rhos.append(rho)
+    pvals.append(pval)
+
+# %%
+var_idx
+
+# %%
+from statsmodels.stats.multitest import fdrcorrection
+
+df_corr = pd.DataFrame({'rho':rhos, 'pval': pvals}, index=df_all.columns)
+df_corr['abs rho'] = df_corr['rho'].abs()
+for condi in conditions:
+    var_idx = [x for x in df_corr.index if x.startswith(condi)]    
+    rejected, pval_corr = fdrcorrection(df_corr.loc[var_idx, 'pval'], method='indep')
+    df_corr.loc[var_idx, 'pval_corr'] = pval_corr
+df_corr.sort_values(by=['abs rho'], ascending=False, inplace=True)
+
+# %%
+df_corr.loc[df_corr['pval'] <= 0.05]
+
+# %%
+df_corr.loc[df_corr['pval_corr'] <= 0.05]
+
+# %%
+for condi in conditions:
+    var_idx = [x for x in df_all.columns if x.startswith(condi)]
+    print(condi, len(var_idx))
+
+# %% [markdown]
+# There are many XCELL deconvolution variables in the list of cell types whose proportions are statistically (anti-)correlated with response, but XCEL outputs between 5-10 times more variables than other deconvolution methods.
+
+# %% [markdown]
+# # Train and test on deconvolution data
+
+# %%
+score_labels = [
+    'ROC AUC', # Receiver Operating Characteristic Area Under the Curve
+    'AP',      # Average Precision
+    'MCC',     # Matthews Correlation Coefficient
 ]
 
 start = time()
@@ -243,11 +534,12 @@ start = time()
 for l1_name, l1_ratios in l1_ratios_list:
     dir_save = dir_save_orig / f'l1_ratios-{l1_name}'
     dir_save.mkdir(parents=True, exist_ok=True)
+    log_file = open(dir_save / "training_logs.txt","a")
 
     score_condi = {}
     # condi = conditions[0]
     for condi in conditions:
-        print(f"Training using {condi}")
+        write_log(log_file, f"Training using {condi}")
         var_idx = [x for x in df_all.columns if x.startswith(condi)]
         str_condi = condi.strip('_')
         
@@ -255,7 +547,7 @@ for l1_name, l1_ratios in l1_ratios_list:
         # LODO splitting
         # test_name = datasets[0]
         for test_name in datasets:
-            print(f"    LODO training using {test_name} as test set")
+            write_log(log_file, f"    LODO training using {test_name} as test set")
             test_ids = [x for x in df_all.index if test_name in x]
             train_ids = [x for x in df_all.index if test_name not in x]
             X_train = df_all.loc[train_ids, var_idx].values
@@ -271,7 +563,121 @@ for l1_name, l1_ratios in l1_ratios_list:
             X_train = scaler.fit_transform(X_train)
             X_test = scaler.transform(X_test)
 
+            training_succeeded = False
+            cv_used = CV_TRAIN
+            while not training_succeeded and cv_used <= CV_MAX:
+                np.random.seed(0)
+                clf = linear_model.LogisticRegressionCV(
+                    cv=cv_used,
+                    Cs=20, 
+                    penalty='elasticnet', 
+                    # scoring='neg_log_loss', 
+                    scoring='roc_auc', 
+                    solver='saga', 
+                    l1_ratios=l1_ratios,
+                    max_iter=10000,
+                    n_jobs=-1,  # or n_jobs-1 to leave one core available
+                )
+                clf = clf.fit(X_train, y_train)
+                training_succeeded = not np.all(clf.coef_ == 0)
+                if not training_succeeded:
+                    if CV_ADAPT:
+                        cv_used += 1
+                        write_log(log_file, f"        training failed, trying with cv = {cv_used}")
+                    else:
+                        write_log(log_file, f"        training failed")
+                        break
+                
+            if training_succeeded:
+                y_pred_proba = clf.predict_proba(X_test)[:, 1]
+                y_pred = clf.predict(X_test)
+                score = {
+                    'ROC AUC': metrics.roc_auc_score(y_test, y_pred_proba),
+                    'AP' : metrics.average_precision_score(y_test, y_pred_proba),
+                    'MCC': metrics.matthews_corrcoef(y_test, y_pred),
+                }
+            else:
+                score = {
+                    'ROC AUC': np.nan,
+                    'AP' : np.nan,
+                    'MCC': np.nan,
+                }
+                write_log(log_file, f"        training failed with cv <= {CV_MAX}")
+            for metric in score_labels:
+                score_split[test_name + ' - ' + metric] = score[metric]
+                write_log(log_file, f"        {metric} {test_name}: {score[metric]}")
+
+            # Save model coefficients and plots
+            param_string = f"signature-{str_condi}_split-lodo-{test_name}"
+            l1_ratio = np.round(clf.l1_ratio_[0], decimals=4)
+            C = np.round(clf.C_[0], decimals=4)
+            
+            if training_succeeded:
+                coef = pd.DataFrame({'coef': clf.coef_.flatten()}, index=var_idx)
+                coef['abs coef'] = coef['coef'].abs()
+                coef = coef.sort_values(by='abs coef', ascending=False)
+                coef['% total'] = coef['abs coef'] / coef['abs coef'].sum()
+                coef['cum % total'] = coef['% total'].cumsum()
+                coef['coef OR'] = np.exp(coef['coef'])
+                coef.to_csv(dir_save / f"LogisticRegressionCV_coefficients_{param_string}.csv")
+                nb_coef = coef.shape[0]
+
+                nb_coef_plot = min(20, nb_coef)
+                labels = coef.index[:nb_coef_plot]
+                plt.figure()
+                ax = coef.loc[labels, 'cum % total'].plot()
+                ticks_pos = np.linspace(start=0, stop=nb_coef_plot-1, num=nb_coef_plot)
+                # ticks_label = np.round(ticks_label, decimals=2)
+                ax.set_xticks(ticks_pos)
+                # ax.set_xticklabels(ticks_label)
+                ax.set_xticklabels(labels, rotation=45, ha='right')
+                plt.xlabel('variables')
+                plt.ylabel('cumulative % coef')
+                plt.title(param_string + f" l1_ratio {l1_ratio}, C {C}")
+                plt.savefig(dir_save / f"cumulative_abs_coef_{param_string}.png", bbox_inches='tight', facecolor='white')
+
+                plt.figure()
+                ax = coef.loc[labels, 'coef'].plot()
+                ax.hlines(y=0, xmin=0, xmax=nb_coef_plot-1, colors='gray', linestyles='dashed')
+                ticks_pos = np.linspace(start=0, stop=nb_coef_plot-1, num=nb_coef_plot)
+                # ticks_label = np.round(ticks_label, decimals=2)
+                ax.set_xticks(ticks_pos)
+                # ax.set_xticklabels(ticks_label)
+                ax.set_xticklabels(labels, rotation=45, ha='right')
+                plt.xlabel('variables')
+                plt.ylabel('coef')
+                plt.title(param_string + f" l1_ratio {l1_ratio}, C {C}")
+                plt.savefig(dir_save / f"coef_{param_string}.png", bbox_inches='tight', facecolor='white')
+
+
+        # ------ All datasets with CV splitting ------
+        write_log(log_file, "    CV training on all datasets")
+        X = df_all.loc[:, var_idx].values
+        y = response['BOR - binary'].values
+        # stratify train / test by dataset and response
+        np.random.seed(0)
+        strat = response.apply(lambda x:x['dataset'] + '-' + str(x['BOR - binary']), axis=1)
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, 
+            test_size=0.25, 
+            random_state=0, 
+            shuffle=True, 
+            stratify=strat,
+        )
+        # reverse labels to match "equaling progressive disease" objective
+        y_train = -(y_train-1)
+        y_test = -(y_test-1)
+        # Standardize data to give same weight to regularization
+        scaler = StandardScaler()
+        X_train = scaler.fit_transform(X_train)
+        X_test = scaler.transform(X_test)
+        
+        training_succeeded = False
+        cv_used = CV_TRAIN
+        while not training_succeeded and cv_used <= CV_MAX:
+            np.random.seed(0)
             clf = linear_model.LogisticRegressionCV(
+                cv=cv_used,
                 Cs=20, 
                 penalty='elasticnet', 
                 # scoring='neg_log_loss', 
@@ -282,25 +688,55 @@ for l1_name, l1_ratios in l1_ratios_list:
                 n_jobs=-1,  # or n_jobs-1 to leave one core available
             )
             clf = clf.fit(X_train, y_train)
+            training_succeeded = not np.all(clf.coef_ == 0)
+            if not training_succeeded:
+                if CV_ADAPT:
+                    cv_used += 1
+                    write_log(log_file, f"        training failed, trying with cv = {cv_used}")
+                else:
+                    write_log(log_file, f"        training failed")
+                    break
 
-            y_pred = clf.predict_proba(X_test)[:, 1]
-            score = metrics.roc_auc_score(y_test, y_pred)
-            score_split[test_name] = score
-            print(f"         ROC AUC {test_name}: {score}")
+        training_succeeded = not np.all(clf.coef_ == 0)
 
-            # Save model coefficients and plots
-            param_string = f"signature-{str_condi}_split-lodo-{test_name}"
-            l1_ratio = np.round(clf.l1_ratio_[0], decimals=4)
-            C = np.round(clf.C_[0], decimals=4)
+        if training_succeeded:
+            y_pred_proba = clf.predict_proba(X_test)[:, 1]
+            y_pred = clf.predict(X_test)
+            score = {
+                'ROC AUC': metrics.roc_auc_score(y_test, y_pred_proba),
+                'AP' : metrics.average_precision_score(y_test, y_pred_proba),
+                'MCC': metrics.matthews_corrcoef(y_test, y_pred),
+            }
+        else:
+            score = {
+                'ROC AUC': np.nan,
+                'AP' : np.nan,
+                'MCC': np.nan,
+            }
+            write_log(log_file, f"        training failed with cv <= {CV_MAX}")
+        for metric in score_labels:
+            test_name = 'CV all datasets'
+            score_split[test_name + ' - ' + metric] = score[metric]
+            write_log(log_file, f"        {metric} {test_name}: {score[metric]}")
 
+        # save all scores for the given 'method x signature' condition
+        score_condi[str_condi] = score_split
+
+        # Save model coefficients and plots
+        param_string = f"signature-{str_condi}_split-CV-5folds"
+        l1_ratio = np.round(clf.l1_ratio_[0], decimals=4)
+        C = np.round(clf.C_[0], decimals=4)
+        
+        if training_succeeded:
             coef = pd.DataFrame({'coef': clf.coef_.flatten()}, index=var_idx)
             coef['abs coef'] = coef['coef'].abs()
             coef = coef.sort_values(by='abs coef', ascending=False)
             coef['% total'] = coef['abs coef'] / coef['abs coef'].sum()
             coef['cum % total'] = coef['% total'].cumsum()
+            coef['coef OR'] = np.exp(coef['coef'])
             coef.to_csv(dir_save / f"LogisticRegressionCV_coefficients_{param_string}.csv")
             nb_coef = coef.shape[0]
-
+        
             nb_coef_plot = min(20, nb_coef)
             labels = coef.index[:nb_coef_plot]
             plt.figure()
@@ -328,92 +764,50 @@ for l1_name, l1_ratios in l1_ratios_list:
             plt.title(param_string + f" l1_ratio {l1_ratio}, C {C}")
             plt.savefig(dir_save / f"coef_{param_string}.png", bbox_inches='tight', facecolor='white')
 
+            plt.show()
+            plt.close('all')
+        
+        if TEST_CLOUG:
+            # ------ All datasets with CV splitting ------
+            if training_succeeded:
+                write_log(log_file, f"    testing on Cloughesy dataset")
+                X_test = deconv_cloug.loc[:, var_idx].values
+                y_test = response_cloug['BOR - binary'].values
+                # reverse labels to match "equaling progressive disease" objective
+                y_test = -(y_test-1)
+                # Standardize data to give same weight to regularization
+                X_test = scaler.transform(X_test)
 
-        # ------ All datasets with CV splitting ------
-        print(f"    CV training on all datasets")
-        X = df_all.loc[:, var_idx].values
-        y = response['BOR - binary'].values
-        # stratify train / test by dataset and response
-        strat = response.apply(lambda x:x['dataset'] + '-' + str(x['BOR - binary']), axis=1)
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, 
-            test_size=0.25, 
-            random_state=0, 
-            shuffle=True, 
-            stratify=strat,
-        )
-        # reverse labels to match "equaling progressive disease" objective
-        y_train = -(y_train-1)
-        y_test = -(y_test-1)
-        # Standardize data to give same weight to regularization
-        scaler = StandardScaler()
-        X_train = scaler.fit_transform(X_train)
-        X_test = scaler.transform(X_test)
-
-        clf = linear_model.LogisticRegressionCV(
-            Cs=20, 
-            penalty='elasticnet', 
-            # scoring='neg_log_loss', 
-            scoring='roc_auc', 
-            solver='saga', 
-            l1_ratios=l1_ratios,
-            max_iter=10000,
-            n_jobs=-1,  # or n_jobs-1 to leave one core available
-        )
-        clf = clf.fit(X_train, y_train)
-
-        y_pred = clf.predict_proba(X_test)[:, 1]
-        score = metrics.roc_auc_score(y_test, y_pred)
-        score_split['CV_all_datasets'] = score
-        print(f"         ROC AUC CV all datasets: {score}")
-        score_condi[str_condi] = score_split
-
-        # Save model coefficients and plots
-        param_string = f"signature-{str_condi}_split-CV-5folds"
-        l1_ratio = np.round(clf.l1_ratio_[0], decimals=4)
-        C = np.round(clf.C_[0], decimals=4)
-
-        coef = pd.DataFrame({'coef': clf.coef_.flatten()}, index=var_idx)
-        coef['abs coef'] = coef['coef'].abs()
-        coef = coef.sort_values(by='abs coef', ascending=False)
-        coef['% total'] = coef['abs coef'] / coef['abs coef'].sum()
-        coef['cum % total'] = coef['% total'].cumsum()
-        coef.to_csv(dir_save / f"LogisticRegressionCV_coefficients_{param_string}.csv")
-        nb_coef = coef.shape[0]
-
-        nb_coef_plot = min(20, nb_coef)
-        labels = coef.index[:nb_coef_plot]
-        plt.figure()
-        ax = coef.loc[labels, 'cum % total'].plot()
-        ticks_pos = np.linspace(start=0, stop=nb_coef_plot-1, num=nb_coef_plot)
-        # ticks_label = np.round(ticks_label, decimals=2)
-        ax.set_xticks(ticks_pos)
-        # ax.set_xticklabels(ticks_label)
-        ax.set_xticklabels(labels, rotation=45, ha='right')
-        plt.xlabel('variables')
-        plt.ylabel('cumulative % coef')
-        plt.title(param_string + f" l1_ratio {l1_ratio}, C {C}")
-        plt.savefig(dir_save / f"cumulative_abs_coef_{param_string}.png", bbox_inches='tight', facecolor='white')
-
-        plt.figure()
-        ax = coef.loc[labels, 'coef'].plot()
-        ax.hlines(y=0, xmin=0, xmax=nb_coef_plot-1, colors='gray', linestyles='dashed')
-        ticks_pos = np.linspace(start=0, stop=nb_coef_plot-1, num=nb_coef_plot)
-        # ticks_label = np.round(ticks_label, decimals=2)
-        ax.set_xticks(ticks_pos)
-        # ax.set_xticklabels(ticks_label)
-        ax.set_xticklabels(labels, rotation=45, ha='right')
-        plt.xlabel('variables')
-        plt.ylabel('coef')
-        plt.title(param_string + f" l1_ratio {l1_ratio}, C {C}")
-        plt.savefig(dir_save / f"coef_{param_string}.png", bbox_inches='tight', facecolor='white')
-
-        plt.show()
-        plt.close('all')
+                y_pred_proba = clf.predict_proba(X_test)[:, 1]
+                y_pred = clf.predict(X_test)
+                score = {
+                    'ROC AUC': metrics.roc_auc_score(y_test, y_pred_proba),
+                    'AP' : metrics.average_precision_score(y_test, y_pred_proba),
+                    'MCC': metrics.matthews_corrcoef(y_test, y_pred),
+                }
+            else:
+                score = {
+                    'ROC AUC': np.nan,
+                    'AP' : np.nan,
+                    'MCC': np.nan,
+                }
+                write_log(log_file, f"        training failed with cv <= {CV_MAX}")
+            test_name = 'CV all datasets test Cloughesy'
+            for metric in score_labels:
+                score_split[test_name + ' - ' + metric] = score[metric]
+                write_log(log_file, f"        {metric} {test_name}: {score[metric]}")
+            score_condi[str_condi] = score_split
+            
 
     scores = pd.DataFrame.from_dict(score_condi, orient='index')
     scores.index.name = 'signature'
-    scores.to_csv(dir_save / 'ROC_AUC_single-signature.csv')
+    # reorder columns to group by evaluation metric
+    col_order = []
+    for metric in score_labels:
+        new_col = [x for x in scores.columns if x.endswith(metric)]
+        col_order.extend(new_col)
+    scores = scores[col_order]
+    scores.to_csv(dir_save / 'scores_single-signature.csv')
 
 end = time()
 duration = end - start
@@ -421,13 +815,222 @@ print("\n"*5)
 print("-------------------------------------------")
 print("------------------- END -------------------")
 print("-------------------------------------------")
-print(f"Training took {duration}s")
+write_log(log_file, f"Training took {duration}s")
+log_file.close()
+
+# %% [markdown]
+# ## Test individual training conditions
+
 # %%
-dir_save / f'proportions_signature-{str_condi}.csv'
+# Run training for a particular set of parameters
 
-# %% Check cell types proportions
-# cell types proportions predicted by each signature
+l1_name, l1_ratios = l1_ratios_list[-1]
+condi = conditions[-1]
+test_name = datasets[-1]
 
+print("l1 ratios:", l1_name)
+print('condition:', condi)
+print("test dataset:", test_name)
+
+# %%
+score_condi = {}
+# ------------------------
+print(f"Training using {condi}")
+var_idx = [x for x in df_all.columns if x.startswith(condi)]
+str_condi = condi.strip('_')
+
+score_split = {}
+# ------------------------
+# LODO splitting
+print(f"    LODO training using {test_name} as test set")
+test_ids = [x for x in df_all.index if test_name in x]
+train_ids = [x for x in df_all.index if test_name not in x]
+X_train = df_all.loc[train_ids, var_idx].values
+X_test= df_all.loc[test_ids, var_idx].values
+y_train = response['BOR - binary'].loc[train_ids].values
+y_test = response['BOR - binary'].loc[test_ids].values
+# reverse labels to match "equaling progressive disease" objective
+y_train = -(y_train-1)
+y_test = -(y_test-1)
+# Standardize data to give same weight to regularization
+# scaler = PowerTransformer(method='yeo-johnson')
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+np.random.seed(0)
+clf = linear_model.LogisticRegressionCV(
+    cv=5,
+    Cs=20, 
+    penalty='elasticnet', 
+    # scoring='neg_log_loss', 
+    scoring='roc_auc', 
+    solver='saga', 
+    l1_ratios=l1_ratios,
+    max_iter=10000,
+    random_state=0,
+    n_jobs=-1,  # or n_jobs-1 to leave one core available
+)
+clf = clf.fit(X_train, y_train)
+
+training_succeeded = not np.all(clf.coef_ == 0)
+if training_succeeded:
+    y_pred = clf.predict_proba(X_test)[:, 1]
+    score = metrics.roc_auc_score(y_test, y_pred)
+else:
+    score = np.nan
+score_split[test_name] = score
+print(f"         ROC AUC {test_name}: {score}")
+
+# Save model coefficients and plots
+param_string = f"signature-{str_condi}_split-lodo-{test_name}"
+l1_ratio = np.round(clf.l1_ratio_[0], decimals=4)
+C = np.round(clf.C_[0], decimals=4)
+
+if training_succeeded:
+    coef = pd.DataFrame({'coef': clf.coef_.flatten()}, index=var_idx)
+    coef['abs coef'] = coef['coef'].abs()
+    coef = coef.sort_values(by='abs coef', ascending=False)
+    coef['% total'] = coef['abs coef'] / coef['abs coef'].sum()
+    coef['cum % total'] = coef['% total'].cumsum()
+    coef['coef OR'] = np.exp(coef['coef'])
+    # coef.to_csv(dir_save / f"LogisticRegressionCV_coefficients_{param_string}.csv")
+    nb_coef = coef.shape[0]
+
+    nb_coef_plot = min(20, nb_coef)
+    labels = coef.index[:nb_coef_plot]
+    plt.figure()
+    ax = coef.loc[labels, 'cum % total'].plot()
+    ticks_pos = np.linspace(start=0, stop=nb_coef_plot-1, num=nb_coef_plot)
+    # ticks_label = np.round(ticks_label, decimals=2)
+    ax.set_xticks(ticks_pos)
+    # ax.set_xticklabels(ticks_label)
+    ax.set_xticklabels(labels, rotation=45, ha='right')
+    plt.xlabel('variables')
+    plt.ylabel('cumulative % coef')
+    plt.title(param_string + f" l1_ratio {l1_ratio}, C {C}")
+    # plt.savefig(dir_save / f"cumulative_abs_coef_{param_string}.png", bbox_inches='tight', facecolor='white')
+
+    plt.figure()
+    ax = coef.loc[labels, 'coef'].plot()
+    ax.hlines(y=0, xmin=0, xmax=nb_coef_plot-1, colors='gray', linestyles='dashed')
+    ticks_pos = np.linspace(start=0, stop=nb_coef_plot-1, num=nb_coef_plot)
+    # ticks_label = np.round(ticks_label, decimals=2)
+    ax.set_xticks(ticks_pos)
+    # ax.set_xticklabels(ticks_label)
+    ax.set_xticklabels(labels, rotation=45, ha='right')
+    plt.xlabel('variables')
+    plt.ylabel('coef')
+    plt.title(param_string + f" l1_ratio {l1_ratio}, C {C}")
+    # plt.savefig(dir_save / f"coef_{param_string}.png", bbox_inches='tight', facecolor='white')
+
+# %%
+clf.coefs_paths_[1].shape
+# k-cv, Cs, ?, ?
+# clf.__dir__()
+
+# %%
+# ------ All datasets with CV splitting ------
+print(f"    CV training on all datasets")
+X = df_all.loc[:, var_idx].values
+y = response['BOR - binary'].values
+# stratify train / test by dataset and response
+np.random.seed(0)
+strat = response.apply(lambda x:x['dataset'] + '-' + str(x['BOR - binary']), axis=1)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, 
+    test_size=0.25, 
+    random_state=0, 
+    shuffle=True, 
+    stratify=strat,
+)
+# reverse labels to match "equaling progressive disease" objective
+y_train = -(y_train-1)
+y_test = -(y_test-1)
+# Standardize data to give same weight to regularization
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+clf = linear_model.LogisticRegressionCV(
+    Cs=20, 
+    penalty='elasticnet', 
+    # scoring='neg_log_loss', 
+    scoring='roc_auc', 
+    solver='saga', 
+    l1_ratios=l1_ratios,
+    max_iter=10000,
+    n_jobs=-1,  # or n_jobs-1 to leave one core available
+)
+clf = clf.fit(X_train, y_train)
+
+y_pred = clf.predict_proba(X_test)[:, 1]
+score = metrics.roc_auc_score(y_test, y_pred)
+score_split['CV_all_datasets'] = score
+print(f"         ROC AUC CV all datasets: {score}")
+score_condi[str_condi] = score_split
+
+# Save model coefficients and plots
+param_string = f"signature-{str_condi}_split-CV-5folds"
+l1_ratio = np.round(clf.l1_ratio_[0], decimals=4)
+C = np.round(clf.C_[0], decimals=4)
+
+coef = pd.DataFrame({'coef': clf.coef_.flatten()}, index=var_idx)
+coef['abs coef'] = coef['coef'].abs()
+coef = coef.sort_values(by='abs coef', ascending=False)
+coef['% total'] = coef['abs coef'] / coef['abs coef'].sum()
+coef['cum % total'] = coef['% total'].cumsum()
+coef['coef OR'] = np.exp(coef['coef'])
+# coef.to_csv(dir_save / f"LogisticRegressionCV_coefficients_{param_string}.csv")
+nb_coef = coef.shape[0]
+
+nb_coef_plot = min(20, nb_coef)
+labels = coef.index[:nb_coef_plot]
+plt.figure()
+ax = coef.loc[labels, 'cum % total'].plot()
+ticks_pos = np.linspace(start=0, stop=nb_coef_plot-1, num=nb_coef_plot)
+# ticks_label = np.round(ticks_label, decimals=2)
+ax.set_xticks(ticks_pos)
+# ax.set_xticklabels(ticks_label)
+ax.set_xticklabels(labels, rotation=45, ha='right')
+plt.xlabel('variables')
+plt.ylabel('cumulative % coef')
+plt.title(param_string + f" l1_ratio {l1_ratio}, C {C}")
+# plt.savefig(dir_save / f"cumulative_abs_coef_{param_string}.png", bbox_inches='tight', facecolor='white')
+
+plt.figure()
+ax = coef.loc[labels, 'coef'].plot()
+ax.hlines(y=0, xmin=0, xmax=nb_coef_plot-1, colors='gray', linestyles='dashed')
+ticks_pos = np.linspace(start=0, stop=nb_coef_plot-1, num=nb_coef_plot)
+# ticks_label = np.round(ticks_label, decimals=2)
+ax.set_xticks(ticks_pos)
+# ax.set_xticklabels(ticks_label)
+ax.set_xticklabels(labels, rotation=45, ha='right')
+plt.xlabel('variables')
+plt.ylabel('coef')
+plt.title(param_string + f" l1_ratio {l1_ratio}, C {C}")
+# plt.savefig(dir_save / f"coef_{param_string}.png", bbox_inches='tight', facecolor='white')
+
+plt.show()
+plt.close('all')
+
+if TEST_CLOUG:
+    # ------ All datasets with CV splitting ------
+    print(f"    CV training on all datasets")
+    X_test = deconv_cloug.loc[:, var_idx].values
+    y_test = response_cloug['BOR - binary'].values
+    # reverse labels to match "equaling progressive disease" objective
+    y_test = -(y_test-1)
+    # Standardize data to give same weight to regularization
+    X_test = scaler.transform(X_test)
+
+    y_pred = clf.predict_proba(X_test)[:, 1]
+    score_cloug = metrics.roc_auc_score(y_test, y_pred)
+
+# %% [markdown]
+# ## Cell types proportions predicted by each signature
+
+# %%
 # from https://stackoverflow.com/questions/45664519/export-pandas-styled-table-to-image-file
 # install https://wkhtmltopdf.org/ 
 # and  https://github.com/jarrekk/imgkit
@@ -451,16 +1054,17 @@ for condi in conditions:
     html = styled_table.render()
     imgkit.from_string(html, dir_save / f'proportions_signature-{str_condi}.png')
 
-# %% Targeted comparison
-# comparison of cell types proportions predicted by each signature
+# %% [markdown]
+# ## Comparison of cell types proportions predicted by each signature
 
+# %%
 from itertools import combinations
 
 # condi1 = 'EpiDISH_BPRNACan3Dprom'
-# condi2 = 'deconRNASeq_BPRNACan'
+# condi2 = 'DeconRNASeq_BPRNACan'
 condis = [
     'EpiDISH_BPRNACan3DProMet', 
-    'deconRNASeq_BPRNACan',
+    'DeconRNASeq_BPRNACan',
 #     'CBSX_CIBERSORTx_ref_rna-seq', # not same cell types
 ]
 
@@ -499,7 +1103,7 @@ for signature in signatures:
     coef_1 = pd.read_csv(os.path.join(dir_load, "LogisticRegressionCV_coefficients_signature-"+signature+"_split-CV-5folds.csv"), index_col=0)
     new_index = [x.replace(signature+'_', '') for x in coef_1.index]
     # new_index = [x.replace('BPRNACan3Dprom', 'BPRNACanProMet') for x in coef.index]
-    # new_index = [x.replace('DeconRNA', 'deconRNAseq') for x in coef.index]
+    # new_index = [x.replace('DeconRNA', 'DeconRNASeq') for x in coef.index]
     coef_1.index = new_index
     nb_coef = coef_1.shape[0]
     coef_1.index.name = 'cell type'
@@ -528,5 +1132,3 @@ for signature in signatures:
     maxi = coef_1['abs coef'].max() * 1.05
     plt.xlim([-maxi, maxi])
     plt.savefig(os.path.join(dir_save, "LogisticRegressionCV_coefficients_signature-"+signature+"_split-CV-5folds_centered.png"), bbox_inches='tight', facecolor='white')
-
-# %%
