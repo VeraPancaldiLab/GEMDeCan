@@ -332,7 +332,7 @@ score_labels = [
 start = time()
 
 for l1_name, l1_ratios in l1_ratios_list:
-    dir_save = dir_save_orig / "joint_clinical_deconv" / f'l1_ratios-{l1_name}'
+    dir_save = dir_save_orig / "joint_clinical_deconv_diff" / f'l1_ratios-{l1_name}'
     dir_save.mkdir(parents=True, exist_ok=True)
     log_file = open(dir_save / "training_logs.txt","a")
 
@@ -345,6 +345,8 @@ for l1_name, l1_ratios in l1_ratios_list:
         score_split = {}
         # LODO splitting
         for clin_col in ["SEX", "AAGE", "TMB"]: #for test_name in datasets:
+            
+            # ================== with clinical data ==================
             test_name = clin_col
             write_log(log_file, f"    LODO training using {clin_col} as clinical variable")
             # select samples that have records in clinical variable and deconv data
@@ -414,7 +416,6 @@ for l1_name, l1_ratios in l1_ratios_list:
                 score_split[test_name + ' - ' + metric] = score[metric]
                 write_log(log_file, f"        {metric} {test_name}: {score[metric]}")
             
-
             # Save model coefficients and plots
             param_string = f"signature-{str_condi}_split-lodo-{clin_col}"
             l1_ratio = np.round(clf.l1_ratio_[0], decimals=4)
@@ -429,6 +430,11 @@ for l1_name, l1_ratios in l1_ratios_list:
                 coef['coef OR'] = np.exp(coef['coef'])
                 coef.to_csv(dir_save / f"LogisticRegressionCV_coefficients_{param_string}.csv")
                 nb_coef = coef.shape[0]
+                
+                # add proportion of absolute coefficient of clinical feature
+                coef_prop = coef.loc[clin_col, '% total']
+                coef_prop_name = test_name + ' - ' + 'coef prop'
+                score_split[coef_prop_name] = coef_prop
 
                 nb_coef_plot = min(20, nb_coef)
                 labels = coef.index[:nb_coef_plot]
@@ -456,12 +462,93 @@ for l1_name, l1_ratios in l1_ratios_list:
                 plt.ylabel('coef')
                 plt.title(param_string + f" l1_ratio {l1_ratio}, C {C}")
                 plt.savefig(dir_save / f"coef_{param_string}.png", bbox_inches='tight', facecolor='white')
+
+            
+            
+            # ================== without clinical data ==================
+            test_name = clin_col + ' deconv only'
+            write_log(log_file, f"    LODO training using deconvolution data only")
+            # we use the same samples that have both clinical data and deconv data
+            # here we don't merge clinical data to deconv variables
+            # X = df_all.loc[valid_ids, var_idx].join(add_clin).values
+            X = df_all.loc[valid_ids, var_idx].values
+            y = response['BOR - binary'].loc[valid_ids].values
+            # reverse labels to match "equaling progressive disease" objective
+            y = -(y-1)
+            # stratify train / test by response
+            np.random.seed(0)
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, 
+                test_size=0.25, 
+                random_state=0, 
+                shuffle=True, 
+            )
+            # Standardize data to give same weight to regularization
+            scaler = StandardScaler()
+            X_train = scaler.fit_transform(X_train)
+            X_test = scaler.transform(X_test)
+
+            training_succeeded = False
+            cv_used = CV_TRAIN
+            while not training_succeeded and cv_used <= CV_MAX:
+                np.random.seed(0)
+                clf = linear_model.LogisticRegressionCV(
+                    cv=cv_used,
+                    Cs=20, 
+                    penalty='elasticnet', 
+                    # scoring='neg_log_loss', 
+                    scoring='roc_auc', 
+                    solver='saga', 
+                    l1_ratios=l1_ratios,
+                    max_iter=10000,
+                    n_jobs=-1,  # or n_jobs-1 to leave one core available
+                )
+                clf = clf.fit(X_train, y_train)
+                training_succeeded = not np.all(clf.coef_ == 0)
+                if not training_succeeded:
+                    if CV_ADAPT:
+                        cv_used += 1
+                        write_log(log_file, f"        training failed, trying with cv = {cv_used}")
+                    else:
+                        write_log(log_file, f"        training failed")
+                        break
+                
+            if training_succeeded:
+                y_pred_proba = clf.predict_proba(X_test)[:, 1]
+                y_pred = clf.predict(X_test)
+                score = {
+                    'ROC AUC': metrics.roc_auc_score(y_test, y_pred_proba),
+                    'AP' : metrics.average_precision_score(y_test, y_pred_proba),
+                    'MCC': metrics.matthews_corrcoef(y_test, y_pred),
+                }
+            else:
+                score = {
+                    'ROC AUC': np.nan,
+                    'AP' : np.nan,
+                    'MCC': np.nan,
+                }
+                write_log(log_file, f"        training failed with cv <= {CV_MAX}")
+            for metric in score_labels:
+                score_split[test_name + ' - ' + metric] = score[metric]
+                write_log(log_file, f"        {metric} {test_name}: {score[metric]}")
+                # add score difference with minus without clinical data
+                score_split[clin_col + ' - diff ' + metric] = score_split[clin_col + ' - ' + metric] - score_split[test_name + ' - ' + metric]
+                
         score_condi[str_condi] = score_split
         plt.show()
 
     scores = pd.DataFrame.from_dict(score_condi, orient='index')
     scores.index.name = 'signature'
-    scores.to_csv(dir_save / 'ROC_AUC_single-signature.csv')
+    # reorder columns to group by evaluation metric
+    col_order = []
+    for metric in score_labels:
+        new_col = [x for x in scores.columns if x.endswith(metric)]
+        col_order.extend(new_col)
+    # to put absolute clinical coefficient at the beginning of the dataframe
+    coef_prop_cols = [x for x in scores.columns if x.endswith('coef prop')]
+    col_order = coef_prop_cols + col_order
+    scores = scores[col_order]
+    scores.to_csv(dir_save / 'scores_signatures_deconv_clinic.csv')
 
 end = time()
 duration = end - start
@@ -472,7 +559,54 @@ print("-------------------------------------------")
 write_log(log_file, f"Training took {duration}s")
 log_file.close()
 
+# %% [markdown] tags=[]
+# ### Added predictive value of clinical data
+
 # %% [markdown]
+# We compare performance of models with / without clinical data, and the relative importance of clinical data in corresponding models.
+
+# %%
+from adjustText import adjust_text
+
+score_labels = [
+    'ROC AUC', # Receiver Operating Characteristic Area Under the Curve
+    'AP',      # Average Precision
+    'MCC',     # Matthews Correlation Coefficient
+]
+clin_cols = ["SEX", "AAGE", "TMB"]
+
+# for l1_name, l1_ratios in l1_ratios_list:
+l1_name, l1_ratios = l1_ratios_list[-1]
+print("l1 ratios:", l1_name)
+dir_load = dir_save_orig / "joint_clinical_deconv_diff" / f'l1_ratios-{l1_name}'
+df = pd.read_csv(dir_load / "scores_signatures_deconv_clinic.csv", index_col=0)
+
+# for score_label in score_labels: 
+score_label = 'ROC AUC'
+for clin_col in clin_cols:
+    x_col = clin_col + ' - diff ' + score_label
+    y_col = clin_col + ' - coef prop'
+    df_plot = df[[x_col, y_col]]
+    df_plot = df_plot.dropna(axis=0)
+    labels = df_plot.index
+
+    fig, ax = plt.subplots(figsize=(6, 6))
+    x = df_plot.iloc[:, 0].values
+    y = df_plot.iloc[:, 1].values * 100
+    ax.axvline(x=0, ymin=y.min()-5, ymax=y.max()+5, c='orangered', linestyle='--', linewidth=1)
+    ax.scatter(x, y)
+    ax.set_xlabel(f'Gain in {score_label}')
+    ax.set_ylabel(f'% weight of {clin_col}')
+    ax.set_xlim([x.min()-0.1, x.max()+0.1])
+    ax.set_ylim([y.min()-5, y.max()+5])
+    texts = [plt.text(x[i], y[i], label, ha='center', va='center') for i, label in enumerate(labels)]
+    adjust_text(texts, arrowprops=dict(arrowstyle='->', color='blue'))
+    title = f"Gain in predictive power by {score_label} and feature importance of {clin_col}"
+    ax.set_title(title)
+    fig.savefig(dir_load / title, facecolor='white')
+    fig.show()
+
+# %% [markdown] tags=[]
 # ### Cell types proportions
 
 # %%
@@ -489,9 +623,6 @@ for col in df_all.columns:
     rho, pval = stats.spearmanr(df_all[col], y)
     rhos.append(rho)
     pvals.append(pval)
-
-# %%
-var_idx
 
 # %%
 from statsmodels.stats.multitest import fdrcorrection
@@ -511,9 +642,13 @@ df_corr.loc[df_corr['pval'] <= 0.05]
 df_corr.loc[df_corr['pval_corr'] <= 0.05]
 
 # %%
+counts = []
 for condi in conditions:
     var_idx = [x for x in df_all.columns if x.startswith(condi)]
-    print(condi, len(var_idx))
+    counts.append(len(var_idx))
+sig_counts = pd.DataFrame({'# cell types': counts}, index=conditions)
+sig_counts.index.name = 'conditions'
+sig_counts
 
 # %% [markdown]
 # There are many XCELL deconvolution variables in the list of cell types whose proportions are statistically (anti-)correlated with response, but XCEL outputs between 5-10 times more variables than other deconvolution methods.
@@ -621,7 +756,7 @@ for l1_name, l1_ratios in l1_ratios_list:
                 coef['coef OR'] = np.exp(coef['coef'])
                 coef.to_csv(dir_save / f"LogisticRegressionCV_coefficients_{param_string}.csv")
                 nb_coef = coef.shape[0]
-
+                
                 nb_coef_plot = min(20, nb_coef)
                 labels = coef.index[:nb_coef_plot]
                 plt.figure()
@@ -807,7 +942,7 @@ for l1_name, l1_ratios in l1_ratios_list:
         new_col = [x for x in scores.columns if x.endswith(metric)]
         col_order.extend(new_col)
     scores = scores[col_order]
-    scores.to_csv(dir_save / 'scores_single-signature.csv')
+    scores.to_csv(dir_save / 'scores_signatures_deconv.csv')
 
 end = time()
 duration = end - start
