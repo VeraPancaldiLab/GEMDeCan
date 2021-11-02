@@ -81,6 +81,7 @@ data_version = 'all_deconvolutions_2021-08-30'
 data_version = 'all_deconvolutions_2021-09-16'
 data_version = 'all_deconvolutions_2021-10-15'
 data_version = 'all_deconvolutions_2021-10-19'
+data_version = 'all_deconvolutions_2021-11-02'
 path_deconv = path_interm / 'revision_deconv' / data_version
 dir_save = Path("../../data/processed/Deconvolution_paper_revision")
 dir_save = dir_save / "data_version-{}".format(data_version)
@@ -151,21 +152,32 @@ common_col = df_all.columns.values
 nb_var = df_all.shape[1]
 
 # rename variables
-dic_rename = {
-    'Epidish': 'EpiDISH',
-    'Quantiseq': 'quanTIseq',
-    # 'CBSX_CIBERSORTx_ref_rna-seq_': 'CBSX_melanoma_',
-    # 'CBSX_NSCLC_single-cell_': 'CBSX_NSCLC_',
-    'CBSX_Fig2ab-NSCLC_PBMCs_scRNAseq_refsample_single-cell': 'CBSX_NSCLC',
-    'CBSX_scRNA-Seq_reference_HNSCC_Puram_et_al_Fig2cd_single-cell': 'CBSX_HNSCC',
-    'CBSX_scRNA-Seq_reference_melanoma_Tirosh_SuppFig_3b-d_single-cell': 'CBSX_melanoma',
-}
+if data_version == 'all_deconvolutions_2021-11-02':
+    dic_rename = {
+        'Epidish': 'EpiDISH',
+        'Quantiseq': 'quanTIseq',
+        'CBSX__': 'CIBERSORTx_CBSX_',
+        'CBSX_scRNA-Seq_melanoma_Tirosh_sigmatrix_SuppFig_3-b': 'CBSX_melanoma',
+        'CBSX_sigmatrix_HNSCC_Fig2cd': 'CBSX_HNSCC',
+        'CBSX_Fig2ab-NSCLC_PBMCs_scRNAseq_sigmatrix': 'CBSX_NSCLC',
+        '__': '_',
+        # 'CBSX_LM22': 'CBSX_LM22', new signature, already well mentionned
+    }
+else:
+    dic_rename = {
+        'Epidish': 'EpiDISH',
+        'Quantiseq': 'quanTIseq',
+        'CBSX_Fig2ab-NSCLC_PBMCs_scRNAseq_refsample_single-cell': 'CBSX_NSCLC',
+        'CBSX_scRNA-Seq_reference_HNSCC_Puram_et_al_Fig2cd_single-cell': 'CBSX_HNSCC',
+        'CBSX_scRNA-Seq_reference_melanoma_Tirosh_SuppFig_3b-d_single-cell': 'CBSX_melanoma',
+    }
 for key, val in dic_rename.items():
     new_cols = [x.replace(key, val) for x in df_all.columns]
     df_all.columns = new_cols
 # add CIBERSORTx method name where it's missing
-new_cols = ['CIBERSORTx_' + x if ('CBSX' in x and not ('EpiDISH' in x or 'DeconRNASeq' in x)) else x for x in df_all.columns]
-df_all.columns = new_cols
+# not needed with dic_rename's key CBSX__
+# new_cols = ['CIBERSORTx_' + x if ('CBSX' in x and not ('EpiDISH' in x or 'DeconRNASeq' in x)) else x for x in df_all.columns]
+# df_all.columns = new_cols
 
 if TEST_CLOUG:
     path_data = path_deconv / ('all_deconvolutions_' + 'Cloughesy' + '.txt')
@@ -191,8 +203,8 @@ if TEST_CLOUG:
         new_cols = [x.replace(key, val) for x in deconv_cloug.columns]
         deconv_cloug.columns = new_cols
     # add CIBERSORTx method name where it's missing
-    new_cols = ['CIBERSORTx_' + x if ('CBSX' in x and not ('EpiDISH' in x or 'DeconRNASeq' in x)) else x for x in deconv_cloug.columns]
-    deconv_cloug.columns = new_cols
+    # new_cols = ['CIBERSORTx_' + x if ('CBSX' in x and not ('EpiDISH' in x or 'DeconRNASeq' in x)) else x for x in deconv_cloug.columns]
+    # deconv_cloug.columns = new_cols
 
 # %% [markdown]
 # ## Setup training parameters
@@ -200,26 +212,52 @@ if TEST_CLOUG:
 # %%
 # we use trailing underscores to avoid including derived signatures
 # like EpiDISH_BPRNACan3Dprom --> EpiDISH_BPRNACan3Dprom-enhan
-conditions = [
-    'quanTIseq',
-    'MCP',
-    'XCELL',
-    'EpiDISH_BPRNACan_',
-    'DeconRNASeq_BPRNACan_',
-    'EpiDISH_BPRNACanProMet_',
-    'DeconRNASeq_BPRNACanProMet_',
-    'EpiDISH_BPRNACan3DProMet_',
-    'DeconRNASeq_BPRNACan3DProMet_',
-    'EpiDISH_CBSX_NSCLC_',
-    'DeconRNASeq_CBSX_NSCLC_',
-    'EpiDISH_CBSX_HNSCC_',
-    'DeconRNASeq_CBSX_HNSCC_',
-    'EpiDISH_CBSX_melanoma_',
-    'DeconRNASeq_CBSX_melanoma_',
-    'CIBERSORTx_CBSX_NSCLC_',
-    'CIBERSORTx_CBSX_HNSCC_',
-    'CIBERSORTx_CBSX_melanoma_',
-]
+
+if data_version == 'all_deconvolutions_2021-11-02':
+    conditions = [
+        'quanTIseq',
+        'MCP',
+        'XCELL',
+        'EpiDISH_BPRNACan_',
+        'DeconRNASeq_BPRNACan_',
+        'EpiDISH_BPRNACanProMet_',
+        'DeconRNASeq_BPRNACanProMet_',
+        'EpiDISH_BPRNACan3DProMet_',
+        'DeconRNASeq_BPRNACan3DProMet_',
+        'EpiDISH_CBSX_NSCLC_',
+        'DeconRNASeq_CBSX_NSCLC_',
+        'EpiDISH_CBSX_HNSCC_',
+        'DeconRNASeq_CBSX_HNSCC_',
+        'EpiDISH_CBSX_melanoma_',
+        'DeconRNASeq_CBSX_melanoma_',
+        'EpiDISH_CBSX_LM22_',
+        'DeconRNASeq_CBSX_LM22_',
+        'CIBERSORTx_CBSX_NSCLC_',
+        'CIBERSORTx_CBSX_HNSCC_',
+        'CIBERSORTx_CBSX_melanoma_',
+        'CIBERSORTx_CBSX_LM22_',
+    ]
+else:
+    conditions = [
+        'quanTIseq',
+        'MCP',
+        'XCELL',
+        'EpiDISH_BPRNACan_',
+        'DeconRNASeq_BPRNACan_',
+        'EpiDISH_BPRNACanProMet_',
+        'DeconRNASeq_BPRNACanProMet_',
+        'EpiDISH_BPRNACan3DProMet_',
+        'DeconRNASeq_BPRNACan3DProMet_',
+        'EpiDISH_CBSX_NSCLC_',
+        'DeconRNASeq_CBSX_NSCLC_',
+        'EpiDISH_CBSX_HNSCC_',
+        'DeconRNASeq_CBSX_HNSCC_',
+        'EpiDISH_CBSX_melanoma_',
+        'DeconRNASeq_CBSX_melanoma_',
+        'CIBERSORTx_CBSX_NSCLC_',
+        'CIBERSORTx_CBSX_HNSCC_',
+        'CIBERSORTx_CBSX_melanoma_',
+    ]
 
 if ONLY_MELANOMA or MERGE_OLD_SIG:
     datasets = ['Gide', 'Hugo', 'Riaz']
@@ -566,6 +604,9 @@ log_file.close()
 # We compare performance of models with / without clinical data, and the relative importance of clinical data in corresponding models.
 
 # %%
+df
+
+# %%
 from adjustText import adjust_text
 
 score_labels = [
@@ -586,15 +627,19 @@ score_label = 'ROC AUC'
 for clin_col in clin_cols:
     x_col = clin_col + ' - diff ' + score_label
     y_col = clin_col + ' - coef prop'
-    df_plot = df[[x_col, y_col]]
+    base_score_col = clin_col + ' - ' + score_label
+    df_plot = df[[x_col, y_col, base_score_col]]
     df_plot = df_plot.dropna(axis=0)
     labels = df_plot.index
 
-    fig, ax = plt.subplots(figsize=(6, 6))
+    fig, ax = plt.subplots(figsize=(8, 6))
     x = df_plot.iloc[:, 0].values
     y = df_plot.iloc[:, 1].values * 100
+    score = df_plot.iloc[:, 2]
+    
     ax.axvline(x=0, ymin=y.min()-5, ymax=y.max()+5, c='orangered', linestyle='--', linewidth=1)
-    ax.scatter(x, y)
+    mappable = ax.scatter(x, y, c=score, cmap='coolwarm_r', vmin=0, vmax=1)
+    plt.colorbar(mappable=mappable, ax=ax)
     ax.set_xlabel(f'Gain in {score_label}')
     ax.set_ylabel(f'% weight of {clin_col}')
     ax.set_xlim([x.min()-0.1, x.max()+0.1])
