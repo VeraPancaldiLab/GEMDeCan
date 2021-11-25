@@ -37,6 +37,8 @@ from multiprocessing import cpu_count
 import os
 import joblib
 from time import time
+import glob
+import re
 
 import xgboost as xgb
 from sklearn import tree
@@ -75,7 +77,7 @@ CV_ADAPT = False     # increase k, the number of CV folds, if training didn't co
 CV_TRAIN = 5         # default number of splits for CV
 CV_MAX = 10          # max splits if previous training failed
 
-path_interm = Path("../../data/intermediate/Deconvolution_paper")
+path_interm = Path("../data/intermediate/Deconvolution_paper")
 data_version = 'all_deconvolutions_2021-08-10'
 data_version = 'all_deconvolutions_2021-08-30'
 data_version = 'all_deconvolutions_2021-09-16'
@@ -83,7 +85,7 @@ data_version = 'all_deconvolutions_2021-10-15'
 data_version = 'all_deconvolutions_2021-10-19'
 data_version = 'all_deconvolutions_2021-11-02'
 path_deconv = path_interm / 'revision_deconv' / data_version
-dir_save = Path("../../data/processed/Deconvolution_paper_revision")
+dir_save = Path("../data/processed/Deconvolution_paper_revision")
 dir_save = dir_save / "data_version-{}".format(data_version)
 
 if ONLY_MELANOMA:
@@ -160,7 +162,7 @@ if data_version == 'all_deconvolutions_2021-11-02':
         'CBSX_scRNA-Seq_melanoma_Tirosh_sigmatrix_SuppFig_3-b': 'CBSX_melanoma',
         'CBSX_sigmatrix_HNSCC_Fig2cd': 'CBSX_HNSCC',
         'CBSX_Fig2ab-NSCLC_PBMCs_scRNAseq_sigmatrix': 'CBSX_NSCLC',
-        '__': '_',
+        '__': '_',  # clean redundant '_'
         # 'CBSX_LM22': 'CBSX_LM22', new signature, already well mentionned
     }
 else:
@@ -267,6 +269,10 @@ else:
 # l1_ratio = 1 the penalty is an L1 penalty (Lasso)
 
 # Test either one of those combinations
+# The list of values will be used during hyperparameters search of the
+# elasticnet-penalized logistic regression. For example, when the 'naive'
+# list is used, the 7 values between 0.1 and 1 will be tested during
+# the gridsearch with LogisticRegressionCV
 l1_ratios_list = [
     ['default', [0.5]],
     ['naive', np.linspace(0, 1, 21)],           # naive param grid
@@ -416,7 +422,7 @@ for l1_name, l1_ratios in l1_ratios_list:
                 np.random.seed(0)
                 clf = linear_model.LogisticRegressionCV(
                     cv=cv_used,
-                    Cs=20, 
+                    Cs=20,  # number of tested values for inverse of regularization strength
                     penalty='elasticnet', 
                     # scoring='neg_log_loss', 
                     scoring='roc_auc', 
@@ -604,9 +610,6 @@ log_file.close()
 # We compare performance of models with / without clinical data, and the relative importance of clinical data in corresponding models.
 
 # %%
-df
-
-# %%
 from adjustText import adjust_text
 
 score_labels = [
@@ -623,33 +626,34 @@ dir_load = dir_save_orig / "joint_clinical_deconv_diff" / f'l1_ratios-{l1_name}'
 df = pd.read_csv(dir_load / "scores_signatures_deconv_clinic.csv", index_col=0)
 
 # for score_label in score_labels: 
-score_label = 'ROC AUC'
-for clin_col in clin_cols:
-    x_col = clin_col + ' - diff ' + score_label
-    y_col = clin_col + ' - coef prop'
-    base_score_col = clin_col + ' - ' + score_label
-    df_plot = df[[x_col, y_col, base_score_col]]
-    df_plot = df_plot.dropna(axis=0)
-    labels = df_plot.index
+# score_label = 'ROC AUC'
+for score_label in score_labels:
+    for clin_col in clin_cols:
+        x_col = clin_col + ' - diff ' + score_label
+        y_col = clin_col + ' - coef prop'
+        base_score_col = clin_col + ' - ' + score_label
+        df_plot = df[[x_col, y_col, base_score_col]]
+        df_plot = df_plot.dropna(axis=0)
+        labels = df_plot.index
 
-    fig, ax = plt.subplots(figsize=(8, 6))
-    x = df_plot.iloc[:, 0].values
-    y = df_plot.iloc[:, 1].values * 100
-    score = df_plot.iloc[:, 2]
-    
-    ax.axvline(x=0, ymin=y.min()-5, ymax=y.max()+5, c='orangered', linestyle='--', linewidth=1)
-    mappable = ax.scatter(x, y, c=score, cmap='coolwarm_r', vmin=0, vmax=1)
-    plt.colorbar(mappable=mappable, ax=ax)
-    ax.set_xlabel(f'Gain in {score_label}')
-    ax.set_ylabel(f'% weight of {clin_col}')
-    ax.set_xlim([x.min()-0.1, x.max()+0.1])
-    ax.set_ylim([y.min()-5, y.max()+5])
-    texts = [plt.text(x[i], y[i], label, ha='center', va='center') for i, label in enumerate(labels)]
-    adjust_text(texts, arrowprops=dict(arrowstyle='->', color='blue'))
-    title = f"Gain in predictive power by {score_label} and feature importance of {clin_col}"
-    ax.set_title(title)
-    fig.savefig(dir_load / title, facecolor='white')
-    fig.show()
+        fig, ax = plt.subplots(figsize=(8, 6))
+        x = df_plot.iloc[:, 0].values
+        y = df_plot.iloc[:, 1].values * 100
+        score = df_plot.iloc[:, 2]
+
+        ax.axvline(x=0, ymin=y.min()-5, ymax=y.max()+5, c='orangered', linestyle='--', linewidth=1)
+        mappable = ax.scatter(x, y, c=score, cmap='coolwarm_r')
+        plt.colorbar(mappable=mappable, ax=ax)
+        ax.set_xlabel(f'Gain in {score_label}')
+        ax.set_ylabel(f'% weight of {clin_col}')
+        ax.set_xlim([x.min()-0.1, x.max()+0.1])
+        ax.set_ylim([y.min()-5, y.max()+5])
+        texts = [plt.text(x[i], y[i], label, ha='center', va='center') for i, label in enumerate(labels)]
+        adjust_text(texts, arrowprops=dict(arrowstyle='->', color='blue'))
+        title = f"Gain in predictive power by {score_label} and feature importance of {clin_col}"
+        ax.set_title(title)
+        fig.savefig(dir_load / title, facecolor='white')
+        fig.show()
 
 # %% [markdown] tags=[]
 # ### Cell types proportions
@@ -1269,46 +1273,126 @@ for comb in combinations(condis, 2):
     html = styled_table.render()
     imgkit.from_string(html, dir_save / f'proportions_signature-{str_condi}.png')
 
+# %% [markdown]
+# ### Plot models coefficients and Odds Ratios
+
 # %%
-dir_load = r"../../data/processed/Deconvolution_paper/Deconvolution_paper_revision/all_signatures_old/no_bladder/drop_scores/l1_ratios-advised/"
+coefs.index
+
+# %%
+dir_load = r"../data/processed/Deconvolution_paper_revision/data_version-all_deconvolutions_2021-11-02/only_melanoma/drop_scores/cv-5/l1_ratios-advised/"
 dir_save = dir_load
 
 signatures = [
+    'EpiDISH_BPRNACan',
+    'EpiDISH_BPRNACanProMet',
     'EpiDISH_BPRNACan3DProMet',
-    'CBSX_CIBERSORTx_ref_rna-seq',
-    'XCELL',
+    'CIBERSORTx_CBSX_NSCLC',
 ]
+signature = signatures[0]
 
 for signature in signatures:
-    coef_1 = pd.read_csv(os.path.join(dir_load, "LogisticRegressionCV_coefficients_signature-"+signature+"_split-CV-5folds.csv"), index_col=0)
-    new_index = [x.replace(signature+'_', '') for x in coef_1.index]
-    # new_index = [x.replace('BPRNACan3Dprom', 'BPRNACanProMet') for x in coef.index]
-    # new_index = [x.replace('DeconRNA', 'DeconRNASeq') for x in coef.index]
-    coef_1.index = new_index
-    nb_coef = coef_1.shape[0]
-    coef_1.index.name = 'cell type'
 
-#     # make same order of variable for the 2 plots, by max abs value
-#     abs_coef = coef_1['abs coef']
-#     abs_coef.sort_values(ascending=False, inplace=True)
-#     coef_1 = coef_1.loc[abs_coef.index, :]
+    patt = dir_load + "LogisticRegressionCV_coefficients_signature-"+signature+"_split-lodo-*.csv"
+    coefs = []
+    coefs_or = []
+    for file_path in glob.glob(patt):
+        model_coefs = pd.read_csv(file_path, index_col=0)
+        new_index = [x.replace(signature+'_', '') for x in model_coefs.index]
+        # new_index = [x.replace('BPRNACan3Dprom', 'BPRNACanProMet') for x in coef.index]
+        # new_index = [x.replace('DeconRNA', 'DeconRNASeq') for x in coef.index]
+        model_coefs.index = new_index
+        if signature == 'CIBERSORTx_CBSX_NSCLC':
+            remapper = {
+                'T_cells_CD4': 'CD4', 
+                'NK_cells': 'NK', 
+                'Monocytes': 'Monocytes', 
+                'NKT_cells': 'NKT', 
+                'T_cells_CD8': 'CD8',
+                'B_cells': 'B',
+            }
+            new_index = [remapper[x] for x in model_coefs.index]
+            model_coefs.index = new_index
+        model_coefs.index.name = 'cell type'
+        data_name = re.search('-lodo-(.+?).csv', file_path).group(1)
+        coef = model_coefs['coef']
+        coef.name = data_name
+        coefs.append(coef)
+        coef_or = model_coefs['coef OR']
+        coef_or.name = data_name
+        coefs_or.append(coef_or)
 
-    # first plot
+    coefs = pd.concat(coefs, axis=1)
+    coefs['mean abs'] = coefs.abs().mean(axis=1)
+    coefs.sort_values(by='mean abs', ascending=False, inplace=True)
+    coefs.drop(columns=['mean abs'], inplace=True)
+    coefs = coefs.mean(axis=1)
+    coefs = coefs.loc[coefs != 0]
+    nb_coef = coefs.size
+
+    coefs_or = pd.concat(coefs_or, axis=1)
+    coefs_or['mean abs'] = coefs_or.abs().mean(axis=1)
+    coefs_or.sort_values(by='mean abs', ascending=False, inplace=True)
+    coefs_or.drop(columns=['mean abs'], inplace=True)
+    coefs_or = coefs_or.mean(axis=1)
+    coefs_or = coefs_or.loc[coefs_or != 0]
+    nb_coef_or = coefs_or.size
+
+    # Plot coefficients
     # create dataset
     y_pos = np.arange(nb_coef)[::-1]
     # Create horizontal bars
     plt.figure()
-    plt.barh(y_pos, coef_1['coef'].values)
+    plt.barh(y_pos, coefs)
     # Create names on the x-axis
-    plt.yticks(y_pos, coef_1.index)
-    plt.vlines(x=0, ymin=0, ymax=nb_coef-1, colors='gray', linestyles='dashed')
+    plt.yticks(y_pos, coefs.index)
+    plt.vlines(x=0, ymin=-0.5, ymax=nb_coef-0.5, colors='gray', linestyles='dashed')
 
     plt.xlabel('coefficient')
     plt.ylabel('cell type')
-    plt.title(signature)
+    plt.title(signature.replace('_', ' '))
     plt.tight_layout()
-    plt.savefig(os.path.join(dir_save, "LogisticRegressionCV_coefficients_signature-"+signature+"_split-CV-5folds.png"), bbox_inches='tight', facecolor='white')
-
-    maxi = coef_1['abs coef'].max() * 1.05
+    # plt.savefig(os.path.join(dir_save, "LogisticRegressionCV_coefficients_signature-"+signature+"_split-CV-5folds.png"), bbox_inches='tight', facecolor='white')
+    maxi = coefs.abs().max() * 1.05
     plt.xlim([-maxi, maxi])
-    plt.savefig(os.path.join(dir_save, "LogisticRegressionCV_coefficients_signature-"+signature+"_split-CV-5folds_centered.png"), bbox_inches='tight', facecolor='white')
+    plt.savefig(os.path.join(dir_save, "LogisticRegressionCV_coefficients_signature-"+signature+"_mean-lodo_centered.png"), bbox_inches='tight', facecolor='white')
+
+    # Plot Odds Ratios
+    # create dataset
+    y_pos = np.arange(nb_coef_or)[::-1]
+    # Create horizontal bars
+    plt.figure()
+    plt.barh(y_pos, coefs_or)
+    # Create names on the x-axis
+    plt.yticks(y_pos, coefs_or.index)
+    plt.vlines(x=1, ymin=-0.5, ymax=nb_coef_or-0.5, colors='gray', linestyles='dashed')
+
+    plt.xlabel('coefficient')
+    plt.ylabel('cell type')
+    plt.title(signature.replace('_', ' '))
+    plt.tight_layout()
+    plt.savefig(os.path.join(dir_save, "LogisticRegressionCV_coefficients_OR_signature-"+signature+"_mean-lodo.png"), bbox_inches='tight', facecolor='white')
+
+
+# %% [markdown]
+# ## Reorder models' performance data
+
+# %%
+filename = dir_save / ('l1_ratios-' + l1_name) / 'scores_signatures_deconv.csv'
+df = pd.read_csv(filename, index_col=0)
+df
+
+# %%
+for score_label in score_labels:
+    col_score = [x for x in df.columns if x.endswith(' - ' + score_label)]
+    cols = [x for x in col_score if ('Cloughesy' not in x)]
+    df_select = df[cols]
+
+    df_select['mean lodo'] = df_select.iloc[:, :3].mean(axis=1)
+    df_select['mean all datasets'] = df_select.mean(axis=1)
+    df_select.sort_values(by='mean lodo', ascending=False, inplace=True)
+
+    filename = dir_save / ('l1_ratios-' + l1_name) / ('scores_signatures_deconv_sorted-' + score_label + '.csv')
+    df_select.to_csv(filename)
+
+# %%
