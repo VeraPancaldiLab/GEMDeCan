@@ -1,0 +1,861 @@
+---
+title: "Gem-DeCan Figures"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: console
+---
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+suppressPackageStartupMessages({
+  library(reshape2)
+  library(ggpubr)
+  library(tidyverse)
+  library(Hmisc)
+  library(ggridges)
+})
+knitr::opts_chunk$set(fig.width=15, fig.height=10) 
+``` 
+
+# Figure 3
+
+## Non-tumoral multiple myeloma 
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+
+# Load data
+myeloma = read.delim("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Miguel/deconvolutions_pipeline/all_deconvolutions/all_deconvolutions_GSE104171.txt")
+myeloma_facs = read.delim("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/facs/FACS_GSE104171.txt")
+rownames(myeloma_facs) = myeloma_facs$Name
+myeloma_facs = myeloma_facs[,-1]
+
+colnames(myeloma) = colnames(myeloma) %>% str_replace_all("(CBSX__Fig2ab.NSCLC_PBMCs_scRNAseq_sigmatrix_)|(CBSX_Fig2ab.NSCLC_PBMCs_scRNAseq_sigmatrix)", "CBSX.NSCLC")
+colnames(myeloma) = colnames(myeloma) %>% str_replace_all("(CBSX__scRNA.Seq_melanoma_Tirosh_sigmatrix_SuppFig_3.b_)|(CBSX_scRNA.Seq_melanoma_Tirosh_sigmatrix_SuppFig_3.b)", "CBSX.melanoma")
+colnames(myeloma) = colnames(myeloma) %>% str_replace_all("(CBSX__sigmatrix_HNSCC_Fig2cd_)|(CBSX_sigmatrix_HNSCC_Fig2cd)", "CBSX.HNSCC")
+colnames(myeloma) = colnames(myeloma) %>% str_replace_all("CBSX__LM22_" , "CBSX.LM22")
+
+# Select cell types available in facs data. Here NK, CD4, CD8
+myeloma = myeloma %>% select(c("Samples",
+  "Quantiseq_NK_cell", "Quantiseq_T_cell_CD4._.non.regulatory.", "Quantiseq_T_cell_CD8.",
+  "MCP_NK_cells", "MCP_CD8_T_cells",
+  "Epidish_BPRNACan_NK", "Epidish_BPRNACan_CD4", "Epidish_BPRNACan_CD8", 
+  "DeconRNASeq_BPRNACan_NK", "DeconRNASeq_BPRNACan_CD4", "DeconRNASeq_BPRNACan_CD8", 
+  "Epidish_BPRNACanProMet_NK", "Epidish_BPRNACanProMet_CD4", "Epidish_BPRNACanProMet_CD8",
+  "DeconRNASeq_BPRNACanProMet_NK", "DeconRNASeq_BPRNACanProMet_CD4", "DeconRNASeq_BPRNACanProMet_CD8", 
+  "Epidish_BPRNACan3DProMet_NK", "Epidish_BPRNACan3DProMet_CD4", "Epidish_BPRNACan3DProMet_CD8",
+  "DeconRNASeq_BPRNACan3DProMet_NK", "DeconRNASeq_BPRNACan3DProMet_CD4", "DeconRNASeq_BPRNACan3DProMet_CD8",
+  "Epidish_CBSX.NSCLC_NK.cells", "Epidish_CBSX.NSCLC_T.cells.CD4", "Epidish_CBSX.NSCLC_T.cells.CD8",
+ "DeconRNASeq_CBSX.NSCLC_NK.cells", "DeconRNASeq_CBSX.NSCLC_T.cells.CD4", "DeconRNASeq_CBSX.NSCLC_T.cells.CD8",
+  "Epidish_CBSX.HNSCC_T.cells.CD4", "Epidish_CBSX.HNSCC_T.cells.CD8", 
+  "DeconRNASeq_CBSX.HNSCC_T.cells.CD4", "DeconRNASeq_CBSX.HNSCC_T.cells.CD8",
+  "Epidish_CBSX.melanoma_NK.cells", "Epidish_CBSX.melanoma_T.cells.CD4", "Epidish_CBSX.melanoma_T.cells.CD8",
+  "DeconRNASeq_CBSX.melanoma_NK.cells", "DeconRNASeq_CBSX.melanoma_T.cells.CD4", "DeconRNASeq_CBSX.melanoma_T.cells.CD8",
+ "Epidish_CBSX_LM22_NK.cells.activated", "Epidish_CBSX_LM22_T.cells.CD4.memory.activated", "Epidish_CBSX_LM22_T.cells.CD8",
+ "DeconRNASeq_CBSX_LM22_NK.cells.activated", "DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.activated", "DeconRNASeq_CBSX_LM22_T.cells.CD8",
+  "CBSX.NSCLC_NK_cells", "CBSX.NSCLC_T_cells_CD4", "CBSX.NSCLC_T_cells_CD8",
+  "CBSX.HNSCC_T_cells_CD4", "CBSX.HNSCC_T_cells_CD8",
+  "CBSX.melanoma_NK_cells", "CBSX.melanoma_T_cells_CD4", "CBSX.melanoma_T_cells_CD8",
+ "CBSX.LM22_NK_cells_activated",  "CBSX.LM22_T_cells_CD4_memory_activated", "CBSX.LM22_T_cells_CD8"
+ ))
+rownames(myeloma) = myeloma$Samples 
+myeloma = myeloma[,-1]
+
+# Get correlation and Pvalue for each cell type with facs
+myeloma.corr = rcorr(as.matrix(myeloma), as.matrix(myeloma_facs))
+myeloma.pval = myeloma.corr$P[, 57:59]
+myeloma.corr = myeloma.corr$r[, 57:59]
+
+# Create the table for the heatmap
+myeloma_all_signs = data.frame(
+                               "quanTIseq" = c(myeloma.corr[1,1], myeloma.corr[2,2], myeloma.corr[3,3]),
+                               "MCPcounter" = c(myeloma.corr[4,1], NA, myeloma.corr[5,3]),
+                               "EpiDISH BPRNACan" = c(myeloma.corr[6,1], myeloma.corr[7,2], myeloma.corr[8,3]),
+                               "EpiDISH BPRNACanProMet" = c(myeloma.corr[18,1], myeloma.corr[19,2], myeloma.corr[20,3]),
+                               "EpiDISH BPRNACan3DProMet" = c(myeloma.corr[12,1], myeloma.corr[13,2], myeloma.corr[14,3]),
+                               "EpiDISH Melanoma" = c(myeloma.corr[34,1], myeloma.corr[35,2], myeloma.corr[36,3]),
+                               "EpiDISH HNSCC" = c(NA, myeloma.corr[30,2], myeloma.corr[31,3]),
+                               "EpiDISH NSCLC" = c(myeloma.corr[24,1], myeloma.corr[25,2], myeloma.corr[26,3]),
+                               "EpiDISH LM22" = c(myeloma.corr[40,1], myeloma.corr[41,2], myeloma.corr[42,3]),
+                               
+                               "DeconRNASeq BPRNACan" = c(myeloma.corr[9,1], myeloma.corr[10,2], myeloma.corr[11,3]),
+                               "DeconRNASeq BPRNACanProMet" = c(myeloma.corr[21,1], myeloma.corr[22,2], myeloma.corr[23,3]),
+                               "DeconRNASeq BPRNACan3DProMet" = c(myeloma.corr[15,1], myeloma.corr[16,2], myeloma.corr[17,3]),
+                               "DeconRNASeq Melanoma" = c(myeloma.corr[37,1], myeloma.corr[38,2], myeloma.corr[39,3]),
+                               "DeconRNASeq HNSCC" = c(NA, myeloma.corr[32,2], myeloma.corr[33,3]),
+                               "DeconRNASeq NSCLC" = c(myeloma.corr[27,1], myeloma.corr[28,2], myeloma.corr[29,3]),
+                               "DeconRNASeq LM22" = c(myeloma.corr[43,1], myeloma.corr[44,2], myeloma.corr[45,3]),
+                               
+                               "CIBERSORTx Melanoma" = c(myeloma.corr[51,1], myeloma.corr[52,2], myeloma.corr[53,3]),
+                               "CIBERSORTx HNSCC" = c(NA, myeloma.corr[49,2], myeloma.corr[50,3]),
+                               "CIBERSORTx NSCLC" = c(myeloma.corr[46,1], myeloma.corr[47,2], myeloma.corr[48,3]),
+                               "CIBERSORTx LM22" = c(myeloma.corr[54,1], myeloma.corr[55,2], myeloma.corr[56,3])
+                               ) %>% 
+  round(., 2) %>% t(.) %>% as.data.frame(.)
+colnames(myeloma_all_signs) = c("NK", "CD4", "CD8")
+
+myeloma_all_signs_p  = data.frame(
+                               "quanTIseq" = c(myeloma.pval[1,1], myeloma.pval[2,2], myeloma.pval[3,3]),
+                               "MCPcounter" = c(myeloma.pval[4,1], NA, myeloma.pval[5,3]),
+                               "EpiDISH BPRNACan" = c(myeloma.pval[6,1], myeloma.pval[7,2], myeloma.pval[8,3]),
+                               "EpiDISH BPRNACanProMet" = c(myeloma.pval[18,1], myeloma.pval[19,2], myeloma.pval[20,3]),
+                               "EpiDISH BPRNACan3DProMet" = c(myeloma.pval[12,1], myeloma.pval[13,2], myeloma.pval[14,3]),
+                               "EpiDISH Melanoma" = c(myeloma.pval[34,1], myeloma.pval[35,2], myeloma.pval[36,3]),
+                               "EpiDISH HNSCC" = c(NA, myeloma.pval[30,2], myeloma.pval[31,3]),
+                               "EpiDISH NSCLC" = c(myeloma.pval[24,1], myeloma.pval[25,2], myeloma.pval[26,3]),
+                               "EpiDISH LM22" = c(myeloma.pval[40,1], myeloma.pval[41,2], myeloma.pval[42,3]),
+                               
+                               "DeconRNASeq BPRNACan" = c(myeloma.pval[9,1], myeloma.pval[10,2], myeloma.pval[11,3]),
+                               "DeconRNASeq BPRNACanProMet" = c(myeloma.pval[21,1], myeloma.pval[22,2], myeloma.pval[23,3]),
+                               "DeconRNASeq BPRNACan3DProMet" = c(myeloma.pval[15,1], myeloma.pval[16,2], myeloma.pval[17,3]),
+                               "DeconRNASeq Melanoma" = c(myeloma.pval[37,1], myeloma.pval[38,2], myeloma.pval[39,3]),
+                               "DeconRNASeq HNSCC" = c(NA, myeloma.pval[32,2], myeloma.pval[33,3]),
+                               "DeconRNASeq NSCLC" = c(myeloma.pval[27,1], myeloma.pval[28,2], myeloma.pval[29,3]),
+                               "DeconRNASeq LM22" = c(myeloma.pval[43,1], myeloma.pval[44,2], myeloma.pval[45,3]),
+                               
+                               "CIBERSORTx Melanoma" = c(myeloma.pval[51,1], myeloma.pval[52,2], myeloma.pval[53,3]),
+                               "CIBERSORTx HNSCC" = c(NA, myeloma.pval[49,2], myeloma.pval[50,3]),
+                               "CIBERSORTx NSCLC" = c(myeloma.pval[46,1], myeloma.pval[47,2], myeloma.pval[48,3]),
+                               "CIBERSORTx LM22" = c(myeloma.pval[54,1], myeloma.pval[55,2], myeloma.pval[56,3])
+                               ) %>% 
+  round(., 2) %>% t(.) %>% as.data.frame(.)
+colnames(myeloma_all_signs_p) = c("NK", "CD4", "CD8")
+
+myeloma_all_signs["Mean", ] = colMeans(myeloma_all_signs, na.rm = T) %>% round(., 3)
+myeloma_all_signs_p["Mean", ] = colMeans(myeloma_all_signs_p, na.rm = T)
+```
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+
+melt_myeloma_RNAseq <- melt(myeloma_all_signs)
+
+melt_myeloma_RNAseq_Pvalue <- melt(myeloma_all_signs_p)
+
+merge_myeloma_RNAseq <- cbind(melt_myeloma_RNAseq, melt_myeloma_RNAseq_Pvalue) %>% .[,-3]
+
+melt_merge_myeloma_RNAseq <- merge_myeloma_RNAseq %>%
+    mutate(text = case_when(  
+        is.na(value.1) & is.na(value) ~ paste("NA"),
+        is.na(value.1) & (value == 0) ~ paste(value, "\n"),
+        value.1 >= 0.05 ~ paste(value),
+        value.1 >= 0.01& value.1 < 0.05  ~ paste(value, "\n*"), 
+        value.1 >= 0.001 & value.1 < 0.01 ~ paste(value, "\n**"),
+        value.1 < 0.001 ~ paste(value, "\n***")))
+
+melt_merge_myeloma_RNAseq$new_Var2 <- rownames(myeloma_all_signs)
+melt_merge_myeloma_RNAseq$new_Var2 <- factor(melt_merge_myeloma_RNAseq$new_Var2, levels = unique(melt_merge_myeloma_RNAseq$new_Var2))
+
+myeloma_RNAseq_figure <- ggplot(melt_merge_myeloma_RNAseq, aes(new_Var2, variable)) + 
+    geom_tile(aes(fill = value), colour = "grey", size = 1)+
+    scale_fill_gradient2(low = "#5C5DAF",mid = "white",high = "#EA2E2D") + 
+    geom_text(aes(label=text),col ="black",size = 4) +
+    theme_minimal() + 
+    theme(axis.title.x=element_blank(), 
+          axis.ticks.x=element_blank(), 
+          axis.title.y=element_blank(), 
+          legend.title=element_text(size = 14),
+          legend.text=element_text(size = 14),
+          axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5, 
+                                     size = 14, colour = "black"), 
+          axis.text.y = element_text(size = 14, colour = "black")) + labs(fill =paste0("Correlation")) + ggtitle("59 Non-tumoral multiple myeloma (ID: 7)") + theme(plot.title = element_text(hjust = 0.5, size = 16 ))
+myeloma_RNAseq_figure
+```
+
+## Melanoma non metastatic
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+# Load data
+nonMeta = read.delim("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Miguel/deconvolutions_pipeline/all_deconvolutions/all_deconvolutions_Melanoma_GSE72056_no_malighant.txt")
+nonMeta_facs = read.delim("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/facs/Facs_Melanoma_GSE72056.txt")
+rownames(nonMeta_facs) = nonMeta_facs$Name
+nonMeta_facs = nonMeta_facs[,-1]
+
+colnames(nonMeta) = colnames(nonMeta) %>% str_replace_all("(CBSX__Fig2ab.NSCLC_PBMCs_scRNAseq_sigmatrix_)|(CBSX_Fig2ab.NSCLC_PBMCs_scRNAseq_sigmatrix)", "CBSX.NSCLC")
+colnames(nonMeta) = colnames(nonMeta) %>% str_replace_all("(CBSX__scRNA.Seq_melanoma_Tirosh_sigmatrix_SuppFig_3.b_)|(CBSX_scRNA.Seq_melanoma_Tirosh_sigmatrix_SuppFig_3.b)", "CBSX.melanoma")
+colnames(nonMeta) = colnames(nonMeta) %>% str_replace_all("(CBSX__sigmatrix_HNSCC_Fig2cd_)|(CBSX_sigmatrix_HNSCC_Fig2cd)", "CBSX.HNSCC")
+colnames(nonMeta) = colnames(nonMeta) %>% str_replace_all("CBSX__LM22_" , "CBSX.LM22")
+
+# Select cell types available in facs data. Here Macro, NK, CD4, CD8, Cancer
+nonMeta = nonMeta %>% select(c( "Samples",
+  "Quantiseq_B_cell", "Quantiseq_Macrophage_M1", "Quantiseq_Macrophage_M2", "Quantiseq_Monocyte", "Quantiseq_NK_cell", "Quantiseq_T_cell_CD4._.non.regulatory.", "Quantiseq_T_cell_CD8.",
+  "MCP_B_lineage", "MCP_Monocytic_lineage", "MCP_NK_cells", "MCP_CD8_T_cells",
+  "Epidish_BPRNACan_B", "Epidish_BPRNACan_M0", "Epidish_BPRNACan_M1", "Epidish_BPRNACan_M2", "Epidish_BPRNACan_Mono", "Epidish_BPRNACan_NK", "Epidish_BPRNACan_CD4", "Epidish_BPRNACan_CD8", "Epidish_BPRNACan_cancer",
+  "DeconRNASeq_BPRNACan_B", "DeconRNASeq_BPRNACan_M0", "DeconRNASeq_BPRNACan_M1", "DeconRNASeq_BPRNACan_M2", "DeconRNASeq_BPRNACan_Mono", "DeconRNASeq_BPRNACan_NK", "DeconRNASeq_BPRNACan_CD4", "DeconRNASeq_BPRNACan_CD8", "DeconRNASeq_BPRNACan_cancer",
+  "Epidish_BPRNACanProMet_B", "Epidish_BPRNACanProMet_M0", "Epidish_BPRNACanProMet_M1", "Epidish_BPRNACanProMet_M2", "Epidish_BPRNACanProMet_Mono", "Epidish_BPRNACanProMet_NK", "Epidish_BPRNACanProMet_CD4", "Epidish_BPRNACanProMet_CD8", "Epidish_BPRNACanProMet_cancer",
+  "DeconRNASeq_BPRNACanProMet_B", "DeconRNASeq_BPRNACanProMet_M0", "DeconRNASeq_BPRNACanProMet_M1", "DeconRNASeq_BPRNACanProMet_M2", "DeconRNASeq_BPRNACanProMet_Mono", "DeconRNASeq_BPRNACanProMet_NK", "DeconRNASeq_BPRNACanProMet_CD4", "DeconRNASeq_BPRNACanProMet_CD8", "DeconRNASeq_BPRNACanProMet_cancer",
+  "Epidish_BPRNACan3DProMet_B", "Epidish_BPRNACan3DProMet_M0", "Epidish_BPRNACan3DProMet_M1", "Epidish_BPRNACan3DProMet_M2", "Epidish_BPRNACan3DProMet_Mono", "Epidish_BPRNACan3DProMet_NK", "Epidish_BPRNACan3DProMet_CD4", "Epidish_BPRNACan3DProMet_CD8", "Epidish_BPRNACan3DProMet_cancer",
+  "DeconRNASeq_BPRNACan3DProMet_B", "DeconRNASeq_BPRNACan3DProMet_M0", "DeconRNASeq_BPRNACan3DProMet_M1", "DeconRNASeq_BPRNACan3DProMet_M2", "DeconRNASeq_BPRNACan3DProMet_Mono", "DeconRNASeq_BPRNACan3DProMet_NK", "DeconRNASeq_BPRNACan3DProMet_CD4", "DeconRNASeq_BPRNACan3DProMet_CD8", "DeconRNASeq_BPRNACan3DProMet_cancer",
+  "Epidish_CBSX.NSCLC_B.cells", "Epidish_CBSX.NSCLC_Monocytes", "Epidish_CBSX.NSCLC_NK.cells", "Epidish_CBSX.NSCLC_T.cells.CD4", "Epidish_CBSX.NSCLC_T.cells.CD8",
+  "DeconRNASeq_CBSX.NSCLC_B.cells", "DeconRNASeq_CBSX.NSCLC_Monocytes", "DeconRNASeq_CBSX.NSCLC_NK.cells", "DeconRNASeq_CBSX.NSCLC_T.cells.CD4", "DeconRNASeq_CBSX.NSCLC_T.cells.CD8",
+  "Epidish_CBSX.HNSCC_B.cells", "Epidish_CBSX.HNSCC_Macrophages", "Epidish_CBSX.HNSCC_T.cells.CD4", "Epidish_CBSX.HNSCC_T.cells.CD8", "Epidish_CBSX.HNSCC_Malignant.cells",
+  "DeconRNASeq_CBSX.HNSCC_B.cells", "DeconRNASeq_CBSX.HNSCC_Macrophages", "DeconRNASeq_CBSX.HNSCC_T.cells.CD4", "DeconRNASeq_CBSX.HNSCC_T.cells.CD8", "DeconRNASeq_CBSX.HNSCC_Malignant.cells",
+  "Epidish_CBSX.melanoma_B.cells", "Epidish_CBSX.melanoma_Macrophages", "Epidish_CBSX.melanoma_T.cells.CD4", "Epidish_CBSX.melanoma_T.cells.CD8", "Epidish_CBSX.melanoma_Malignant",
+  "DeconRNASeq_CBSX.melanoma_B.cells", "DeconRNASeq_CBSX.melanoma_Macrophages", "DeconRNASeq_CBSX.melanoma_T.cells.CD4", "DeconRNASeq_CBSX.melanoma_T.cells.CD8", "DeconRNASeq_CBSX.melanoma_Malignant",
+  "Epidish_CBSX_LM22_Monocytes", "Epidish_CBSX_LM22_Macrophages.M0", "Epidish_CBSX_LM22_Macrophages.M1", "Epidish_CBSX_LM22_Macrophages.M2", "Epidish_CBSX_LM22_NK.cells.activated", "Epidish_CBSX_LM22_T.cells.CD4.memory.activated", "Epidish_CBSX_LM22_T.cells.CD8",
+  "DeconRNASeq_CBSX_LM22_Monocytes", "DeconRNASeq_CBSX_LM22_Macrophages.M0", "DeconRNASeq_CBSX_LM22_Macrophages.M1", "DeconRNASeq_CBSX_LM22_Macrophages.M2", "DeconRNASeq_CBSX_LM22_NK.cells.activated", "DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.activated", "DeconRNASeq_CBSX_LM22_T.cells.CD8",
+  "CBSX.NSCLC_B_cells", "CBSX.NSCLC_Monocytes", "CBSX.NSCLC_NK_cells", "CBSX.NSCLC_T_cells_CD4", "CBSX.NSCLC_T_cells_CD8",
+  "CBSX.HNSCC_B_cells", "CBSX.HNSCC_Macrophages", "CBSX.HNSCC_T_cells_CD4", "CBSX.HNSCC_T_cells_CD8", "CBSX.HNSCC_Malignant_cells",
+  "CBSX.melanoma_B_cells", "CBSX.melanoma_Macrophages", "CBSX.melanoma_T_cells_CD4", "CBSX.melanoma_T_cells_CD8", "CBSX.melanoma_Malignant",
+  "CBSX.LM22_Monocytes", "CBSX.LM22_Macrophages_M0", "CBSX.LM22_Macrophages_M1", "CBSX.LM22_Macrophages_M2", "CBSX.LM22_NK_cells_activated", "CBSX.LM22_T_cells_CD4_memory_activated", "CBSX.LM22_T_cells_CD8"
+                               ))
+rownames(nonMeta) = nonMeta$Samples
+nonMeta = nonMeta[,-1]
+
+nonMeta$Quantiseq_Macrophages = nonMeta$Quantiseq_Macrophage_M1 + nonMeta$Quantiseq_Macrophage_M2 + nonMeta$Quantiseq_Monocyte
+nonMeta$Epidish_BPRNACan_Macro = nonMeta$Epidish_BPRNACan_M0 + nonMeta$Epidish_BPRNACan_M1 + nonMeta$Epidish_BPRNACan_M2 + nonMeta$Epidish_BPRNACan_Mono
+nonMeta$Epidish_BPRNACanProMet_Macro = nonMeta$Epidish_BPRNACanProMet_M0 + nonMeta$Epidish_BPRNACanProMet_M1 + nonMeta$Epidish_BPRNACanProMet_M2 + nonMeta$Epidish_BPRNACanProMet_Mono
+nonMeta$Epidish_BPRNACan3DProMet_Macro = nonMeta$Epidish_BPRNACan3DProMet_M0 + nonMeta$Epidish_BPRNACan3DProMet_M1 + nonMeta$Epidish_BPRNACan3DProMet_M2 + nonMeta$Epidish_BPRNACan3DProMet_Mono
+nonMeta$Epidish_CBSX_LM22_Macrophages = nonMeta$Epidish_CBSX_LM22_Macrophages.M0 + nonMeta$Epidish_CBSX_LM22_Macrophages.M1 + nonMeta$Epidish_CBSX_LM22_Macrophages.M2 + nonMeta$Epidish_CBSX_LM22_Monocytes
+nonMeta$DeconRNASeq_BPRNACan_Macro = nonMeta$DeconRNASeq_BPRNACan_M0 + nonMeta$DeconRNASeq_BPRNACan_M1 + nonMeta$DeconRNASeq_BPRNACan_M2 + nonMeta$DeconRNASeq_BPRNACan_Mono
+nonMeta$DeconRNASeq_BPRNACanProMet_Macro = nonMeta$DeconRNASeq_BPRNACanProMet_M0 + nonMeta$DeconRNASeq_BPRNACanProMet_M1 + nonMeta$DeconRNASeq_BPRNACanProMet_M2 + nonMeta$DeconRNASeq_BPRNACanProMet_Mono
+nonMeta$DeconRNASeq_BPRNACan3DProMet_Macro = nonMeta$DeconRNASeq_BPRNACan3DProMet_M0 + nonMeta$DeconRNASeq_BPRNACan3DProMet_M1 + nonMeta$DeconRNASeq_BPRNACan3DProMet_M2 + nonMeta$DeconRNASeq_BPRNACan3DProMet_Mono
+nonMeta$DeconRNASeq_CBSX_LM22_Macrophages = nonMeta$DeconRNASeq_CBSX_LM22_Macrophages.M0 + nonMeta$DeconRNASeq_CBSX_LM22_Macrophages.M1 + nonMeta$DeconRNASeq_CBSX_LM22_Macrophages.M2 + nonMeta$DeconRNASeq_CBSX_LM22_Monocytes
+nonMeta$CBSX.LM22_Macrophages = nonMeta$CBSX.LM22_Macrophages_M0 + nonMeta$CBSX.LM22_Macrophages_M1 + nonMeta$CBSX.LM22_Macrophages_M2 + nonMeta$CBSX.LM22_Monocytes
+
+# Get correlation and Pvalue for each cell type with facs CBSX.NSCLC_B.cells
+nonMeta.corr = rcorr(as.matrix(nonMeta), as.matrix(nonMeta_facs))
+nonMeta.pval = nonMeta.corr$P[, 143:150]
+nonMeta.corr = nonMeta.corr$r[, 143:150]
+
+# Create the table for the heatmap Macro, NK, CD4, CD8, Cancer
+Melanoma_GSE72056_all_signs = data.frame(
+                               "quanTIseq" = c(nonMeta.corr[133,4], nonMeta.corr[5,5], nonMeta.corr[6,1], nonMeta.corr[7,2], NA),
+                               "MCPcounter" = c(nonMeta.corr[9,4], nonMeta.corr[10,5], NA, nonMeta.corr[11,2], NA),
+                               "EpiDISH BPRNACan" = c(nonMeta.corr[133,4], nonMeta.corr[17,5], nonMeta.corr[18,1], nonMeta.corr[19,2], nonMeta.corr[20,8]),
+                               "EpiDISH BPRNACanProMet" = c(nonMeta.corr[134,4], nonMeta.corr[35,5], nonMeta.corr[36,1], nonMeta.corr[37,2], nonMeta.corr[38,8]),
+                               "EpiDISH BPRNACan3DProMet" = c(nonMeta.corr[135,4], nonMeta.corr[53,5], nonMeta.corr[54,1], nonMeta.corr[55,2], nonMeta.corr[56,8]),
+                               "EpiDISH Melanoma" = c(nonMeta.corr[87,4], NA, nonMeta.corr[88,1], nonMeta.corr[89,2], nonMeta.corr[90,8]),
+                               "EpiDISH HNSCC" = c(nonMeta.corr[77,4], NA, nonMeta.corr[78,1], nonMeta.corr[79,2], nonMeta.corr[80,8]),
+                               "EpiDISH NSCLC" = c(nonMeta.corr[67,4], nonMeta.corr[68,5], nonMeta.corr[69,1], nonMeta.corr[70,2],NA),
+                               "EpiDISH LM22" = c(nonMeta.corr[136,4], nonMeta.corr[100,5], nonMeta.corr[101,1], nonMeta.corr[102,2], NA),
+                               
+                               "DeconRNASeq BPRNACan" = c(nonMeta.corr[137,4], nonMeta.corr[26,5], nonMeta.corr[27,1], nonMeta.corr[28,2], nonMeta.corr[29,8]),
+                               "DeconRNASeq BPRNACanProMet" = c(nonMeta.corr[138,4], nonMeta.corr[44,5], nonMeta.corr[45,1], nonMeta.corr[46,2], nonMeta.corr[47,8]),
+                               "DeconRNASeq BPRNACan3DProMet" = c(nonMeta.corr[139,4], nonMeta.corr[62,5], nonMeta.corr[63,1], nonMeta.corr[64,2], nonMeta.corr[65,8]),
+                               "DeconRNASeq Melanoma" = c(nonMeta.corr[92,4], NA, nonMeta.corr[93,1], nonMeta.corr[94,2], nonMeta.corr[95,8]),
+                               "DeconRNASeq HNSCC" = c(nonMeta.corr[82,4], NA, nonMeta.corr[83,1], nonMeta.corr[84,2], nonMeta.corr[85,8]),
+                               "DeconRNASeq NSCLC" = c(nonMeta.corr[72,4], nonMeta.corr[73,5], nonMeta.corr[74,1], nonMeta.corr[75,2],NA),
+                               "DeconRNASeq LM22" = c(nonMeta.corr[140,4], nonMeta.corr[100,5], nonMeta.corr[101,1], nonMeta.corr[102,2], NA),
+                               
+                               "CIBERSORTx Melanoma" = c(nonMeta.corr[121,4], NA, nonMeta.corr[122,1], nonMeta.corr[123,2], nonMeta.corr[124,8]),
+                               "CIBERSORTx HNSCC" = c(nonMeta.corr[116,4], NA, nonMeta.corr[117,1], nonMeta.corr[118,2], nonMeta.corr[119,8]),
+                               "CIBERSORTx NSCLC" = c(nonMeta.corr[111,4], nonMeta.corr[112,5], nonMeta.corr[113,1], nonMeta.corr[114,2], NA),
+                               "CIBERSORTx LM22" = c(nonMeta.corr[141,4], nonMeta.corr[129,5], nonMeta.corr[130,1], nonMeta.corr[131,2], NA)
+                               ) %>% 
+  round(., 2) %>% t(.) %>% as.data.frame(.)
+colnames(Melanoma_GSE72056_all_signs) = c("Macrophages", "NK", "CD4", "CD8", "Cancer")
+
+Melanoma_GSE72056_all_signs_p  = data.frame(
+                               "quanTIseq" = c(nonMeta.pval[133,4], nonMeta.pval[5,5], nonMeta.pval[6,1], nonMeta.pval[7,2], NA),
+                               "MCPcounter" = c(nonMeta.pval[9,4], nonMeta.pval[10,5], NA, nonMeta.pval[11,2], NA),
+                               "EpiDISH BPRNACan" = c(nonMeta.pval[133,4], nonMeta.pval[17,5], nonMeta.pval[18,1], nonMeta.pval[19,2], nonMeta.pval[20,8]),
+                               "EpiDISH BPRNACanProMet" = c(nonMeta.pval[134,4], nonMeta.pval[35,5], nonMeta.pval[36,1], nonMeta.pval[37,2], nonMeta.pval[38,8]),
+                               "EpiDISH BPRNACan3DProMet" = c(nonMeta.pval[135,4], nonMeta.pval[53,5], nonMeta.pval[54,1], nonMeta.pval[55,2], nonMeta.pval[56,8]),
+                               "EpiDISH Melanoma" = c(nonMeta.pval[87,4], NA, nonMeta.pval[88,1], nonMeta.pval[89,2], nonMeta.pval[90,8]),
+                               "EpiDISH HNSCC" = c(nonMeta.pval[77,4], NA, nonMeta.pval[78,1], nonMeta.pval[79,2], nonMeta.pval[80,8]),
+                               "EpiDISH NSCLC" = c(nonMeta.pval[67,4], nonMeta.pval[68,5], nonMeta.pval[69,1], nonMeta.pval[70,2],NA),
+                               "EpiDISH LM22" = c(nonMeta.pval[136,4], nonMeta.pval[100,5], nonMeta.pval[101,1], nonMeta.pval[102,2], NA),
+                               
+                               "DeconRNASeq BPRNACan" = c(nonMeta.pval[137,4], nonMeta.pval[26,5], nonMeta.pval[27,1], nonMeta.pval[28,2], nonMeta.pval[29,8]),
+                               "DeconRNASeq BPRNACanProMet" = c(nonMeta.pval[138,4], nonMeta.pval[44,5], nonMeta.pval[45,1], nonMeta.pval[46,2], nonMeta.pval[47,8]),
+                               "DeconRNASeq BPRNACan3DProMet" = c(nonMeta.pval[139,4], nonMeta.pval[62,5], nonMeta.pval[63,1], nonMeta.pval[64,2], nonMeta.pval[65,8]),
+                               "DeconRNASeq Melanoma" = c(nonMeta.pval[92,4], NA, nonMeta.pval[93,1], nonMeta.pval[94,2], nonMeta.pval[95,8]),
+                               "DeconRNASeq HNSCC" = c(nonMeta.pval[82,4], NA, nonMeta.pval[83,1], nonMeta.pval[84,2], nonMeta.pval[85,8]),
+                               "DeconRNASeq NSCLC" = c(nonMeta.pval[72,4], nonMeta.pval[73,5], nonMeta.pval[74,1], nonMeta.pval[75,2],NA),
+                               "DeconRNASeq LM22" = c(nonMeta.pval[140,4], nonMeta.pval[100,5], nonMeta.pval[101,1], nonMeta.pval[102,2], NA),
+                               
+                               "CIBERSORTx Melanoma" = c(nonMeta.pval[121,4], NA, nonMeta.pval[122,1], nonMeta.pval[123,2], nonMeta.pval[124,8]),
+                               "CIBERSORTx HNSCC" = c(nonMeta.pval[116,4], NA, nonMeta.pval[117,1], nonMeta.pval[118,2], nonMeta.pval[119,8]),
+                               "CIBERSORTx NSCLC" = c(nonMeta.pval[111,4], nonMeta.pval[112,5], nonMeta.pval[113,1], nonMeta.pval[114,2], NA),
+                               "CIBERSORTx LM22" = c(nonMeta.pval[141,4], nonMeta.pval[129,5], nonMeta.pval[130,1], nonMeta.pval[131,2], NA)
+                               ) %>% 
+  round(., 2) %>% t(.) %>% as.data.frame(.)
+colnames(Melanoma_GSE72056_all_signs_p) = c("Macrophages", "NK", "CD4", "CD8", "Cancer")
+
+Melanoma_GSE72056_all_signs["Mean", ] = colMeans(Melanoma_GSE72056_all_signs, na.rm = T) %>% round(., 3)
+Melanoma_GSE72056_all_signs_p["Mean", ] = colMeans(Melanoma_GSE72056_all_signs_p, na.rm = T)
+```
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+
+
+melt_Melanoma_GSE72056 <- melt(Melanoma_GSE72056_all_signs)
+
+melt_Melanoma_GSE72056_Pvalue <- melt(Melanoma_GSE72056_all_signs_p)
+
+merge_Melanoma_GSE72056 <- cbind(melt_Melanoma_GSE72056, melt_Melanoma_GSE72056_Pvalue) %>% .[,-3]
+
+melt_merge_Melanoma_GSE72056 <- merge_Melanoma_GSE72056 %>%
+    mutate(text = case_when(  
+        is.na(value.1) & is.na(value) ~ paste("NA"),
+        is.na(value.1) & (value == 0) ~ paste(value),
+        value.1 >= 0.05 ~ paste(value),
+        value.1 >= 0.01& value.1 < 0.05  ~ paste(value, "\n*"), 
+        value.1 >= 0.001 & value.1 < 0.01 ~ paste(value, "\n**"),
+        value.1 < 0.001 ~ paste(value, "\n***")))
+
+melt_merge_Melanoma_GSE72056$new_Var2 <- rownames(Melanoma_GSE72056_all_signs)
+melt_merge_Melanoma_GSE72056$new_Var2 <- factor(melt_merge_Melanoma_GSE72056$new_Var2, levels = unique(melt_merge_Melanoma_GSE72056$new_Var2))
+
+Melanoma_GSE72056_figure <- ggplot(melt_merge_Melanoma_GSE72056, aes(new_Var2, variable)) + 
+    geom_tile(aes(fill = value), colour = "grey", size = 1)+
+    scale_fill_gradient2(low = "#5C5DAF",mid = "white",high = "#EA2E2D") + 
+    
+    geom_text(aes(label=text),col ="black",size = 5) +
+    theme_minimal() + 
+    theme(axis.title.x=element_blank(), 
+          axis.ticks.x=element_blank(), 
+          axis.title.y=element_blank(),
+          legend.title=element_text(size = 14),
+          legend.text=element_text(size = 14),
+          axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5, size = 14, colour = "black"), axis.text.y = element_text(size = 14, colour = "black")) + labs(fill =paste0("Correlation")) + ggtitle("19 Melanoma non-metastatic (ID: 8)") + theme(plot.title = element_text(hjust = 0.5, size = 16 )) 
+Melanoma_GSE72056_figure
+```
+
+## Melanoma metastatic
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+# Load data
+meta = read.delim("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Miguel/deconvolutions_pipeline/all_deconvolutions/all_deconvolutions_Melanoma_GSE93722.txt")
+meta_facs = read.delim("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/facs/Facs_Melanoma_GSE93722.txt")
+
+colnames(meta) = colnames(meta) %>% str_replace_all("(CBSX__Fig2ab.NSCLC_PBMCs_scRNAseq_sigmatrix_)|(CBSX_Fig2ab.NSCLC_PBMCs_scRNAseq_sigmatrix)", "CBSX.NSCLC")
+colnames(meta) = colnames(meta) %>% str_replace_all("(CBSX__scRNA.Seq_melanoma_Tirosh_sigmatrix_SuppFig_3.b_)|(CBSX_scRNA.Seq_melanoma_Tirosh_sigmatrix_SuppFig_3.b)", "CBSX.melanoma")
+colnames(meta) = colnames(meta) %>% str_replace_all("(CBSX__sigmatrix_HNSCC_Fig2cd_)|(CBSX_sigmatrix_HNSCC_Fig2cd)", "CBSX.HNSCC")
+colnames(meta) = colnames(meta) %>% str_replace_all("CBSX__LM22_" , "CBSX.LM22")
+
+# Select cell types available in facs data. Here B, NK, CD4, CD8, Cancer
+meta = meta %>% select(c( "Samples",
+  "Quantiseq_B_cell", "Quantiseq_NK_cell", "Quantiseq_T_cell_CD4._.non.regulatory.", "Quantiseq_T_cell_CD8.",
+  "MCP_B_lineage", "MCP_NK_cells", "MCP_CD8_T_cells",
+  "Epidish_BPRNACan_B", "Epidish_BPRNACan_NK", "Epidish_BPRNACan_CD4", "Epidish_BPRNACan_CD8", "Epidish_BPRNACan_cancer",
+  "DeconRNASeq_BPRNACan_B", "DeconRNASeq_BPRNACan_NK", "DeconRNASeq_BPRNACan_CD4", "DeconRNASeq_BPRNACan_CD8", "DeconRNASeq_BPRNACan_cancer",
+  "Epidish_BPRNACanProMet_B", "Epidish_BPRNACanProMet_NK", "Epidish_BPRNACanProMet_CD4", "Epidish_BPRNACanProMet_CD8", "Epidish_BPRNACanProMet_cancer",
+  "DeconRNASeq_BPRNACanProMet_B", "DeconRNASeq_BPRNACanProMet_NK", "DeconRNASeq_BPRNACanProMet_CD4", "DeconRNASeq_BPRNACanProMet_CD8", "DeconRNASeq_BPRNACanProMet_cancer",
+  "Epidish_BPRNACan3DProMet_B", "Epidish_BPRNACan3DProMet_NK", "Epidish_BPRNACan3DProMet_CD4", "Epidish_BPRNACan3DProMet_CD8", "Epidish_BPRNACan3DProMet_cancer",
+  "DeconRNASeq_BPRNACan3DProMet_B", "DeconRNASeq_BPRNACan3DProMet_NK", "DeconRNASeq_BPRNACan3DProMet_CD4", "DeconRNASeq_BPRNACan3DProMet_CD8", "DeconRNASeq_BPRNACan3DProMet_cancer",
+  "Epidish_CBSX.NSCLC_B.cells", "Epidish_CBSX.NSCLC_NK.cells", "Epidish_CBSX.NSCLC_T.cells.CD4", "Epidish_CBSX.NSCLC_T.cells.CD8",
+  "DeconRNASeq_CBSX.NSCLC_B.cells", "DeconRNASeq_CBSX.NSCLC_NK.cells", "DeconRNASeq_CBSX.NSCLC_T.cells.CD4", "DeconRNASeq_CBSX.NSCLC_T.cells.CD8",
+  "Epidish_CBSX.HNSCC_B.cells", "Epidish_CBSX.HNSCC_T.cells.CD4", "Epidish_CBSX.HNSCC_T.cells.CD8", "Epidish_CBSX.HNSCC_Malignant.cells",
+  "DeconRNASeq_CBSX.HNSCC_B.cells", "DeconRNASeq_CBSX.HNSCC_T.cells.CD4", "DeconRNASeq_CBSX.HNSCC_T.cells.CD8", "DeconRNASeq_CBSX.HNSCC_Malignant.cells",
+  "Epidish_CBSX.melanoma_B.cells", "Epidish_CBSX.melanoma_T.cells.CD4", "Epidish_CBSX.melanoma_T.cells.CD8", "Epidish_CBSX.melanoma_Malignant",
+  "DeconRNASeq_CBSX.melanoma_B.cells","DeconRNASeq_CBSX.melanoma_T.cells.CD4", "DeconRNASeq_CBSX.melanoma_T.cells.CD8", "DeconRNASeq_CBSX.melanoma_Malignant",
+  "Epidish_CBSX_LM22_B.cells.memory", "Epidish_CBSX_LM22_NK.cells.activated", "Epidish_CBSX_LM22_T.cells.CD4.memory.activated", "Epidish_CBSX_LM22_T.cells.CD8",
+  "DeconRNASeq_CBSX_LM22_B.cells.memory", "DeconRNASeq_CBSX_LM22_NK.cells.activated", "DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.activated", "DeconRNASeq_CBSX_LM22_T.cells.CD8",
+  "CBSX.NSCLC_B_cells", "CBSX.NSCLC_NK_cells", "CBSX.NSCLC_T_cells_CD4", "CBSX.NSCLC_T_cells_CD8",
+  "CBSX.HNSCC_B_cells", "CBSX.HNSCC_T_cells_CD4", "CBSX.HNSCC_T_cells_CD8", "CBSX.HNSCC_Malignant_cells",
+  "CBSX.melanoma_B_cells", "CBSX.melanoma_T_cells_CD4", "CBSX.melanoma_T_cells_CD8", "CBSX.melanoma_Malignant",
+  "CBSX.LM22_B_cells_memory", "CBSX.LM22_NK_cells_activated", "CBSX.LM22_T_cells_CD4_memory_activated", "CBSX.LM22_T_cells_CD8"
+                               ))
+rownames(meta) = meta$Samples
+meta = meta[,-1]
+
+# Get correlation and Pvalue for each cell type with facs CBSX.NSCLC_B.cells
+# Create the table for the heatmap B, NK, CD4, CD8, Cancer
+# Correlations one by one as there's only 4 samples
+Melanoma_GSE93722_all_signs = data.frame(
+                               "quanTIseq" = c(cor.test(meta$Quantiseq_B_cell, meta_facs$Bcells)$estimate, cor.test(meta$Quantiseq_NK_cell, meta_facs$NKcells)$estimate,
+                                               cor.test(meta$Quantiseq_T_cell_CD4._.non.regulatory., meta_facs$CD4_Tcells)$estimate,
+                                               cor.test(meta$Quantiseq_T_cell_CD8., meta_facs$CD8_Tcells)$estimate, NA),
+                               "MCPcounter" = c(cor.test(meta$MCP_B_lineage, meta_facs$Bcells)$estimate, cor.test(meta$MCP_NK_cells, meta_facs$NKcells)$estimate, NA,
+                                               cor.test(meta$MCP_CD8_T_cells, meta_facs$CD8_Tcells)$estimate, NA),
+                               "EpiDISH BPRNACan" = c(cor.test(meta$Epidish_BPRNACan_B, meta_facs$Bcells)$estimate, cor.test(meta$Epidish_BPRNACan_NK, meta_facs$NKcells)$estimate,
+                                                        cor.test(meta$Epidish_BPRNACan_CD4, meta_facs$CD4_Tcells)$estimate,
+                                                        cor.test(meta$Epidish_BPRNACan_CD8, meta_facs$CD8_Tcells)$estimate, 
+                                                        cor.test(meta$Epidish_BPRNACan_cancer,meta_facs$Cancer_cells)$estimate),
+                               "EpiDISH BPRNACanProMet" = c(cor.test(meta$Epidish_BPRNACanProMet_B, meta_facs$Bcells)$estimate, 
+                                                              cor.test(meta$Epidish_BPRNACanProMet_NK, meta_facs$NKcells)$estimate,
+                                                        cor.test(meta$Epidish_BPRNACanProMet_CD4, meta_facs$CD4_Tcells)$estimate,
+                                                        cor.test(meta$Epidish_BPRNACanProMet_CD8, meta_facs$CD8_Tcells)$estimate, 
+                                                        cor.test(meta$Epidish_BPRNACanProMet_cancer,meta_facs$Cancer_cells)$estimate),
+                               "EpiDISH BPRNACan3DProMet" = c(cor.test(meta$Epidish_BPRNACan3DProMet_B, meta_facs$Bcells)$estimate,
+                                                                cor.test(meta$Epidish_BPRNACan3DProMet_NK, meta_facs$NKcells)$estimate,
+                                                        cor.test(meta$Epidish_BPRNACan3DProMet_CD4, meta_facs$CD4_Tcells)$estimate,
+                                                        cor.test(meta$Epidish_BPRNACan3DProMet_CD8, meta_facs$CD8_Tcells)$estimate, 
+                                                        cor.test(meta$Epidish_BPRNACan3DProMet_cancer,meta_facs$Cancer_cells)$estimate),
+                               "EpiDISH Melanoma" = c(cor.test(meta$Epidish_CBSX.melanoma_B.cells, meta_facs$Bcells)$estimate,
+                                                      NA, cor.test(meta$Epidish_CBSX.melanoma_T.cells.CD4, meta_facs$CD4_Tcells)$estimate,
+                                               cor.test(meta$Epidish_CBSX.melanoma_T.cells.CD8, meta_facs$CD8_Tcells)$estimate,
+                                               cor.test(meta$Epidish_CBSX.melanoma_Malignant, meta_facs$Cancer_cells)$estimate),
+                               "EpiDISH HNSCC" = c(cor.test(meta$Epidish_CBSX.HNSCC_B.cell, meta_facs$Bcells)$estimate,
+                                                     NA, cor.test(meta$Epidish_CBSX.HNSCC_T.cells.CD4, meta_facs$CD4_Tcells)$estimate,
+                                               cor.test(meta$Epidish_CBSX.HNSCC_T.cells.CD8, meta_facs$CD8_Tcells)$estimate,
+                                               cor.test(meta$Epidish_CBSX.HNSCC_Malignant, meta_facs$Cancer_cells)$estimate),
+                               "EpiDISH NSCLC" = c(cor.test(meta$Epidish_CBSX.NSCLC_B.cells, meta_facs$Bcells)$estimate,
+                                                     cor.test(meta$Epidish_CBSX.NSCLC_NK.cells, meta_facs$NKcells)$estimate, 
+                                                     cor.test(meta$Epidish_CBSX.NSCLC_T.cells.CD4, meta_facs$CD4_Tcells)$estimate,
+                                               cor.test(meta$Epidish_CBSX.NSCLC_T.cells.CD8, meta_facs$CD8_Tcells)$estimate, NA),
+                               "EpiDISH LM22" = c(cor.test(meta$Epidish_CBSX_LM22_B.cells.memory, meta_facs$Bcells)$estimate,
+                                                  cor.test(meta$Epidish_CBSX_LM22_NK.cells.activated, meta_facs$NKcells)$estimate,
+                                                  cor.test(meta$Epidish_CBSX_LM22_T.cells.CD4.memory.activated, meta_facs$CD4_Tcells)$estimate,
+                                                  cor.test(meta$Epidish_CBSX_LM22_T.cells.CD8, meta_facs$CD8_Tcells)$estimate, NA),
+                               
+                               
+                               "DeconRNASeq BPRNACan" = c(cor.test(meta$DeconRNASeq_BPRNACan_B, meta_facs$Bcells)$estimate, 
+                                                            cor.test(meta$DeconRNASeq_BPRNACan_NK, meta_facs$NKcells)$estimate,
+                                                        cor.test(meta$DeconRNASeq_BPRNACan_CD4, meta_facs$CD4_Tcells)$estimate,
+                                                        cor.test(meta$DeconRNASeq_BPRNACan_CD8, meta_facs$CD8_Tcells)$estimate, 
+                                                        cor.test(meta$DeconRNASeq_BPRNACan_cancer,meta_facs$Cancer_cells)$estimate),
+                               "DeconRNASeq BPRNACanProMet" = c(cor.test(meta$DeconRNASeq_BPRNACanProMet_B, meta_facs$Bcells)$estimate, 
+                                                              cor.test(meta$DeconRNASeq_BPRNACanProMet_NK, meta_facs$NKcells)$estimate,
+                                                        cor.test(meta$DeconRNASeq_BPRNACanProMet_CD4, meta_facs$CD4_Tcells)$estimate,
+                                                        cor.test(meta$DeconRNASeq_BPRNACanProMet_CD8, meta_facs$CD8_Tcells)$estimate, 
+                                                        cor.test(meta$DeconRNASeq_BPRNACanProMet_cancer,meta_facs$Cancer_cells)$estimate),
+                               "DeconRNASeq BPRNACan3DProMet" = c(cor.test(meta$DeconRNASeq_BPRNACan3DProMet_B, meta_facs$Bcells)$estimate,
+                                                                cor.test(meta$DeconRNASeq_BPRNACan3DProMet_NK, meta_facs$NKcells)$estimate,
+                                                        cor.test(meta$DeconRNASeq_BPRNACan3DProMet_CD4, meta_facs$CD4_Tcells)$estimate,
+                                                        cor.test(meta$DeconRNASeq_BPRNACan3DProMet_CD8, meta_facs$CD8_Tcells)$estimate, 
+                                                        cor.test(meta$DeconRNASeq_BPRNACan3DProMet_cancer,meta_facs$Cancer_cells)$estimate),
+                               "DeconRNASeq Melanoma" = c(cor.test(meta$DeconRNASeq_CBSX.melanoma_B.cells, meta_facs$Bcells)$estimate,
+                                                      NA, cor.test(meta$DeconRNASeq_CBSX.melanoma_T.cells.CD4, meta_facs$CD4_Tcells)$estimate,
+                                               cor.test(meta$DeconRNASeq_CBSX.melanoma_T.cells.CD8, meta_facs$CD8_Tcells)$estimate,
+                                               cor.test(meta$DeconRNASeq_CBSX.melanoma_Malignant, meta_facs$Cancer_cells)$estimate),
+                               "DeconRNASeq HNSCC" = c(cor.test(meta$DeconRNASeq_CBSX.HNSCC_B.cell, meta_facs$Bcells)$estimate,
+                                                     NA, cor.test(meta$DeconRNASeq_CBSX.HNSCC_T.cells.CD4, meta_facs$CD4_Tcells)$estimate,
+                                               cor.test(meta$DeconRNASeq_CBSX.HNSCC_T.cells.CD8, meta_facs$CD8_Tcells)$estimate,
+                                               cor.test(meta$DeconRNASeq_CBSX.HNSCC_Malignant, meta_facs$Cancer_cells)$estimate),
+                               "DeconRNASeq NSCLC" = c(cor.test(meta$DeconRNASeq_CBSX.NSCLC_B.cells, meta_facs$Bcells)$estimate,
+                                                     cor.test(meta$DeconRNASeq_CBSX.NSCLC_NK.cells, meta_facs$NKcells)$estimate, 
+                                                     cor.test(meta$DeconRNASeq_CBSX.NSCLC_T.cells.CD4, meta_facs$CD4_Tcells)$estimate,
+                                               cor.test(meta$DeconRNASeq_CBSX.NSCLC_T.cells.CD8, meta_facs$CD8_Tcells)$estimate, NA),
+                               "DeconRNASeq LM22" = c(cor.test(meta$DeconRNASeq_CBSX_LM22_B.cells.memory, meta_facs$Bcells)$estimate,
+                                                  cor.test(meta$DeconRNASeq_CBSX_LM22_NK.cells.activated, meta_facs$NKcells)$estimate,
+                                                  cor.test(meta$DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.activated, meta_facs$CD4_Tcells)$estimate,
+                                                  cor.test(meta$DeconRNASeq_CBSX_LM22_T.cells.CD8, meta_facs$CD8_Tcells)$estimate, NA),
+                               
+                               "CIBERSORTx Melanoma" = c(cor.test(meta$CBSX.melanoma_B_cells, meta_facs$Bcells)$estimate,
+                                                           NA, cor.test(meta$CBSX.melanoma_T_cells_CD4, meta_facs$CD4_Tcells)$estimate,
+                                               cor.test(meta$CBSX.melanoma_T_cells_CD8, meta_facs$CD8_Tcells)$estimate,
+                                               cor.test(meta$CBSX.melanoma_Malignant, meta_facs$Cancer_cells)$estimate),
+                               "CIBERSORTx HNSCC" = c(cor.test(meta$CBSX.HNSCC_B_cell, meta_facs$Bcells)$estimate,
+                                                        NA, cor.test(meta$CBSX.HNSCC_T_cells_CD4, meta_facs$CD4_Tcells)$estimate,
+                                               cor.test(meta$CBSX.HNSCC_T_cells_CD8, meta_facs$CD8_Tcells)$estimate,
+                                               cor.test(meta$CBSX.HNSCC_Malignant, meta_facs$Cancer_cells)$estimate),
+                               "CIBERSORTx NSCLC" = c(cor.test(meta$CBSX.NSCLC_B_cells, meta_facs$Bcells)$estimate,
+                                                        cor.test(meta$CBSX.NSCLC_NK_cells, meta_facs$NKcells)$estimate,
+                                                        cor.test(meta$CBSX.NSCLC_T_cells_CD4, meta_facs$CD4_Tcells)$estimate,
+                                               cor.test(meta$CBSX.NSCLC_T_cells_CD8, meta_facs$CD8_Tcells)$estimate, NA),
+                               "CIBERSORTx LM22" = c(cor.test(meta$CBSX.LM22_B_cells_memory, meta_facs$Bcells)$estimate,
+                                                  cor.test(meta$CBSX.LM22_NK_cells_activated, meta_facs$NKcells)$estimate,
+                                                  cor.test(meta$CBSX.LM22_T_cells_CD4_memory_activated, meta_facs$CD4_Tcells)$estimate,
+                                                  cor.test(meta$CBSX.LM22_T_cells_CD8, meta_facs$CD8_Tcells)$estimate, NA)
+                               ) %>% round(., 2) %>% t(.) %>% as.data.frame(.)
+colnames(Melanoma_GSE93722_all_signs) = c("B", "NK", "CD4", "CD8", "Cancer")
+
+Melanoma_GSE93722_all_signs_p  = data.frame(
+  "quanTIseq" = c(cor.test(meta$Quantiseq_B_cell, meta_facs$Bcells)$p.value, cor.test(meta$Quantiseq_NK_cell, meta_facs$NKcells)$p.value,
+                                               cor.test(meta$Quantiseq_T_cell_CD4._.non.regulatory., meta_facs$CD4_Tcells)$p.value,
+                                               cor.test(meta$Quantiseq_T_cell_CD8., meta_facs$CD8_Tcells)$p.value, NA),
+                               "MCPcounter" = c(cor.test(meta$MCP_B_lineage, meta_facs$Bcells)$p.value, cor.test(meta$MCP_NK_cells, meta_facs$NKcells)$p.value, NA,
+                                               cor.test(meta$MCP_CD8_T_cells, meta_facs$CD8_Tcells)$p.value, NA),
+                               "EpiDISH (BPRNACan)" = c(cor.test(meta$Epidish_BPRNACan_B, meta_facs$Bcells)$p.value, cor.test(meta$Epidish_BPRNACan_NK, meta_facs$NKcells)$p.value,
+                                                        cor.test(meta$Epidish_BPRNACan_CD4, meta_facs$CD4_Tcells)$p.value,
+                                                        cor.test(meta$Epidish_BPRNACan_CD8, meta_facs$CD8_Tcells)$p.value, 
+                                                        cor.test(meta$Epidish_BPRNACan_cancer,meta_facs$Cancer_cells)$p.value),
+                               "EpiDISH (BPRNACanProMet)" = c(cor.test(meta$Epidish_BPRNACanProMet_B, meta_facs$Bcells)$p.value, 
+                                                              cor.test(meta$Epidish_BPRNACanProMet_NK, meta_facs$NKcells)$p.value,
+                                                        cor.test(meta$Epidish_BPRNACanProMet_CD4, meta_facs$CD4_Tcells)$p.value,
+                                                        cor.test(meta$Epidish_BPRNACanProMet_CD8, meta_facs$CD8_Tcells)$p.value, 
+                                                        cor.test(meta$Epidish_BPRNACanProMet_cancer,meta_facs$Cancer_cells)$p.value),
+                               "EpiDISH (BPRNACan3DProMet)" = c(cor.test(meta$Epidish_BPRNACan3DProMet_B, meta_facs$Bcells)$p.value,
+                                                                cor.test(meta$Epidish_BPRNACan3DProMet_NK, meta_facs$NKcells)$p.value,
+                                                        cor.test(meta$Epidish_BPRNACan3DProMet_CD4, meta_facs$CD4_Tcells)$p.value,
+                                                        cor.test(meta$Epidish_BPRNACan3DProMet_CD8, meta_facs$CD8_Tcells)$p.value, 
+                                                        cor.test(meta$Epidish_BPRNACan3DProMet_cancer,meta_facs$Cancer_cells)$p.value),
+                               "EpiDISH (Melanoma)" = c(cor.test(meta$Epidish_CBSX.melanoma_B.cells, meta_facs$Bcells)$p.value,
+                                                      NA, cor.test(meta$Epidish_CBSX.melanoma_T.cells.CD4, meta_facs$CD4_Tcells)$p.value,
+                                               cor.test(meta$Epidish_CBSX.melanoma_T.cells.CD8, meta_facs$CD8_Tcells)$p.value,
+                                               cor.test(meta$Epidish_CBSX.melanoma_Malignant, meta_facs$Cancer_cells)$p.value),
+                               "EpiDISH (HNSCC)" = c(cor.test(meta$Epidish_CBSX.HNSCC_B.cell, meta_facs$Bcells)$p.value,
+                                                     NA, cor.test(meta$Epidish_CBSX.HNSCC_T.cells.CD4, meta_facs$CD4_Tcells)$p.value,
+                                               cor.test(meta$Epidish_CBSX.HNSCC_T.cells.CD8, meta_facs$CD8_Tcells)$p.value,
+                                               cor.test(meta$Epidish_CBSX.HNSCC_Malignant, meta_facs$Cancer_cells)$p.value),
+                               "EpiDISH (NSCLC)" = c(cor.test(meta$Epidish_CBSX.NSCLC_B.cells, meta_facs$Bcells)$p.value,
+                                                     cor.test(meta$Epidish_CBSX.NSCLC_NK.cells, meta_facs$NKcells)$p.value, 
+                                                     cor.test(meta$Epidish_CBSX.NSCLC_T.cells.CD4, meta_facs$CD4_Tcells)$p.value,
+                                               cor.test(meta$Epidish_CBSX.NSCLC_T.cells.CD8, meta_facs$CD8_Tcells)$p.value, NA),
+                                "EpiDISH LM22" = c(cor.test(meta$Epidish_CBSX_LM22_B.cells.memory, meta_facs$Bcells)$p.value,
+                                                  cor.test(meta$Epidish_CBSX_LM22_NK.cells.activated, meta_facs$NKcells)$p.value,
+                                                  cor.test(meta$Epidish_CBSX_LM22_T.cells.CD4.memory.activated, meta_facs$CD4_Tcells)$p.value,
+                                                  cor.test(meta$Epidish_CBSX_LM22_T.cells.CD8, meta_facs$CD8_Tcells)$p.value, NA),
+                               
+                               
+                               "DeconRNASeq BPRNACan" = c(cor.test(meta$DeconRNASeq_BPRNACan_B, meta_facs$Bcells)$p.value, 
+                                                            cor.test(meta$DeconRNASeq_BPRNACan_NK, meta_facs$NKcells)$p.value,
+                                                        cor.test(meta$DeconRNASeq_BPRNACan_CD4, meta_facs$CD4_Tcells)$p.value,
+                                                        cor.test(meta$DeconRNASeq_BPRNACan_CD8, meta_facs$CD8_Tcells)$p.value, 
+                                                        cor.test(meta$DeconRNASeq_BPRNACan_cancer,meta_facs$Cancer_cells)$p.value),
+                               "DeconRNASeq BPRNACanProMet" = c(cor.test(meta$DeconRNASeq_BPRNACanProMet_B, meta_facs$Bcells)$p.value, 
+                                                              cor.test(meta$DeconRNASeq_BPRNACanProMet_NK, meta_facs$NKcells)$p.value,
+                                                        cor.test(meta$DeconRNASeq_BPRNACanProMet_CD4, meta_facs$CD4_Tcells)$p.value,
+                                                        cor.test(meta$DeconRNASeq_BPRNACanProMet_CD8, meta_facs$CD8_Tcells)$p.value, 
+                                                        cor.test(meta$DeconRNASeq_BPRNACanProMet_cancer,meta_facs$Cancer_cells)$p.value),
+                               "DeconRNASeq BPRNACan3DProMet" = c(cor.test(meta$DeconRNASeq_BPRNACan3DProMet_B, meta_facs$Bcells)$p.value,
+                                                                cor.test(meta$DeconRNASeq_BPRNACan3DProMet_NK, meta_facs$NKcells)$p.value,
+                                                        cor.test(meta$DeconRNASeq_BPRNACan3DProMet_CD4, meta_facs$CD4_Tcells)$p.value,
+                                                        cor.test(meta$DeconRNASeq_BPRNACan3DProMet_CD8, meta_facs$CD8_Tcells)$p.value, 
+                                                        cor.test(meta$DeconRNASeq_BPRNACan3DProMet_cancer,meta_facs$Cancer_cells)$p.value),
+                               "DeconRNASeq Melanoma" = c(cor.test(meta$DeconRNASeq_CBSX.melanoma_B.cells, meta_facs$Bcells)$p.value,
+                                                      NA, cor.test(meta$DeconRNASeq_CBSX.melanoma_T.cells.CD4, meta_facs$CD4_Tcells)$p.value,
+                                               cor.test(meta$DeconRNASeq_CBSX.melanoma_T.cells.CD8, meta_facs$CD8_Tcells)$p.value,
+                                               cor.test(meta$DeconRNASeq_CBSX.melanoma_Malignant, meta_facs$Cancer_cells)$p.value),
+                               "DeconRNASeq HNSCC" = c(cor.test(meta$DeconRNASeq_CBSX.HNSCC_B.cell, meta_facs$Bcells)$p.value,
+                                                     NA, cor.test(meta$DeconRNASeq_CBSX.HNSCC_T.cells.CD4, meta_facs$CD4_Tcells)$p.value,
+                                               cor.test(meta$DeconRNASeq_CBSX.HNSCC_T.cells.CD8, meta_facs$CD8_Tcells)$p.value,
+                                               cor.test(meta$DeconRNASeq_CBSX.HNSCC_Malignant, meta_facs$Cancer_cells)$p.value),
+                               "DeconRNASeq NSCLC" = c(cor.test(meta$DeconRNASeq_CBSX.NSCLC_B.cells, meta_facs$Bcells)$p.value,
+                                                     cor.test(meta$DeconRNASeq_CBSX.NSCLC_NK.cells, meta_facs$NKcells)$p.value, 
+                                                     cor.test(meta$DeconRNASeq_CBSX.NSCLC_T.cells.CD4, meta_facs$CD4_Tcells)$p.value,
+                                               cor.test(meta$DeconRNASeq_CBSX.NSCLC_T.cells.CD8, meta_facs$CD8_Tcells)$p.value, NA),
+                               "DeconRNASeq LM22" = c(cor.test(meta$DeconRNASeq_CBSX_LM22_B.cells.memory, meta_facs$Bcells)$p.value,
+                                                  cor.test(meta$DeconRNASeq_CBSX_LM22_NK.cells.activated, meta_facs$NKcells)$p.value,
+                                                  cor.test(meta$DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.activated, meta_facs$CD4_Tcells)$p.value,
+                                                  cor.test(meta$DeconRNASeq_CBSX_LM22_T.cells.CD8, meta_facs$CD8_Tcells)$p.value, NA),
+                               
+                               "CIBERSORTx Melanoma" = c(cor.test(meta$CBSX.melanoma_B_cells, meta_facs$Bcells)$p.value,
+                                                           NA, cor.test(meta$CBSX.melanoma_T_cells_CD4, meta_facs$CD4_Tcells)$p.value,
+                                               cor.test(meta$CBSX.melanoma_T_cells_CD8, meta_facs$CD8_Tcells)$p.value,
+                                               cor.test(meta$CBSX.melanoma_Malignant, meta_facs$Cancer_cells)$p.value),
+                               "CIBERSORTx HNSCC" = c(cor.test(meta$CBSX.HNSCC_B_cell, meta_facs$Bcells)$p.value,
+                                                        NA, cor.test(meta$CBSX.HNSCC_T_cells_CD4, meta_facs$CD4_Tcells)$p.value,
+                                               cor.test(meta$CBSX.HNSCC_T_cells_CD8, meta_facs$CD8_Tcells)$p.value,
+                                               cor.test(meta$CBSX.HNSCC_Malignant, meta_facs$Cancer_cells)$p.value),
+                               "CIBERSORTx NSCLC" = c(cor.test(meta$CBSX.NSCLC_B_cells, meta_facs$Bcells)$p.value,
+                                                        cor.test(meta$CBSX.NSCLC_NK_cells, meta_facs$NKcells)$p.value,
+                                                        cor.test(meta$CBSX.NSCLC_T_cells_CD4, meta_facs$CD4_Tcells)$p.value,
+                                               cor.test(meta$CBSX.NSCLC_T_cells_CD8, meta_facs$CD8_Tcells)$p.value, NA),
+                               "CIBERSORTx LM22" = c(cor.test(meta$CBSX.LM22_B_cells_memory, meta_facs$Bcells)$p.value,
+                                                  cor.test(meta$CBSX.LM22_NK_cells_activated, meta_facs$NKcells)$p.value,
+                                                  cor.test(meta$CBSX.LM22_T_cells_CD4_memory_activated, meta_facs$CD4_Tcells)$p.value,
+                                                  cor.test(meta$CBSX.LM22_T_cells_CD8, meta_facs$CD8_Tcells)$p.value, NA)
+  ) %>% 
+  round(., 2) %>% t(.) %>% as.data.frame(.) 
+colnames(Melanoma_GSE93722_all_signs_p) = c("B", "NK", "CD4", "CD8", "Cancer")
+
+Melanoma_GSE93722_all_signs["Mean", ] = colMeans(Melanoma_GSE93722_all_signs, na.rm = T) %>% round(., 3)
+Melanoma_GSE93722_all_signs_p["Mean", ] = colMeans(Melanoma_GSE93722_all_signs_p, na.rm = T)
+```
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+
+melt_Melanoma_GSE93722 <- melt(Melanoma_GSE93722_all_signs)
+
+melt_Melanoma_GSE93722_Pvalue <- melt(Melanoma_GSE93722_all_signs_p)
+
+merge_Melanoma_GSE93722 <- cbind(melt_Melanoma_GSE93722, melt_Melanoma_GSE93722_Pvalue) %>% .[,-3]
+
+melt_merge_Melanoma_GSE93722 <- merge_Melanoma_GSE93722 %>%
+    mutate(text = case_when( 
+        is.na(value.1) & is.na(value) ~ paste("NA"),
+        is.na(value.1) & (value == 0) ~ paste(value, "\n"),
+        value.1 >= 0.05 ~ paste(value),
+        value.1 >= 0.01& value.1 < 0.05  ~ paste(value, "\n*"), 
+        value.1 >= 0.001 & value.1 < 0.01 ~ paste(value, "\n**"),
+        value.1 < 0.001 ~ paste(value, "\n***")))
+
+melt_merge_Melanoma_GSE93722$new_Var2 <- rownames(Melanoma_GSE93722_all_signs)
+melt_merge_Melanoma_GSE93722$new_Var2 <- factor(melt_merge_Melanoma_GSE93722$new_Var2, levels = unique(melt_merge_Melanoma_GSE93722$new_Var2))
+
+Melanoma_GSE93722_figure <- ggplot(melt_merge_Melanoma_GSE93722, aes(new_Var2, variable)) + 
+    geom_tile(aes(fill = value), colour = "grey", size = 1)+
+    scale_fill_gradient2(low = "#5C5DAF",mid = "white",high = "#EA2E2D") + 
+    
+    geom_text(aes(label=text),col ="black",size = 5) +
+    theme_minimal() + 
+    theme(axis.title.x=element_blank(), 
+          axis.ticks.x=element_blank(), 
+          axis.title.y=element_blank(), 
+          legend.title=element_text(size = 14),
+          legend.text=element_text(size = 14),
+          axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5, size = 14, colour = "black"), 
+          axis.text.y = element_text(size = 14, colour = "black")) + labs(fill =paste0("Correlation")) + ggtitle("4 Melanoma metastatic (ID: 9)") + theme(plot.title = element_text(hjust = 0.5, size = 16 ))
+
+#Figure_3c <- ggarrange(Melanoma_GSE93722_figure, ncol = 1, nrow = 1, labels = "e", font.label = list(size = 20, color = "black"))
+Melanoma_GSE93722_figure
+```
+
+
+# Figure 4 :  TCGA all CibersortX comparison
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+
+# Load and parse data
+
+tcga_deconv = read.table("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Miguel/deconvolutions_pipeline/all_deconvolutions/all_deconvolutions_all_TCGA.txt", header=T)
+Aran_all_facs <- read.csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/facs/Aran_facs.csv", sep = "\t")
+HE_all_TCGA <- read.csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/HE_fractions.csv", row.names = 1)
+
+colnames(tcga_deconv) = colnames(tcga_deconv) %>% str_replace_all("(CBSX__Fig2ab.NSCLC_PBMCs_scRNAseq_sigmatrix_)|(CBSX_Fig2ab.NSCLC_PBMCs_scRNAseq_sigmatrix)", "CBSX.NSCLC")
+colnames(tcga_deconv) = colnames(tcga_deconv) %>% str_replace_all("(CBSX__scRNA.Seq_melanoma_Tirosh_sigmatrix_SuppFig_3.b_)|(CBSX_scRNA.Seq_melanoma_Tirosh_sigmatrix_SuppFig_3.b)", "CBSX.melanoma")
+colnames(tcga_deconv) = colnames(tcga_deconv) %>% str_replace_all("(CBSX__sigmatrix_HNSCC_Fig2cd_)|(CBSX_sigmatrix_HNSCC_Fig2cd)", "CBSX.HNSCC")
+colnames(tcga_deconv) = colnames(tcga_deconv) %>% str_replace_all("CBSX__LM22_" , "CBSX.LM22")
+
+HE_all_TCGA$ParticipantBarcode <- HE_all_TCGA$ParticipantBarcode %>% str_replace_all(., "-", ".")
+
+Aran_all_facs$Sample_ID <- Aran_all_facs$Sample_ID %>% str_remove_all(., ".01A.*") %>% str_replace_all(., "-", ".")
+Aran_all_facs <- Aran_all_facs[Aran_all_facs$CPE != "NaN",]
+
+tcga_deconv$Samples <- tcga_deconv$Samples %>% str_remove_all(., ".01A.*") %>% str_replace_all(., "-", ".")
+
+Comm_samples <- Reduce(intersect, list(HE_all_TCGA$ParticipantBarcode, Aran_all_facs$Sample_ID, tcga_deconv$Samples))
+
+Aran_all_facs <- Aran_all_facs %>% .[.$Sample_ID %in% Comm_samples, ] %>% .[order(.$Sample_ID), ]
+HE_all_TCGA <- HE_all_TCGA %>% .[.$ParticipantBarcode %in% Comm_samples, ] %>% .[order(.$ParticipantBarcode),]
+tcga_deconv <- tcga_deconv %>% .[.$Samples %in% Comm_samples, ]
+
+# REMOVE NON UNIQUE SAMPLES IN TCGA CBX AND DECONV
+tcga_deconv <- tcga_deconv %>%
+  group_by(Samples) %>%
+  summarise_all(mean)%>%
+  as.data.frame()
+rownames(tcga_deconv) = tcga_deconv$Samples
+tcga_deconv <- tcga_deconv[,-1]
+
+# Quantiseq
+QT.lymph = tcga_deconv$Quantiseq_T_cell_CD4._.non.regulatory. + tcga_deconv$Quantiseq_T_cell_CD8. + tcga_deconv$Quantiseq_NK_cell
+QT.macro = tcga_deconv$Quantiseq_Macrophage_M1 + tcga_deconv$Quantiseq_Macrophage_M2 + tcga_deconv$Quantiseq_Monocyte
+
+# MCP
+mcp.lymph = tcga_deconv$MCP_Cytotoxic_lymphocytes + tcga_deconv$MCP_CD8_T_cells + tcga_deconv$MCP_T_cells
+
+
+# Epidish
+epi_BPRNAcan.lymph = tcga_deconv$Epidish_BPRNACan_CD4 + tcga_deconv$Epidish_BPRNACan_CD8 + tcga_deconv$Epidish_BPRNACan_NK
+epi_BPRNAcan.macro = tcga_deconv$Epidish_BPRNACan_M0 + tcga_deconv$Epidish_BPRNACan_M1 + tcga_deconv$Epidish_BPRNACan_M2 + tcga_deconv$Epidish_BPRNACan_Mono
+# tcga_deconv$Epidish_BPRNACan_Neu
+
+
+epi_BPRNAcanPro.lymph = tcga_deconv$Epidish_BPRNACanProMet_CD4 + tcga_deconv$Epidish_BPRNACanProMet_CD8 + tcga_deconv$Epidish_BPRNACanProMet_NK
+epi_BPRNAcanPro.macro = tcga_deconv$Epidish_BPRNACanProMet_M0 + tcga_deconv$Epidish_BPRNACanProMet_M1 + tcga_deconv$Epidish_BPRNACanProMet_M2 + tcga_deconv$Epidish_BPRNACanProMet_Mono
+# tcga_deconv$Epidish_BPRNACanProMet_Neu
+
+
+epi_BPRNAcanPro3D.lymph = tcga_deconv$Epidish_BPRNACan3DProMet_CD4 + tcga_deconv$Epidish_BPRNACan3DProMet_CD8 + tcga_deconv$Epidish_BPRNACan3DProMet_NK
+epi_BPRNAcanPro3D.macro = tcga_deconv$Epidish_BPRNACan3DProMet_M0 + tcga_deconv$Epidish_BPRNACan3DProMet_M1 + tcga_deconv$Epidish_BPRNACan3DProMet_M2 + tcga_deconv$Epidish_BPRNACan3DProMet_Mono
+# tcga_deconv$Epidish_BPRNACan3DProMet_Neu
+
+
+epi_CBX_mela.lymph = tcga_deconv$Epidish_CBSX.melanoma_T.cells.CD4 + tcga_deconv$Epidish_CBSX.melanoma_T.cells.CD8 + tcga_deconv$Epidish_CBSX.melanoma_NK.cells
+epi_CBX_mela.macro = tcga_deconv$Epidish_CBSX.melanoma_Macrophages
+
+epi_CBX_NSCLC.lymph = tcga_deconv$Epidish_CBSX.NSCLC_T.cells.CD4 + tcga_deconv$Epidish_CBSX.NSCLC_T.cells.CD8 + tcga_deconv$Epidish_CBSX.NSCLC_NK.cells + tcga_deconv$Epidish_CBSX.NSCLC_NKT.cells
+epi_CBX_NSCLC.macro = tcga_deconv$Epidish_CBSX.NSCLC_Monocytes
+
+epi_CBX_HNSCC.lymph = tcga_deconv$Epidish_CBSX.HNSCC_T.cells.CD4 + tcga_deconv$Epidish_CBSX.HNSCC_T.cells.CD8 
+epi_CBX_HNSCC.macro = tcga_deconv$Epidish_CBSX.HNSCC_Macrophages
+
+epi_LM22.lymph = tcga_deconv$Epidish_CBSX_LM22_T.cells.CD4.memory.activated + tcga_deconv$Epidish_CBSX_LM22_T.cells.CD4.naive + tcga_deconv$Epidish_CBSX_LM22_T.cells.CD4.memory.resting +
+  tcga_deconv$Epidish_CBSX_LM22_T.cells.CD8 + tcga_deconv$Epidish_CBSX_LM22_NK.cells.resting + tcga_deconv$Epidish_CBSX_LM22_NK.cells.activated
+epi_LM22.macro = tcga_deconv$Epidish_CBSX_LM22_Macrophages.M0 + tcga_deconv$Epidish_CBSX_LM22_Macrophages.M1 + tcga_deconv$Epidish_CBSX_LM22_Macrophages.M2
+
+# DeconRNAseq
+deconRNA_BPRNAcan.lymph = tcga_deconv$DeconRNASeq_BPRNACan_CD4 + tcga_deconv$DeconRNASeq_BPRNACan_CD8 + tcga_deconv$DeconRNASeq_BPRNACan_NK
+deconRNA_BPRNAcan.macro = tcga_deconv$DeconRNASeq_BPRNACan_M0 + tcga_deconv$DeconRNASeq_BPRNACan_M1 + tcga_deconv$DeconRNASeq_BPRNACan_M2 + tcga_deconv$DeconRNASeq_BPRNACan_Mono
+# tcga_deconv$DeconRNASeq_BPRNACan_Neu
+
+
+deconRNA_BPRNAcanPro.lymph = tcga_deconv$DeconRNASeq_BPRNACanProMet_CD4 + tcga_deconv$DeconRNASeq_BPRNACanProMet_CD8 + tcga_deconv$DeconRNASeq_BPRNACanProMet_NK
+deconRNA_BPRNAcanPro.macro = tcga_deconv$DeconRNASeq_BPRNACanProMet_M0 + tcga_deconv$DeconRNASeq_BPRNACanProMet_M1 + tcga_deconv$DeconRNASeq_BPRNACanProMet_M2 +
+  tcga_deconv$DeconRNASeq_BPRNACanProMet_Mono
+# tcga_deconv$DeconRNASeq_BPRNACanProMet_Neu
+
+
+deconRNA_BPRNAcanPro3D.lymph = tcga_deconv$DeconRNASeq_BPRNACan3DProMet_CD4 + tcga_deconv$DeconRNASeq_BPRNACan3DProMet_CD8 + tcga_deconv$DeconRNASeq_BPRNACan3DProMet_NK
+deconRNA_BPRNAcanPro3D.macro = tcga_deconv$DeconRNASeq_BPRNACan3DProMet_M0 + tcga_deconv$DeconRNASeq_BPRNACan3DProMet_M1 + tcga_deconv$DeconRNASeq_BPRNACan3DProMet_M2 +
+  tcga_deconv$DeconRNASeq_BPRNACan3DProMet_Mono
+# tcga_deconv$DeconRNASeq_BPRNACan3DProMet_Neu
+
+
+deconRNA_CBX_mela.lymph = tcga_deconv$DeconRNASeq_CBSX.melanoma_T.cells.CD4 + tcga_deconv$DeconRNASeq_CBSX.melanoma_T.cells.CD8 + tcga_deconv$DeconRNASeq_CBSX.melanoma_NK.cells
+deconRNA_CBX_mela.macro = tcga_deconv$DeconRNASeq_CBSX.melanoma_Macrophages
+
+deconRNA_CBX_NSCLC.lymph = tcga_deconv$DeconRNASeq_CBSX.NSCLC_T.cells.CD4 + tcga_deconv$DeconRNASeq_CBSX.NSCLC_T.cells.CD8 + tcga_deconv$DeconRNASeq_CBSX.NSCLC_NK.cells + tcga_deconv$DeconRNASeq_CBSX.NSCLC_NKT.cells
+deconRNA_CBX_NSCLC.macro = tcga_deconv$DeconRNASeq_CBSX.NSCLC_Monocytes
+
+deconRNA_CBX_HNSCC.lymph = tcga_deconv$DeconRNASeq_CBSX.HNSCC_T.cells.CD4 + tcga_deconv$DeconRNASeq_CBSX.HNSCC_T.cells.CD8 
+deconRNA_CBX_HNSCC.macro = tcga_deconv$DeconRNASeq_CBSX.HNSCC_Macrophages
+
+deconRNA_LM22.lymph = tcga_deconv$DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.activated + tcga_deconv$DeconRNASeq_CBSX_LM22_T.cells.CD4.naive + tcga_deconv$DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.resting +
+  tcga_deconv$DeconRNASeq_CBSX_LM22_T.cells.CD8 + tcga_deconv$DeconRNASeq_CBSX_LM22_NK.cells.resting + tcga_deconv$DeconRNASeq_CBSX_LM22_NK.cells.activated
+deconRNA_LM22.macro = tcga_deconv$DeconRNASeq_CBSX_LM22_Macrophages.M0 + tcga_deconv$DeconRNASeq_CBSX_LM22_Macrophages.M1 + tcga_deconv$DeconRNASeq_CBSX_LM22_Macrophages.M2
+
+# CBX NSCLC
+cbx_NSCLC.lymph = tcga_deconv$CBSX.NSCLC_T_cells_CD4 + tcga_deconv$CBSX.NSCLC_T_cells_CD8 + tcga_deconv$CBSX.NSCLC_NK_cells + tcga_deconv$CBSX.NSCLC_NKT_cells
+cbx_NSCLC.macro = tcga_deconv$CBSX.NSCLC_Monocytes
+
+
+# CBX HNSCC
+cbx_HNSCC.lymph = tcga_deconv$CBSX.HNSCC_T_cells_CD4 + tcga_deconv$CBSX.HNSCC_T_cells_CD8
+cbx_HNSCC.macro = tcga_deconv$CBSX.HNSCC_Macrophage
+
+# CBX Melanoma
+cbx_mela.lymph = tcga_deconv$CBSX.melanoma_T_cells_CD4 + tcga_deconv$CBSX.melanoma_T_cells_CD8 + tcga_deconv$CBSX.melanoma_NK_cells
+cbx_mela.macro = tcga_deconv$CBSX.melanoma_Macrophages
+
+# CBX LM22
+cbx_lm22.lymph = tcga_deconv$CBSX.LM22_T_cells_CD4_memory_activated + tcga_deconv$CBSX.LM22_T_cells_CD4_naive + tcga_deconv$CBSX.LM22_T_cells_CD4_memory_resting + 
+  tcga_deconv$CBSX.LM22_NK_cells_activated + tcga_deconv$CBSX.LM22_NK_cells_resting
+cbx_lm22.macro = tcga_deconv$CBSX.LM22_Monocytes + tcga_deconv$CBSX.LM22_Macrophages_M0 + tcga_deconv$CBSX.LM22_Macrophages_M1 + tcga_deconv$CBSX.LM22_Macrophages_M2
+
+```
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+
+# Create the DF with selected cell types
+
+lymph = data.frame(HE_all_TCGA$Lymphocytes, QT.lymph, epi_BPRNAcan.lymph, epi_BPRNAcanPro.lymph, epi_BPRNAcanPro3D.lymph, epi_CBX_mela.lymph, epi_CBX_NSCLC.lymph, epi_CBX_HNSCC.lymph, epi_LM22.lymph,
+                   deconRNA_BPRNAcan.lymph, deconRNA_BPRNAcanPro.lymph, deconRNA_BPRNAcanPro3D.lymph, deconRNA_CBX_mela.lymph, deconRNA_CBX_HNSCC.lymph, deconRNA_CBX_NSCLC.lymph, deconRNA_LM22.lymph, 
+                   cbx_NSCLC.lymph, cbx_HNSCC.lymph, cbx_mela.lymph, cbx_lm22.lymph)
+colnames(lymph) = c("H&E", "Quantiseq", "Epidish.BPRNACan", "Epidish.BPRNACanProMet", "Epidish.BPRNACan3DProMet", "Epidish.CBX_melanoma", "Epidish.CBX_NSCLC",  
+                    "Epidish.CBX_HNSCC", "Epidish.CBX_LM22",
+                    "DeconRNAseq.BPRNACan", "DeconRNAseq.BPRNACanProMet", "DeconRNAseq.BPRNACan3DProMet", "DeconRNAseq.CBX_melanoma", "DeconRNAseq.CBX_HNSCC",
+                    "DeconRNAseq.CBX_NSCLC", "DeconRNAseq.CBX_LM22", 
+                    "CBX.NSCLC", "CBX.HNSCC", "CBX.melanoma", "CBX.LM22")
+
+macro = data.frame(HE_all_TCGA$Macrophages, QT.macro, epi_BPRNAcan.macro, epi_BPRNAcanPro.macro, epi_BPRNAcanPro3D.macro, epi_CBX_mela.macro,  
+                   epi_CBX_HNSCC.macro, epi_CBX_NSCLC.macro, epi_LM22.macro, deconRNA_BPRNAcan.macro, deconRNA_BPRNAcanPro.macro, deconRNA_BPRNAcanPro3D.macro, 
+                   deconRNA_CBX_mela.macro, deconRNA_CBX_HNSCC.macro, deconRNA_CBX_NSCLC.macro, deconRNA_LM22.macro, cbx_mela.macro, cbx_HNSCC.macro, cbx_NSCLC.macro, cbx_lm22.macro)
+colnames(macro) = c("H&E", "Quantiseq", "Epidish.BPRNACan", "Epidish.BPRNACanProMet", "Epidish.BPRNACan3DProMet", "Epidish.CBX_melanoma", "Epidish.CBX_HNSCC",
+                    "Epidish.CBX_NSCLC", "Epidish.CBX_LM22",
+                    "DeconRNAseq.BPRNACan", "DeconRNAseq.BPRNACanProMet", "DeconRNAseq.BPRNACan3DProMet", "DeconRNAseq.CBX_melanoma", "DeconRNAseq.CBX_HNSCC",
+                    "DeconRNAseq.CBX_NSCLC", "DeconRNAseq.CBX_LM22",
+                    "CBX.melanoma", "CBX.HNSCC", "CBX.NSCLC", "CBX.LM22")
+
+neutro = data.frame(HE_all_TCGA$Neutrophils, tcga_deconv$Quantiseq_Neutrophil, tcga_deconv$Epidish_BPRNACan_Neu, tcga_deconv$Epidish_BPRNACanProMet_Neu, 
+                    tcga_deconv$Epidish_BPRNACan3DProMet_Neu, tcga_deconv$Epidish_CBSX_LM22_Neutrophils, tcga_deconv$DeconRNASeq_BPRNACan_Neu,
+                    tcga_deconv$DeconRNASeq_BPRNACanProMet_Neu, tcga_deconv$DeconRNASeq_BPRNACan3DProMet_Neu, tcga_deconv$DeconRNASeq_CBSX_LM22_Neutrophils, tcga_deconv$CBSX.LM22_Neutrophils)
+colnames(neutro) = c("H&E", "Quantiseq", "Epidish.BPRNACan", "Epidish.BPRNACanProMet", "Epidish.BPRNACan3DProMet", "Epidish.CBX_LM22", 
+                     "DeconRNAseq.BPRNACan", "DeconRNAseq.BPRNACanProMet",  "DeconRNAseq.BPRNACan3DProMet", "DeconRNAseq.CBX_LM22", "CBX.LM22")
+```
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+
+# Get correlation with ground truth
+
+lymph.corr = rcorr(as.matrix(lymph), HE_all_TCGA$Lymphocytes)$r
+lymph.corr = lymph.corr[1:20, 21] %>%  sort(., decreasing = T) 
+
+macro.corr = rcorr(as.matrix(macro), HE_all_TCGA$Macrophages)$r
+macro.corr = macro.corr[1:20, 21] %>% sort(., decreasing = T) 
+
+neutro.corr = rcorr(as.matrix(neutro), HE_all_TCGA$Neutrophils)$r
+neutro.corr = neutro.corr[1:11, 12] %>% sort(., decreasing = T)
+
+```
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+cols <- c("H&E" = "red", "Cibersort" = "yellow", "Epidish" = "blue", "Quantiseq" = "pink", "DeconRNAseq" = "green")
+
+```
+
+
+### Lymphocytes
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+
+lymph = lymph[names(lymph.corr)]
+
+
+lymph.melt = melt(lymph)
+lymph.melt = lymph.melt %>% mutate(method = 
+                  substring(variable, 1, 1)) %>% 
+  mutate(method = 
+           case_when(
+             method == "H" ~ "H&E",
+             method == "C" ~ "Cibersort",
+             method == "E" ~ "Epidish",
+             method == "Q" ~ "Quantiseq",
+             method == "D" ~ "DeconRNAseq"
+           ))
+lymph.melt$method = as.factor(lymph.melt$method)
+
+ggplot(lymph.melt, aes(x = value, y = variable, colour = method)) +
+  geom_density_ridges2(jittered_points = TRUE, position = "raincloud", 
+                       point_size = 0.25, point_alpha = 0.25, alpha = 0.7, rel_min_height = 0.005, point_color = "black") +
+  theme_ridges() + ggtitle("Lymphocytes") +
+  annotate("text", x = 1, y = 1:20, label = paste0("R = ",round(lymph.corr, 2)), colour = "brown") +
+  scale_colour_manual(values = cols) +
+   theme(axis.text.x = element_text(color = "black", size = 20, angle = 90, hjust = .5, vjust = .5, face = "plain"),
+        axis.text.y = element_text(color = "black", size = 20, angle = 0, hjust = 1, vjust = 0, face = "plain"),  
+        axis.title.x = element_text(color = "black", size = 12, angle = 0, hjust = .5, vjust = 0, face = "plain"),
+        axis.title.y = element_text(color = "black", size = 12, angle = 90, hjust = .5, vjust = .5, face = "plain"),
+        plot.title = element_text(color = "black", size = 20)) +
+  ylab("") + xlab("% of cell type")
+
+
+```
+
+
+### Macrophages
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+macro = macro[names(macro.corr)]
+
+macro.melt = melt(macro)
+macro.melt = macro.melt %>% mutate(method = 
+                  substring(variable, 1, 1)) %>% 
+  mutate(method = 
+           case_when(
+             method == "H" ~ "H&E",
+             method == "C" ~ "Cibersort",
+             method == "E" ~ "Epidish",
+             method == "Q" ~ "Quantiseq",
+             method == "D" ~ "DeconRNAseq"
+           ))
+macro.melt$method = as.factor(macro.melt$method)
+
+ggplot(macro.melt, aes(x = value, y = variable, colour = method)) +
+  geom_density_ridges2(jittered_points = TRUE, position = "raincloud", 
+                       point_size = 0.25, point_alpha = 0.25, alpha = 0.7, rel_min_height = 0.005, point_color = "black") +
+  theme_ridges() + ggtitle("Macrophages") +
+  annotate("text", x = 1, y = 1:20, label = paste0("R = ",round(macro.corr, 2)), colour = "brown") +
+  scale_colour_manual(values = cols) +
+   theme(axis.text.x = element_text(color = "black", size = 20, angle = 90, hjust = .5, vjust = .5, face = "plain"),
+        axis.text.y = element_text(color = "black", size = 20, angle = 0, hjust = 1, vjust = 0, face = "plain"),  
+        axis.title.x = element_text(color = "black", size = 12, angle = 0, hjust = .5, vjust = 0, face = "plain"),
+        axis.title.y = element_text(color = "black", size = 12, angle = 90, hjust = .5, vjust = .5, face = "plain"),
+        plot.title = element_text(color = "black", size = 20)) +
+  ylab("") + xlab("% of cell type")
+
+
+```
+
+### Neutrophils
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+neutro = neutro[names(neutro.corr)]
+
+neutro.melt = melt(neutro)
+neutro.melt = neutro.melt %>% mutate(method = 
+                  substring(variable, 1, 1)) %>% 
+  mutate(method = 
+           case_when(
+             method == "H" ~ "H&E",
+             method == "C" ~ "Cibersort",
+             method == "E" ~ "Epidish",
+             method == "Q" ~ "Quantiseq",
+             method == "D" ~ "DeconRNAseq"
+           ))
+neutro.melt$method = as.factor(neutro.melt$method)
+
+ggplot(neutro.melt, aes(x = value, y = variable, colour = method)) +
+  geom_density_ridges2(jittered_points = TRUE, position = "raincloud", 
+                       point_size = 0.25, point_alpha = 0.25, alpha = 0.7, rel_min_height = 0.005, point_color = "black") +
+  theme_ridges() + xlim(0, 0.5) + ggtitle("Neutrophils") +
+  annotate("text", x = 0.5, y = 1:11, label = paste0("R = ",round(neutro.corr, 2)), colour = "brown") +
+  scale_colour_manual(values = cols) +
+   theme(axis.text.x = element_text(color = "black", size = 20, angle = 90, hjust = .5, vjust = .5, face = "plain"),
+        axis.text.y = element_text(color = "black", size = 20, angle = 0, hjust = 1, vjust = 0, face = "plain"),  
+        axis.title.x = element_text(color = "black", size = 12, angle = 0, hjust = .5, vjust = 0, face = "plain"),
+        axis.title.y = element_text(color = "black", size = 12, angle = 90, hjust = .5, vjust = .5, face = "plain"),
+        plot.title = element_text(color = "black", size = 20)) +
+  ylab("") + xlab("% of cell type")
+
+```
+
+
+
+
