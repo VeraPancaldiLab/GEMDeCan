@@ -1,0 +1,613 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+  pdf_document: default
+editor_options:
+  chunk_output_type: console
+---
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+library(reshape2)
+library(EpiDISH)
+library(tidyverse)
+library(Hmisc)
+library(gridExtra)
+library(grid)
+
+knitr::opts_chunk$set(fig.width = 20, fig.height = 30, cache = T)
+```
+
+
+### Silico1700
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+silico1700_facs <- read.delim("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/facs/Facs_Silico_1700.txt")
+silico1700_deconv <- read.delim("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Miguel/deconvolutions_pipeline/all_deconvolutions/all_deconvolutions_Silico_1700.txt")
+
+colnames(silico1700_deconv) <- colnames(silico1700_deconv) %>% str_replace_all("(CBSX__Fig2ab.NSCLC_PBMCs_scRNAseq_sigmatrix_)|(CBSX_Fig2ab.NSCLC_PBMCs_scRNAseq_sigmatrix)", "CBSX.NSCLC")
+colnames(silico1700_deconv) <- colnames(silico1700_deconv) %>% str_replace_all("(CBSX__scRNA.Seq_melanoma_Tirosh_sigmatrix_SuppFig_3.b_)|(CBSX_scRNA.Seq_melanoma_Tirosh_sigmatrix_SuppFig_3.b)", "CBSX.melanoma")
+colnames(silico1700_deconv) <- colnames(silico1700_deconv) %>% str_replace_all("(CBSX__sigmatrix_HNSCC_Fig2cd_)|(CBSX_sigmatrix_HNSCC_Fig2cd)", "CBSX.HNSCC")
+colnames(silico1700_deconv) <- colnames(silico1700_deconv) %>% str_replace_all("CBSX__LM22_", "CBSX.LM22")
+
+silico1700_deconv <- silico1700_deconv %>% select(-colnames(silico1700_deconv)[grepl("XCELL", colnames(silico1700_deconv))])
+silico1700_deconv <- silico1700_deconv %>% select(-colnames(silico1700_deconv)[grepl("MCP", colnames(silico1700_deconv))])
+
+# CD4
+cd4 <- list()
+data <- silico1700_deconv %>% select(colnames(silico1700_deconv)[grepl("CD4", colnames(silico1700_deconv))])
+# Regroup and remove different types of CD4 from LM22 signature
+data$Epidish_CBSX_LM22_CD4 = data$Epidish_CBSX_LM22_T.cells.CD4.memory.activated + data$Epidish_CBSX_LM22_T.cells.CD4.memory.resting + data$Epidish_CBSX_LM22_T.cells.CD4.naive
+data$DeconRNASeq_CBSX_LM22_CD4 = data$DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.activated + data$DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.resting + data$DeconRNASeq_CBSX_LM22_T.cells.CD4.naive
+data$CBSX.LM22_CD4 = data$CBSX.LM22_T_cells_CD4_memory_activated + data$CBSX.LM22_T_cells_CD4_memory_resting + data$CBSX.LM22_T_cells_CD4_naive
+data <- data %>% select(-c("CBSX.LM22_T_cells_CD4_memory_activated", "CBSX.LM22_T_cells_CD4_memory_resting", "CBSX.LM22_T_cells_CD4_naive", 
+                           "Epidish_CBSX_LM22_T.cells.CD4.memory.activated" ,"Epidish_CBSX_LM22_T.cells.CD4.memory.resting" ,"Epidish_CBSX_LM22_T.cells.CD4.naive", 
+                           "DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.activated" ,"DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.resting" , "DeconRNASeq_CBSX_LM22_T.cells.CD4.naive"))
+
+data <- data %>% select(order(colnames(.)))
+data <- cbind(data, silico1700_facs$T.cells.CD4)
+
+for (i in 1:(ncol(data) - 1)) {
+  cd4[[i]] <- local({
+    i <- i
+    x = ggplot(data, aes(x = data[, ncol(data)], y = data[, i])) +
+      geom_point() +
+      stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+      scale_x_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.0, 0.2)) +
+      scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
+      theme(axis.title.x= element_text(size = 12, face="bold"), 
+          axis.title.y= element_text(size = 12, face="bold") )  + 
+      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(CD4.*)|(_T_cell.*)|(_T.cell.*)")) +
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+  })
+}
+grid.arrange(grobs = cd4, ncol = 3, top = textGrob("CD4", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+
+# CD8
+cd8 <- list()
+data <- silico1700_deconv %>% select(colnames(silico1700_deconv)[grepl("CD8", colnames(silico1700_deconv))])
+data <- data %>% select(order(colnames(.)))
+data <- cbind(data, silico1700_facs$T.cells.CD8)
+for (i in 1:(ncol(data) - 1)) {
+  cd8[[i]] <- local({
+    i <- i
+    x = ggplot(data, aes(x = data[, ncol(data)], y = data[, i])) +
+      geom_point() +
+      stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+      scale_x_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.0, 0.2)) +
+      scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
+      theme(axis.title.x= element_text(size = 12, face="bold"), 
+          axis.title.y= element_text(size = 12, face="bold") )  + 
+      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(CD8.*)|(_T_cell.*)|(_T.cell.*)")) +
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+  })
+}
+grid.arrange(grobs = cd8, ncol = 3, top = textGrob("CD8", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+
+# Monocytes
+mono <- list()
+data <- silico1700_deconv %>% select(colnames(silico1700_deconv)[grepl("Mono", colnames(silico1700_deconv))])
+data <- data %>% select(order(colnames(.)))
+data <- cbind(data, silico1700_facs$Monocytes)
+for (i in 1:(ncol(data) - 1)) {
+  mono[[i]] <- local({
+    i <- i
+    x = ggplot(data, aes(x = data[, ncol(data)], y = data[, i])) +
+      geom_point() +
+      stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+      scale_x_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.0, 0.2)) +
+      scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
+      theme(axis.title.x= element_text(size = 12, face="bold"), 
+          axis.title.y= element_text(size = 12, face="bold") )  + 
+      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_Mono.*")) +
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+  })
+}
+grid.arrange(grobs = mono, ncol = 3, top = textGrob("Monocytes", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+
+# M1
+m1 <- list()
+data <- silico1700_deconv %>% select(colnames(silico1700_deconv)[grepl("M1", colnames(silico1700_deconv))])
+data <- data %>% select(order(colnames(.)))
+data <- cbind(data, silico1700_facs$Macrophages.M1)
+for (i in 1:(ncol(data) - 1)) {
+  m1[[i]] <- local({
+    i <- i
+    x = ggplot(data, aes(x = data[, ncol(data)], y = data[, i])) +
+      geom_point() +
+      stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+      scale_x_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.0, 0.2)) +
+      scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
+      theme(axis.title.x= element_text(size = 12, face="bold"), 
+          axis.title.y= element_text(size = 12, face="bold") )  + 
+      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(M1)|(_Macro.*)")) +
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+  })
+}
+grid.arrange(grobs = m1, ncol = 3, top = textGrob("Macrophages M1", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+
+# M2
+m2 <- list()
+data <- silico1700_deconv %>% select(colnames(silico1700_deconv)[grepl("(_M2)|(\\.M2)", colnames(silico1700_deconv))])
+data <- data %>% select(order(colnames(.)))
+data <- cbind(data, silico1700_facs$Macrophages.M2)
+for (i in 1:(ncol(data) - 1)) {
+  m2[[i]] <- local({
+    i <- i
+    x = ggplot(data, aes(x = data[, ncol(data)], y = data[, i])) +
+      geom_point() +
+      stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+      scale_x_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.0, 0.2)) +
+      scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
+      theme(axis.title.x= element_text(size = 12, face="bold"), 
+          axis.title.y= element_text(size = 12, face="bold") )  + 
+      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(M2)|(_Macro.*)")) +
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+  })
+}
+grid.arrange(grobs = m2, ncol = 3, top = textGrob("Macrophages M2", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+
+# B
+b <- list()
+data <- silico1700_deconv %>% select(colnames(silico1700_deconv)[grepl("(B_cell)|(B.cell)|(B_lin)", colnames(silico1700_deconv))])
+data <- data %>% select(order(colnames(.)))
+data <- cbind(data, silico1700_facs$B.cells)
+for (i in 1:(ncol(data) - 1)) {
+  b[[i]] <- local({
+    i <- i
+    x = ggplot(data, aes(x = data[, ncol(data)], y = data[, i])) +
+      geom_point() +
+      stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+      scale_x_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.0, 0.2)) +
+      scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
+      theme(axis.title.x= element_text(size = 12, face="bold"), 
+          axis.title.y= element_text(size = 12, face="bold") )  + 
+      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(B_cell.*)|(_B.cell.*)|(_B_lin.*)")) +
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+  })
+}
+grid.arrange(grobs = b, ncol = 3, top = textGrob("B cells", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+
+# NK
+nk <- list()
+data <- silico1700_deconv %>% select(colnames(silico1700_deconv)[grepl("NK", colnames(silico1700_deconv))])
+data <- data %>% select(order(colnames(.)))
+data <- cbind(data, silico1700_facs$NK.cells)
+for (i in 1:(ncol(data) - 1)) {
+  nk[[i]] <- local({
+    i <- i
+    x = ggplot(data, aes(x = data[, ncol(data)], y = data[, i])) +
+      geom_point() +
+      stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+      scale_x_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.0, 0.2)) +
+      scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
+      theme(axis.title.x= element_text(size = 12, face="bold"), 
+          axis.title.y= element_text(size = 12, face="bold") )  + 
+      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_NK.*")) +
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+  })
+}
+grid.arrange(grobs = nk, ncol = 3, top = textGrob("Natural Killers", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+
+# neutro
+neutro <- list()
+data <- silico1700_deconv %>% select(colnames(silico1700_deconv)[grepl("Neu", colnames(silico1700_deconv))])
+data <- data %>% select(order(colnames(.)))
+data <- cbind(data, silico1700_facs$Neutrophils)
+for (i in 1:(ncol(data) -1)) {
+  neutro[[i]] <- local({
+    i <- i
+    x = ggplot(data, aes(x = data[, ncol(data)], y = data[, i])) +
+      geom_point() +
+      stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+      scale_x_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.0, 0.2)) +
+      scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
+      theme(axis.title.x= element_text(size = 12, face="bold"), 
+          axis.title.y= element_text(size = 12, face="bold") )  + 
+      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_Neu.*")) +
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+  })
+}
+grid.arrange(grobs = neutro, ncol = 3, top = textGrob("Neutrophils", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+```
+
+
+### GSE104171 - multiple myeloma
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+
+GSE104171_deconv <- read.delim("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Miguel/deconvolutions_pipeline/all_deconvolutions/all_deconvolutions_GSE104171.txt")
+GSE104171_facs <- read.delim("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/facs/FACS_GSE104171.txt")
+GSE104171_facs[ 2:4] <- GSE104171_facs[ 2:4] / 100
+colnames(GSE104171_deconv) <- colnames(GSE104171_deconv) %>% str_replace_all("(CBSX__Fig2ab.NSCLC_PBMCs_scRNAseq_sigmatrix_)|(CBSX_Fig2ab.NSCLC_PBMCs_scRNAseq_sigmatrix)", "CBSX.NSCLC")
+colnames(GSE104171_deconv) <- colnames(GSE104171_deconv) %>% str_replace_all("(CBSX__scRNA.Seq_melanoma_Tirosh_sigmatrix_SuppFig_3.b_)|(CBSX_scRNA.Seq_melanoma_Tirosh_sigmatrix_SuppFig_3.b)", "CBSX.melanoma")
+colnames(GSE104171_deconv) <- colnames(GSE104171_deconv) %>% str_replace_all("(CBSX__sigmatrix_HNSCC_Fig2cd_)|(CBSX_sigmatrix_HNSCC_Fig2cd)", "CBSX.HNSCC")
+colnames(GSE104171_deconv) <- colnames(GSE104171_deconv) %>% str_replace_all("CBSX__LM22_", "CBSX.LM22")
+
+GSE104171_deconv <- GSE104171_deconv %>% select(-colnames(GSE104171_deconv)[grepl("XCELL", colnames(GSE104171_deconv))])
+GSE104171_deconv <- GSE104171_deconv %>% select(-colnames(GSE104171_deconv)[grepl("MCP", colnames(GSE104171_deconv))])
+
+
+# CD4
+cd4 <- list()
+data <- GSE104171_deconv %>% select(colnames(GSE104171_deconv)[grepl("CD4", colnames(GSE104171_deconv))])
+# Regroup and remove different types of CD4 from LM22 signature
+data$Epidish_CBSX_LM22_CD4 = data$Epidish_CBSX_LM22_T.cells.CD4.memory.activated + data$Epidish_CBSX_LM22_T.cells.CD4.memory.resting + data$Epidish_CBSX_LM22_T.cells.CD4.naive
+data$DeconRNASeq_CBSX_LM22_CD4 = data$DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.activated + data$DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.resting + data$DeconRNASeq_CBSX_LM22_T.cells.CD4.naive
+data$CBSX.LM22_CD4 = data$CBSX.LM22_T_cells_CD4_memory_activated + data$CBSX.LM22_T_cells_CD4_memory_resting + data$CBSX.LM22_T_cells_CD4_naive
+data <- data %>% select(-c("CBSX.LM22_T_cells_CD4_memory_activated", "CBSX.LM22_T_cells_CD4_memory_resting", "CBSX.LM22_T_cells_CD4_naive", 
+                           "Epidish_CBSX_LM22_T.cells.CD4.memory.activated" ,"Epidish_CBSX_LM22_T.cells.CD4.memory.resting" ,"Epidish_CBSX_LM22_T.cells.CD4.naive", 
+                           "DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.activated" ,"DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.resting" , "DeconRNASeq_CBSX_LM22_T.cells.CD4.naive"))
+
+data <- data %>% select(order(colnames(.)))
+data <- cbind(data, GSE104171_facs$CD4)
+for (i in 1:(ncol(data) - 1)) {
+  cd4[[i]] <- local({
+    i <- i
+    x = ggplot(data, aes(x = data[, ncol(data)], y = data[, i])) +
+      geom_point() +
+      stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+      scale_x_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.0, 0.2)) +
+      scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
+      theme(axis.title.x= element_text(size = 12, face="bold"), 
+          axis.title.y= element_text(size = 12, face="bold") )  + 
+      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(CD4.*)|(_T_cell.*)|(_T.cell.*)")) +
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+  })
+}
+grid.arrange(grobs = cd4, ncol = 3, top = textGrob("CD4", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+
+# CD8
+cd8 <- list()
+data <- GSE104171_deconv %>% select(colnames(GSE104171_deconv)[grepl("CD8", colnames(GSE104171_deconv))])
+data <- data %>% select(order(colnames(.)))
+data <- cbind(data, GSE104171_facs$CD8)
+for (i in 1:(ncol(data) - 1)) {
+  cd8[[i]] <- local({
+    i <- i
+    x = ggplot(data, aes(x = data[, ncol(data)], y = data[, i])) +
+      geom_point() +
+      stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+      scale_x_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.0, 0.2)) +
+      scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
+      theme(axis.title.x= element_text(size = 12, face="bold"), 
+          axis.title.y= element_text(size = 12, face="bold") )  + 
+      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(CD8.*)|(_T_cell.*)|(_T.cell.*)")) +
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+  })
+}
+grid.arrange(grobs = cd8, ncol = 3, top = textGrob("CD8", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+
+# NK
+nk <- list()
+data <- GSE104171_deconv %>% select(colnames(GSE104171_deconv)[grepl("NK", colnames(GSE104171_deconv))])
+data <- data %>% select(order(colnames(.)))
+data <- cbind(data, GSE104171_facs$NK)
+for (i in 1:(ncol(data) - 1)) {
+  nk[[i]] <- local({
+    i <- i
+    x = ggplot(data, aes(x = data[, ncol(data)], y = data[, i])) +
+      geom_point() +
+      stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+      scale_x_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.0, 0.2)) +
+      scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
+      theme(axis.title.x= element_text(size = 12, face="bold"), 
+          axis.title.y= element_text(size = 12, face="bold") )  + 
+      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_NK.*")) +
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+  })
+}
+grid.arrange(grobs = nk, ncol = 3, top = textGrob("Natural Killers", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+
+```
+
+
+
+### Melanoma_GSE93722
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+
+GSE72056_facs <- read.delim("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/facs/Facs_Melanoma_GSE72056.txt")
+GSE72056_deconv <- read.delim("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Miguel/deconvolutions_pipeline/all_deconvolutions/all_deconvolutions_Melanoma_GSE72056_no_malighant.txt")
+
+colnames(GSE72056_deconv) <- colnames(GSE72056_deconv) %>% str_replace_all("(CBSX__Fig2ab.NSCLC_PBMCs_scRNAseq_sigmatrix_)|(CBSX_Fig2ab.NSCLC_PBMCs_scRNAseq_sigmatrix)", "CBSX.NSCLC")
+colnames(GSE72056_deconv) <- colnames(GSE72056_deconv) %>% str_replace_all("(CBSX__scRNA.Seq_melanoma_Tirosh_sigmatrix_SuppFig_3.b_)|(CBSX_scRNA.Seq_melanoma_Tirosh_sigmatrix_SuppFig_3.b)", "CBSX.melanoma")
+colnames(GSE72056_deconv) <- colnames(GSE72056_deconv) %>% str_replace_all("(CBSX__sigmatrix_HNSCC_Fig2cd_)|(CBSX_sigmatrix_HNSCC_Fig2cd)", "CBSX.HNSCC")
+colnames(GSE72056_deconv) <- colnames(GSE72056_deconv) %>% str_replace_all("CBSX__LM22_", "CBSX.LM22")
+
+GSE72056_deconv <- GSE72056_deconv %>% select(-colnames(GSE72056_deconv)[grepl("XCELL", colnames(GSE72056_deconv))])
+GSE72056_deconv <- GSE72056_deconv %>% select(-colnames(GSE72056_deconv)[grepl("MCP", colnames(GSE72056_deconv))])
+
+# CD4
+cd4 <- list()
+data <- GSE72056_deconv %>% select(colnames(GSE72056_deconv)[grepl("CD4", colnames(GSE72056_deconv))])
+# Regroup and remove different types of CD4 from LM22 signature
+data$Epidish_CBSX_LM22_CD4 = data$Epidish_CBSX_LM22_T.cells.CD4.memory.activated + data$Epidish_CBSX_LM22_T.cells.CD4.memory.resting + data$Epidish_CBSX_LM22_T.cells.CD4.naive
+data$DeconRNASeq_CBSX_LM22_CD4 = data$DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.activated + data$DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.resting + data$DeconRNASeq_CBSX_LM22_T.cells.CD4.naive
+data$CBSX.LM22_CD4 = data$CBSX.LM22_T_cells_CD4_memory_activated + data$CBSX.LM22_T_cells_CD4_memory_resting + data$CBSX.LM22_T_cells_CD4_naive
+data <- data %>% select(-c("CBSX.LM22_T_cells_CD4_memory_activated", "CBSX.LM22_T_cells_CD4_memory_resting", "CBSX.LM22_T_cells_CD4_naive", 
+                           "Epidish_CBSX_LM22_T.cells.CD4.memory.activated" ,"Epidish_CBSX_LM22_T.cells.CD4.memory.resting" ,"Epidish_CBSX_LM22_T.cells.CD4.naive", 
+                           "DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.activated" ,"DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.resting" , "DeconRNASeq_CBSX_LM22_T.cells.CD4.naive"))
+
+data <- data %>% select(order(colnames(.)))
+data <- cbind(data, GSE72056_facs$CD4)
+for (i in 1:(ncol(data) - 1)) {
+  cd4[[i]] <- local({
+    i <- i
+    x = ggplot(data, aes(x = data[, ncol(data)], y = data[, i])) +
+      geom_point() +
+      stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+      scale_x_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.0, 0.2)) +
+      scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
+      theme(axis.title.x= element_text(size = 12, face="bold"), 
+          axis.title.y= element_text(size = 12, face="bold") )  + 
+      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(CD4.*)|(_T_cell.*)|(_T.cell.*)")) +
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+  })
+}
+grid.arrange(grobs = cd4, ncol = 3, top = textGrob("CD4", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+
+# CD8
+cd8 <- list()
+data <- GSE72056_deconv %>% select(colnames(GSE72056_deconv)[grepl("CD8", colnames(GSE72056_deconv))])
+data <- data %>% select(order(colnames(.)))
+data <- cbind(data, GSE72056_facs$CD8)
+for (i in 1:(ncol(data) - 1)) {
+  cd8[[i]] <- local({
+    i <- i
+    x = ggplot(data, aes(x = data[, ncol(data)], y = data[, i])) +
+      geom_point() +
+      stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+      scale_x_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.0, 0.2)) +
+      scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
+      theme(axis.title.x= element_text(size = 12, face="bold"), 
+          axis.title.y= element_text(size = 12, face="bold") )  + 
+      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(CD8.*)|(_T_cell.*)|(_T.cell.*)")) +
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+  })
+}
+grid.arrange(grobs = cd8, ncol = 3, top = textGrob("CD8", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+
+# Macrophages
+macro <- list()
+data <- GSE72056_deconv %>% select(colnames(GSE72056_deconv)[grepl("Macro", colnames(GSE72056_deconv))])
+data <- data %>% select(order(colnames(.)))
+data <- cbind(data, GSE72056_facs$Macrophages)
+for (i in 1:(ncol(data) - 1)) {
+  macro[[i]] <- local({
+    i <- i
+    x = ggplot(data, aes(x = data[, ncol(data)], y = data[, i])) +
+      geom_point() +
+      stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+      scale_x_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.0, 0.2)) +
+      scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
+      theme(axis.title.x= element_text(size = 12, face="bold"), 
+          axis.title.y= element_text(size = 12, face="bold") )  + 
+      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_Macro.*")) +
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+  })
+}
+grid.arrange(grobs = macro, ncol = 3, top = textGrob("Macrophages", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+
+# B
+b <- list()
+data <- GSE72056_deconv %>% select(colnames(GSE72056_deconv)[grepl("(B_cell)|(B.cell)|(B_lin)", colnames(GSE72056_deconv))])
+data <- data %>% select(order(colnames(.)))
+data <- cbind(data, GSE72056_facs$B)
+for (i in 1:(ncol(data) - 1)) {
+  b[[i]] <- local({
+    i <- i
+    x = ggplot(data, aes(x = data[, ncol(data)], y = data[, i])) +
+      geom_point() +
+      stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+      scale_x_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.0, 0.2)) +
+      scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
+      theme(axis.title.x= element_text(size = 12, face="bold"), 
+          axis.title.y= element_text(size = 12, face="bold") )  + 
+      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(B_cell.*)|(_B.cell.*)|(_B_lin.*)")) +
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+  })
+}
+grid.arrange(grobs = b, ncol = 3, top = textGrob("B cells", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+
+# NK
+nk <- list()
+data <- GSE72056_deconv %>% select(colnames(GSE72056_deconv)[grepl("NK", colnames(GSE72056_deconv))])
+data <- data %>% select(order(colnames(.)))
+data <- cbind(data, GSE72056_facs$NK)
+for (i in 1:(ncol(data) - 1)) {
+  nk[[i]] <- local({
+    i <- i
+    x = ggplot(data, aes(x = data[, ncol(data)], y = data[, i])) +
+      geom_point() +
+      stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+      scale_x_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.0, 0.2)) +
+      scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
+      theme(axis.title.x= element_text(size = 12, face="bold"), 
+          axis.title.y= element_text(size = 12, face="bold") )  + 
+      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_NK.*")) +
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+  })
+}
+grid.arrange(grobs = nk, ncol = 3, top = textGrob("Natural Killers", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+
+```
+
+
+
+
+### Melanoma_GSE93722 
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+
+GSE93722_facs <- read.delim("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/facs/Facs_Melanoma_GSE93722.txt")
+GSE93722_deconv <- read.delim("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Miguel/deconvolutions_pipeline/all_deconvolutions/all_deconvolutions_Melanoma_GSE93722.txt")
+
+colnames(GSE93722_deconv) <- colnames(GSE93722_deconv) %>% str_replace_all("(CBSX__Fig2ab.NSCLC_PBMCs_scRNAseq_sigmatrix_)|(CBSX_Fig2ab.NSCLC_PBMCs_scRNAseq_sigmatrix)", "CBSX.NSCLC")
+colnames(GSE93722_deconv) <- colnames(GSE93722_deconv) %>% str_replace_all("(CBSX__scRNA.Seq_melanoma_Tirosh_sigmatrix_SuppFig_3.b_)|(CBSX_scRNA.Seq_melanoma_Tirosh_sigmatrix_SuppFig_3.b)", "CBSX.melanoma")
+colnames(GSE93722_deconv) <- colnames(GSE93722_deconv) %>% str_replace_all("(CBSX__sigmatrix_HNSCC_Fig2cd_)|(CBSX_sigmatrix_HNSCC_Fig2cd)", "CBSX.HNSCC")
+colnames(GSE93722_deconv) <- colnames(GSE93722_deconv) %>% str_replace_all("CBSX__LM22_", "CBSX.LM22")
+
+GSE93722_deconv <- GSE93722_deconv %>% select(-colnames(GSE93722_deconv)[grepl("XCELL", colnames(GSE93722_deconv))])
+GSE93722_deconv <- GSE93722_deconv %>% select(-colnames(GSE93722_deconv)[grepl("MCP", colnames(GSE93722_deconv))])
+
+
+# CD4
+cd4 <- list()
+data <- GSE93722_deconv %>% select(colnames(GSE93722_deconv)[grepl("CD4", colnames(GSE93722_deconv))])
+# Regroup and remove different types of CD4 from LM22 signature
+data$Epidish_CBSX_LM22_CD4 = data$Epidish_CBSX_LM22_T.cells.CD4.memory.activated + data$Epidish_CBSX_LM22_T.cells.CD4.memory.resting + data$Epidish_CBSX_LM22_T.cells.CD4.naive
+data$DeconRNASeq_CBSX_LM22_CD4 = data$DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.activated + data$DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.resting + data$DeconRNASeq_CBSX_LM22_T.cells.CD4.naive
+data$CBSX.LM22_CD4 = data$CBSX.LM22_T_cells_CD4_memory_activated + data$CBSX.LM22_T_cells_CD4_memory_resting + data$CBSX.LM22_T_cells_CD4_naive
+data <- data %>% select(-c("CBSX.LM22_T_cells_CD4_memory_activated", "CBSX.LM22_T_cells_CD4_memory_resting", "CBSX.LM22_T_cells_CD4_naive", 
+                           "Epidish_CBSX_LM22_T.cells.CD4.memory.activated" ,"Epidish_CBSX_LM22_T.cells.CD4.memory.resting" ,"Epidish_CBSX_LM22_T.cells.CD4.naive", 
+                           "DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.activated" ,"DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.resting" , "DeconRNASeq_CBSX_LM22_T.cells.CD4.naive"))
+
+data <- data %>% select(order(colnames(.)))
+data <- cbind(data, GSE93722_facs$CD4_Tcells)
+for (i in 1:(ncol(data) - 1)) {
+  cd4[[i]] <- local({
+    i <- i
+    x = ggplot(data, aes(x = data[, ncol(data)], y = data[, i])) +
+      geom_point() +
+      stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+      scale_x_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.0, 0.2)) +
+      scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
+      theme(axis.title.x= element_text(size = 12, face="bold"), 
+          axis.title.y= element_text(size = 12, face="bold") )  + 
+      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(CD4.*)|(_T_cell.*)|(_T.cell.*)")) +
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+  })
+}
+grid.arrange(grobs = cd4, ncol = 3, top = textGrob("CD4", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+
+# CD8
+cd8 <- list()
+data <- GSE93722_deconv %>% select(colnames(GSE93722_deconv)[grepl("CD8", colnames(GSE93722_deconv))])
+data <- data %>% select(order(colnames(.)))
+data <- cbind(data, GSE93722_facs$CD8_Tcells)
+for (i in 1:(ncol(data) - 1)) {
+  cd8[[i]] <- local({
+    i <- i
+    x = ggplot(data, aes(x = data[, ncol(data)], y = data[, i])) +
+      geom_point() +
+      stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+      scale_x_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.0, 0.2)) +
+      scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
+      theme(axis.title.x= element_text(size = 12, face="bold"), 
+          axis.title.y= element_text(size = 12, face="bold") )  + 
+      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(CD8.*)|(_T_cell.*)|(_T.cell.*)")) +
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+  })
+}
+grid.arrange(grobs = cd8, ncol = 3, top = textGrob("CD8", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+
+# B
+b <- list()
+data <- GSE93722_deconv %>% select(colnames(GSE93722_deconv)[grepl("(B_cell)|(B.cell)|(B_lin)", colnames(GSE93722_deconv))])
+data <- data %>% select(order(colnames(.)))
+data <- cbind(data, GSE93722_facs$Bcells)
+for (i in 1:(ncol(data) - 1)) {
+  b[[i]] <- local({
+    i <- i
+    x = ggplot(data, aes(x = data[, ncol(data)], y = data[, i])) +
+      geom_point() +
+      stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+      scale_x_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.0, 0.2)) +
+      scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
+      theme(axis.title.x= element_text(size = 12, face="bold"), 
+          axis.title.y= element_text(size = 12, face="bold") )  + 
+      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(B_cell.*)|(_B.cell.*)|(_B_lin.*)")) +
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+  })
+}
+grid.arrange(grobs = b, ncol = 3, top = textGrob("B cells", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+
+# NK
+nk <- list()
+data <- GSE93722_deconv %>% select(colnames(GSE93722_deconv)[grepl("NK", colnames(GSE93722_deconv))])
+data <- data %>% select(order(colnames(.)))
+data <- cbind(data, GSE93722_facs$NKcells)
+for (i in 1:(ncol(data) - 1)) {
+  nk[[i]] <- local({
+    i <- i
+    x = ggplot(data, aes(x = data[, ncol(data)], y = data[, i])) +
+      geom_point() +
+      stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+      scale_x_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.0, 0.2)) +
+      scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
+      theme(axis.title.x= element_text(size = 12, face="bold"), 
+          axis.title.y= element_text(size = 12, face="bold") )  + 
+      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_NK.*")) +
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+  })
+}
+grid.arrange(grobs = nk, ncol = 3, top = textGrob("Natural Killers", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+
+```
+
+
+
+

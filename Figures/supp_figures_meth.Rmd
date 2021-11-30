@@ -1,0 +1,898 @@
+---
+title: "Supplementary Methylation figures"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+library(reshape2)
+library(EpiDISH)
+library(tidyverse)
+library(Hmisc)
+library(ggpubr)
+
+knitr::opts_chunk$set(fig.width = 25, fig.height = 25, cache = T)
+```
+
+
+####  BPmet  
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+# Using an R object to load the data as the GSE matrix are heavy files.
+# Signatures and facs data are available in the associated folder
+load("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/GSE132203_100_and_GSE77797_6/methylation_figs.RData")
+
+
+out.l <- epidish(GSE132203_100, BPmet, "RPC", maxit = 100)
+GSE132203_100_BPmet <- data.frame(out.l$estF[, c(2, 3, 4, 1, 6, 5)])
+
+melt_FACS_GSE132203_100 <- melt(FACS_GSE132203_100)
+
+melt_GSE132203_100_BPmet <- melt(GSE132203_100_BPmet) %>% cbind(melt_FACS_GSE132203_100$value, .)
+colnames(melt_GSE132203_100_BPmet) <- c("FACS", "cell_type", "ALL")
+
+p_GSE132203_100_BPmet_all <- ggplot(melt_GSE132203_100_BPmet, aes(x = FACS, y = ALL, colour = cell_type)) +
+  geom_point(shape = 19, size = 2) +
+  ggtitle("All cells") +
+  scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta", "deepskyblue")) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  scale_x_continuous(name = NULL, limits = c(0, 1), breaks = seq(0.0, 1.0, 0.2)) +
+  scale_y_continuous(name = NULL, limits = c(0, 1.2), breaks = seq(0.0, 1.2, 0.2)) +
+  theme(axis.title.x = element_text(vjust = -0.5)) +
+  theme(axis.title.y = element_text(vjust = 1.5), legend.position = "none", panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  annotate("text", x = 0.48, y = 1.2, label = paste("italic(r)==", round(cor.test(as.matrix(GSE132203_100_BPmet), as.matrix(FACS_GSE132203_100))$est, 3), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.28, y = 1.05, label = paste("RMSE =", round(sqrt(mean((as.matrix(GSE132203_100_BPmet) - as.matrix(FACS_GSE132203_100))^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.175, y = 0.9, label = paste("n = ", nrow(GSE132203_100_BPmet)), size = 6)
+
+p_GSE132203_100_BPmet_all_longly <- ggplot(melt_GSE132203_100_BPmet, aes(x = FACS, y = ALL, colour = cell_type)) +
+  geom_point(shape = 19, size = 2) +
+  ggtitle("BPmet") +
+  scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta", "deepskyblue")) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  scale_x_continuous(name = NULL, limits = c(0, 1), breaks = seq(0.0, 1.0, 0.2)) +
+  scale_y_continuous(name = NULL, limits = c(0, 1.2), breaks = seq(0.0, 1.2, 0.2)) +
+  theme(axis.title.x = element_text(vjust = -0.5)) +
+  theme(axis.title.y = element_text(vjust = 1.5), legend.position = "none", panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  annotate("text", x = 0.48, y = 1.2, label = paste("italic(r)==", round(cor.test(as.matrix(GSE132203_100_BPmet), as.matrix(FACS_GSE132203_100))$est, 3), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.28, y = 1.05, label = paste("RMSE =", round(sqrt(mean((as.matrix(GSE132203_100_BPmet) - as.matrix(FACS_GSE132203_100))^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.175, y = 0.9, label = paste("n = ", nrow(GSE132203_100_BPmet)), size = 6)
+
+
+
+
+#### each cell types
+
+GSE132203_100_BPmet <- cbind(GSE132203_100_BPmet, FACS_GSE132203_100)
+
+colnames(GSE132203_100_BPmet) <- c("V", "V", "V", "V", "V", "V", "CD4", "CD8", "Mono", "B", "NK", "Neu")
+
+
+melt_GSE132203_100_BPmet <- list()
+p_GSE132203_100_BPmet <- list()
+
+for (i in c(1:6)) {
+
+  # rmse[[i]] <- rmse(GSE132203_100_BPmet[,i], FACS_GSE132203_100[,i])
+
+  melt_GSE132203_100_BPmet[[i]] <- melt(GSE132203_100_BPmet[, c(i, i + 6)], id.vars = colnames(GSE132203_100_BPmet)[i], measure.vars = colnames(GSE132203_100_BPmet)[i + 6])
+}
+
+# RMSE <- data.frame(cell_type = c("CD4", "CD8", "Mono", "B", "NK", "Neu"),
+#                    rmse = unlist(rmse))
+
+
+p_GSE132203_100_BPmet[[1]] <- ggplot(melt_GSE132203_100_BPmet[[1]], aes(x = value, y = V)) +
+  geom_point(colour = c("red"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("CD4") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.4)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  annotate("text", x = 0.185, y = 0.4, label = paste("italic(r)==", round(cor.test(GSE132203_100_BPmet[[1]], FACS_GSE132203_100[, 1])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.113, y = 0.345, label = paste("RMSE =", round(sqrt(mean((GSE132203_100_BPmet[[1]] - FACS_GSE132203_100[, 1])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.072, y = 0.292, label = paste("n = ", nrow(GSE132203_100_BPmet)), size = 6)
+
+
+p_GSE132203_100_BPmet[[2]] <- ggplot(melt_GSE132203_100_BPmet[[2]], aes(x = value, y = V)) +
+  geom_point(colour = c("green"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("CD8") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  annotate("text", x = 0.135, y = 0.4, label = paste("italic(r)==", round(cor.test(GSE132203_100_BPmet[[2]], FACS_GSE132203_100[, 2])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.08, y = 0.345, label = paste("RMSE =", round(sqrt(mean((GSE132203_100_BPmet[[2]] - FACS_GSE132203_100[, 2])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.05, y = 0.292, label = paste("n = ", nrow(GSE132203_100_BPmet)), size = 6)
+
+
+p_GSE132203_100_BPmet[[3]] <- ggplot(melt_GSE132203_100_BPmet[[3]], aes(x = value, y = V)) +
+  geom_point(colour = c("blue"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("Mono") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  annotate("text", x = 0.135, y = 0.4, label = paste("italic(r)==", round(cor.test(GSE132203_100_BPmet[[3]], FACS_GSE132203_100[, 3])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.08, y = 0.345, label = paste("RMSE =", round(sqrt(mean((GSE132203_100_BPmet[[3]] - FACS_GSE132203_100[, 3])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.05, y = 0.292, label = paste("n = ", nrow(GSE132203_100_BPmet)), size = 6)
+
+
+p_GSE132203_100_BPmet[[4]] <- ggplot(melt_GSE132203_100_BPmet[[4]], aes(x = value, y = V)) +
+  geom_point(colour = c("darkgoldenrod1"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("B") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.2), breaks = seq(0.0, 0.2, 0.05)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.3)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  annotate("text", x = 0.095, y = 0.3, label = paste("italic(r)==", round(cor.test(GSE132203_100_BPmet[[4]], FACS_GSE132203_100[, 4])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.058, y = 0.257, label = paste("RMSE =", round(sqrt(mean((GSE132203_100_BPmet[[4]] - FACS_GSE132203_100[, 4])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.037, y = 0.218, label = paste("n = ", nrow(GSE132203_100_BPmet)), size = 6)
+
+
+p_GSE132203_100_BPmet[[5]] <- ggplot(melt_GSE132203_100_BPmet[[5]], aes(x = value, y = V)) +
+  geom_point(colour = c("darkmagenta"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("NK") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.15)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.2)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  annotate("text", x = 0.073, y = 0.2, label = paste("italic(r)==", round(cor.test(GSE132203_100_BPmet[[5]], FACS_GSE132203_100[, 5])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.045, y = 0.173, label = paste("RMSE =", round(sqrt(mean((GSE132203_100_BPmet[[5]] - FACS_GSE132203_100[, 5])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.0292, y = 0.15, label = paste("n = ", nrow(GSE132203_100_BPmet)), size = 6)
+
+
+
+p_GSE132203_100_BPmet[[6]] <- ggplot(melt_GSE132203_100_BPmet[[6]], aes(x = value, y = V)) +
+  geom_point(colour = c("deepskyblue"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("Neu") +
+  scale_x_continuous(name = NULL, limits = c(0, 1), breaks = seq(0.0, 1.0, 0.2)) +
+  scale_y_continuous(name = NULL, limits = c(0, 1.2), breaks = seq(0.0, 1.2, 0.2)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  annotate("text", x = 0.45, y = 1.2, label = paste("italic(r)==", round(cor.test(GSE132203_100_BPmet[[6]], FACS_GSE132203_100[, 6])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.28, y = 1.05, label = paste("RMSE =", round(sqrt(mean((GSE132203_100_BPmet[[6]] - FACS_GSE132203_100[, 6])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.175, y = 0.9, label = paste("n = ", nrow(GSE132203_100_BPmet)), size = 6)
+
+
+p_GSE132203_100_BPmet_each <- ggarrange(p_GSE132203_100_BPmet[[1]], p_GSE132203_100_BPmet[[2]], p_GSE132203_100_BPmet[[3]], p_GSE132203_100_BPmet[[4]], p_GSE132203_100_BPmet[[5]], p_GSE132203_100_BPmet[[6]], ncol = 3, nrow = 2, font.label = list(size = 20, color = "black"))
+
+p_GSE132203_100_BPmet_all_all <- ggarrange(p_GSE132203_100_BPmet_all, ncol = 3, nrow = 1, font.label = list(size = 20, color = "black"))
+```
+
+####   MethylCIBERSORT
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+
+out.l <- epidish(GSE132203_100, MethylCIBERSORT_WB, "RPC", maxit = 100)
+
+GSE132203_100_MethylCIBERSORT_WB <- as.data.frame(cbind(out.l$estF[, 3] + out.l$estF[, 10], out.l$estF[, 5], out.l$estF[, 1], out.l$estF[, 2], out.l$estF[, 4], out.l$estF[, 9]))
+
+colnames(GSE132203_100_MethylCIBERSORT_WB) <- c("CD4", "CD8", "Mono", "B", "NK", "Neu")
+
+# melt_GSE132203_100_MethylCIBERSORT_WB <- melt(GSE132203_100_MethylCIBERSORT_WB)
+
+melt_GSE132203_100_MethylCIBERSORT_WB <- melt(GSE132203_100_MethylCIBERSORT_WB) %>% cbind(melt_FACS_GSE132203_100$value, .)
+colnames(melt_GSE132203_100_MethylCIBERSORT_WB) <- c("FACS", "cell_type", "MethylCIBERSORT")
+
+p_GSE132203_100_MethylCIBERSORT_WB_all <- ggplot(melt_GSE132203_100_MethylCIBERSORT_WB, aes(x = FACS, y = MethylCIBERSORT, colour = cell_type)) +
+  geom_point(shape = 19, size = 2) +
+  ggtitle("All cells") +
+  scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta", "deepskyblue")) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  scale_x_continuous(name = NULL, limits = c(0, 1), breaks = seq(0.0, 1.0, 0.2)) +
+  scale_y_continuous(name = NULL, limits = c(0, 1.2), breaks = seq(0.0, 1.2, 0.2)) +
+  theme(axis.title.x = element_text(vjust = -0.5)) +
+  theme(axis.title.y = element_text(vjust = 1.5), legend.position = "none", panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  annotate("text", x = 0.48, y = 1.2, label = paste("italic(r)==", round(cor.test(as.matrix(GSE132203_100_MethylCIBERSORT_WB), as.matrix(FACS_GSE132203_100))$est, 3), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.28, y = 1.05, label = paste("RMSE =", round(sqrt(mean((as.matrix(GSE132203_100_MethylCIBERSORT_WB) - as.matrix(FACS_GSE132203_100))^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.175, y = 0.9, label = paste("n = ", nrow(GSE132203_100_MethylCIBERSORT_WB)), size = 6)
+
+
+p_GSE132203_100_MethylCIBERSORT_WB_all_lonly <- ggplot(melt_GSE132203_100_MethylCIBERSORT_WB, aes(x = FACS, y = MethylCIBERSORT, colour = cell_type)) +
+  geom_point(shape = 19, size = 2) +
+  ggtitle("MethylCIBERSORT") +
+  scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta", "deepskyblue")) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  scale_x_continuous(name = NULL, limits = c(0, 1), breaks = seq(0.0, 1.0, 0.2)) +
+  scale_y_continuous(name = NULL, limits = c(0, 1.2), breaks = seq(0.0, 1.2, 0.2)) +
+  theme(axis.title.x = element_text(vjust = -0.5)) +
+  theme(axis.title.y = element_text(vjust = 1.5), legend.position = "none", panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  annotate("text", x = 0.48, y = 1.2, label = paste("italic(r)==", round(cor.test(as.matrix(GSE132203_100_MethylCIBERSORT_WB), as.matrix(FACS_GSE132203_100))$est, 3), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.28, y = 1.05, label = paste("RMSE =", round(sqrt(mean((as.matrix(GSE132203_100_MethylCIBERSORT_WB) - as.matrix(FACS_GSE132203_100))^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.175, y = 0.9, label = paste("n = ", nrow(GSE132203_100_MethylCIBERSORT_WB)), size = 6)
+
+
+
+#### each cell types
+
+
+GSE132203_100_MethylCIBERSORT_WB <- cbind(GSE132203_100_MethylCIBERSORT_WB, FACS_GSE132203_100)
+
+colnames(GSE132203_100_MethylCIBERSORT_WB) <- c("V", "V", "V", "V", "V", "V", "CD4", "CD8", "Mono", "B", "NK", "Neu")
+
+
+melt_GSE132203_100_MethylCIBERSORT_WB <- list()
+rmse <- list()
+p_GSE132203_100_MethylCIBERSORT <- list()
+
+for (i in c(1:6)) {
+
+  # rmse[[i]] <- rmse(GSE132203_100_MethylCIBERSORT_WB[,i], GSE132203_100_MethylCIBERSORT_WB[,i+6])
+
+  melt_GSE132203_100_MethylCIBERSORT_WB[[i]] <- melt(GSE132203_100_MethylCIBERSORT_WB[, c(i, i + 6)], id.vars = colnames(GSE132203_100_MethylCIBERSORT_WB)[i], measure.vars = colnames(GSE132203_100_MethylCIBERSORT_WB)[i + 6])
+}
+
+# RMSE <- data.frame(cell_type = c("CD4", "CD8", "Mono", "B", "NK", "Neu"),
+#                    rmse = unlist(rmse))
+
+
+p_GSE132203_100_MethylCIBERSORT[[1]] <- ggplot(melt_GSE132203_100_MethylCIBERSORT_WB[[1]], aes(x = value, y = V)) +
+  geom_point(colour = c("red"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("CD4") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.4)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  annotate("text", x = 0.185, y = 0.4, label = paste("italic(r)==", round(cor.test(GSE132203_100_MethylCIBERSORT_WB[[1]], FACS_GSE132203_100[, 1])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.113, y = 0.345, label = paste("RMSE =", round(sqrt(mean((GSE132203_100_MethylCIBERSORT_WB[[1]] - FACS_GSE132203_100[, 1])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.072, y = 0.292, label = paste("n = ", nrow(GSE132203_100_MethylCIBERSORT_WB)), size = 6)
+
+
+p_GSE132203_100_MethylCIBERSORT[[2]] <- ggplot(melt_GSE132203_100_MethylCIBERSORT_WB[[2]], aes(x = value, y = V)) +
+  geom_point(colour = c("green"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("CD8") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  annotate("text", x = 0.135, y = 0.4, label = paste("italic(r)==", round(cor.test(GSE132203_100_MethylCIBERSORT_WB[[2]], FACS_GSE132203_100[, 2])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.08, y = 0.345, label = paste("RMSE =", round(sqrt(mean((GSE132203_100_MethylCIBERSORT_WB[[2]] - FACS_GSE132203_100[, 2])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.05, y = 0.292, label = paste("n = ", nrow(GSE132203_100_MethylCIBERSORT_WB)), size = 6)
+
+
+p_GSE132203_100_MethylCIBERSORT[[3]] <- ggplot(melt_GSE132203_100_MethylCIBERSORT_WB[[3]], aes(x = value, y = V)) +
+  geom_point(colour = c("blue"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("Mono") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  annotate("text", x = 0.135, y = 0.4, label = paste("italic(r)==", round(cor.test(GSE132203_100_MethylCIBERSORT_WB[[3]], FACS_GSE132203_100[, 3])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.08, y = 0.345, label = paste("RMSE =", round(sqrt(mean((GSE132203_100_MethylCIBERSORT_WB[[3]] - FACS_GSE132203_100[, 3])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.05, y = 0.292, label = paste("n = ", nrow(GSE132203_100_MethylCIBERSORT_WB)), size = 6)
+
+
+p_GSE132203_100_MethylCIBERSORT[[4]] <- ggplot(melt_GSE132203_100_MethylCIBERSORT_WB[[4]], aes(x = value, y = V)) +
+  geom_point(colour = c("darkgoldenrod1"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("B") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.2), breaks = seq(0.0, 0.2, 0.05)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.3)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  annotate("text", x = 0.095, y = 0.3, label = paste("italic(r)==", round(cor.test(GSE132203_100_MethylCIBERSORT_WB[[4]], FACS_GSE132203_100[, 4])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.058, y = 0.257, label = paste("RMSE =", round(sqrt(mean((GSE132203_100_MethylCIBERSORT_WB[[4]] - FACS_GSE132203_100[, 4])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.037, y = 0.218, label = paste("n = ", nrow(GSE132203_100_MethylCIBERSORT_WB)), size = 6)
+
+
+p_GSE132203_100_MethylCIBERSORT[[5]] <- ggplot(melt_GSE132203_100_MethylCIBERSORT_WB[[5]], aes(x = value, y = V)) +
+  geom_point(colour = c("darkmagenta"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("NK") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.15)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.3)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  
+  annotate("text", x = 0.073, y = 0.3, label = paste("italic(r)==", round(cor.test(GSE132203_100_MethylCIBERSORT_WB[[5]], FACS_GSE132203_100[, 5])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.045, y = 0.257, label = paste("RMSE =", round(sqrt(mean((GSE132203_100_MethylCIBERSORT_WB[[5]] - FACS_GSE132203_100[, 5])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.0292, y = 0.218, label = paste("n = ", nrow(GSE132203_100_MethylCIBERSORT_WB)), size = 6)
+
+p_GSE132203_100_MethylCIBERSORT[[6]] <- ggplot(melt_GSE132203_100_MethylCIBERSORT_WB[[6]], aes(x = value, y = V)) +
+  geom_point(colour = c("deepskyblue"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("Neu") +
+  scale_x_continuous(name = NULL, limits = c(0, 1), breaks = seq(0.0, 1.0, 0.2)) +
+  scale_y_continuous(name = NULL, limits = c(0, 1.2), breaks = seq(0.0, 1.2, 0.2)) +
+  
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  annotate("text", x = 0.45, y = 1.2, label = paste("italic(r)==", round(cor.test(GSE132203_100_MethylCIBERSORT_WB[[6]], FACS_GSE132203_100[, 6])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.28, y = 1.05, label = paste("RMSE =", round(sqrt(mean((GSE132203_100_MethylCIBERSORT_WB[[6]] - FACS_GSE132203_100[, 6])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.175, y = 0.9, label = paste("n = ", nrow(GSE132203_100_MethylCIBERSORT_WB)), size = 6)
+
+
+p_GSE132203_100_MethylCIBERSORT_each <- ggarrange(p_GSE132203_100_MethylCIBERSORT[[1]], p_GSE132203_100_MethylCIBERSORT[[2]], p_GSE132203_100_MethylCIBERSORT[[3]], p_GSE132203_100_MethylCIBERSORT[[4]], p_GSE132203_100_MethylCIBERSORT[[5]], p_GSE132203_100_MethylCIBERSORT[[6]], ncol = 3, nrow = 2, font.label = list(size = 20, color = "black"))
+
+p_GSE132203_100_MethylCIBERSORT_all_all <- ggarrange(p_GSE132203_100_MethylCIBERSORT_WB_all, ncol = 3, nrow = 1, font.label = list(size = 20, color = "black"))
+```
+
+###   DHS 
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+
+out.l <- epidish(GSE132203_100, centDHSbloodDMC.m, "RPC", maxit = 100)
+GSE132203_100_DHS <- data.frame(out.l$estF[, c(3, 4, 5, 1, 2, 6)])
+colnames(GSE132203_100_DHS) <- c("CD4", "CD8", "Mono", "B", "NK", "Neu")
+
+
+# melt_GSE132203_100_DHS <- melt(GSE132203_100_DHS)
+
+melt_GSE132203_100_DHS <- melt(GSE132203_100_DHS) %>% cbind(melt_FACS_GSE132203_100$value, .)
+colnames(melt_GSE132203_100_DHS) <- c("FACS", "cell_type", "DHS")
+
+p_melt_GSE132203_100_DHS_all <- ggplot(melt_GSE132203_100_DHS, aes(x = FACS, y = DHS, colour = cell_type)) +
+  geom_point(shape = 19, size = 2) +
+  ggtitle("All cells") +
+  scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta", "deepskyblue")) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  scale_x_continuous(name = NULL, limits = c(0, 1), breaks = seq(0.0, 1.0, 0.2)) +
+  scale_y_continuous(name = NULL, limits = c(0, 1.2), breaks = seq(0.0, 1.2, 0.2)) +
+  
+  theme(axis.title.x = element_text(vjust = -0.5)) +
+  theme(axis.title.y = element_text(vjust = 1.5), legend.position = "none", panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  annotate("text", x = 0.48, y = 1.2, label = paste("italic(r)==", round(cor.test(as.matrix(GSE132203_100_DHS), as.matrix(FACS_GSE132203_100))$est, 3), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.28, y = 1.05, label = paste("RMSE =", round(sqrt(mean((as.matrix(GSE132203_100_DHS) - as.matrix(FACS_GSE132203_100))^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.175, y = 0.9, label = paste("n = ", nrow(GSE132203_100_DHS)), size = 6)
+
+
+
+p_melt_GSE132203_100_DHS_all_longly <- ggplot(melt_GSE132203_100_DHS, aes(x = FACS, y = DHS, colour = cell_type)) +
+  geom_point(shape = 19, size = 2) +
+  ggtitle("DHS") +
+  scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta", "deepskyblue")) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  scale_x_continuous(name = NULL, limits = c(0, 1), breaks = seq(0.0, 1.0, 0.2)) +
+  scale_y_continuous(name = NULL, limits = c(0, 1.2), breaks = seq(0.0, 1.2, 0.2)) +
+  
+  theme(axis.title.x = element_text(vjust = -0.5)) +
+  theme(axis.title.y = element_text(vjust = 1.5), legend.position = "none", panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  annotate("text", x = 0.48, y = 1.2, label = paste("italic(r)==", round(cor.test(as.matrix(GSE132203_100_DHS), as.matrix(FACS_GSE132203_100))$est, 3), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.28, y = 1.05, label = paste("RMSE =", round(sqrt(mean((as.matrix(GSE132203_100_DHS) - as.matrix(FACS_GSE132203_100))^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.175, y = 0.9, label = paste("n = ", nrow(GSE132203_100_DHS)), size = 6)
+
+#### each cell types
+
+
+GSE132203_100_DHS <- cbind(GSE132203_100_DHS, FACS_GSE132203_100)
+
+colnames(GSE132203_100_DHS) <- c("V", "V", "V", "V", "V", "V", "CD4", "CD8", "Mono", "B", "NK", "Neu")
+
+
+melt_GSE132203_100_DHS <- list()
+rmse <- list()
+p_GSE132203_100_DHS <- list()
+
+for (i in c(1:6)) {
+
+  # rmse[[i]] <- rmse(GSE132203_100_DHS[,i], GSE132203_100_DHS[,i+6])
+
+  melt_GSE132203_100_DHS[[i]] <- melt(GSE132203_100_DHS[, c(i, i + 6)], id.vars = colnames(GSE132203_100_DHS)[i], measure.vars = colnames(GSE132203_100_DHS)[i + 6])
+}
+
+# RMSE <- data.frame(cell_type = c("CD4", "CD8", "Mono", "B", "NK", "Neu"),
+#                    rmse = unlist(rmse))
+
+
+p_GSE132203_100_DHS[[1]] <- ggplot(melt_GSE132203_100_DHS[[1]], aes(x = value, y = V)) +
+  geom_point(colour = c("red"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("CD4") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.4)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  
+  annotate("text", x = 0.185, y = 0.4, label = paste("italic(r)==", round(cor.test(GSE132203_100_DHS[[1]], FACS_GSE132203_100[, 1])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.113, y = 0.345, label = paste("RMSE =", round(sqrt(mean((GSE132203_100_DHS[[1]] - FACS_GSE132203_100[, 1])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.072, y = 0.292, label = paste("n = ", nrow(GSE132203_100_DHS)), size = 6)
+
+
+p_GSE132203_100_DHS[[2]] <- ggplot(melt_GSE132203_100_DHS[[2]], aes(x = value, y = V)) +
+  geom_point(colour = c("green"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("CD8") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  
+  annotate("text", x = 0.135, y = 0.4, label = paste("italic(r)==", round(cor.test(GSE132203_100_DHS[[2]], FACS_GSE132203_100[, 2])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.08, y = 0.345, label = paste("RMSE =", round(sqrt(mean((GSE132203_100_DHS[[2]] - FACS_GSE132203_100[, 2])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.05, y = 0.292, label = paste("n = ", nrow(GSE132203_100_DHS)), size = 6)
+
+
+p_GSE132203_100_DHS[[3]] <- ggplot(melt_GSE132203_100_DHS[[3]], aes(x = value, y = V)) +
+  geom_point(colour = c("blue"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("Mono") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  
+  annotate("text", x = 0.135, y = 0.4, label = paste("italic(r)==", round(cor.test(GSE132203_100_DHS[[3]], FACS_GSE132203_100[, 3])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.08, y = 0.345, label = paste("RMSE =", round(sqrt(mean((GSE132203_100_DHS[[3]] - FACS_GSE132203_100[, 3])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.05, y = 0.292, label = paste("n = ", nrow(GSE132203_100_DHS)), size = 6)
+
+
+p_GSE132203_100_DHS[[4]] <- ggplot(melt_GSE132203_100_DHS[[4]], aes(x = value, y = V)) +
+  geom_point(colour = c("darkgoldenrod1"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("B") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.2), breaks = seq(0.0, 0.2, 0.05)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.3)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  
+  annotate("text", x = 0.095, y = 0.3, label = paste("italic(r)==", round(cor.test(GSE132203_100_DHS[[4]], FACS_GSE132203_100[, 4])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.058, y = 0.257, label = paste("RMSE =", round(sqrt(mean((GSE132203_100_DHS[[4]] - FACS_GSE132203_100[, 4])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.037, y = 0.218, label = paste("n = ", nrow(GSE132203_100_DHS)), size = 6)
+
+
+p_GSE132203_100_DHS[[5]] <- ggplot(melt_GSE132203_100_DHS[[5]], aes(x = value, y = V)) +
+  geom_point(colour = c("darkmagenta"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("NK") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.15)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.3)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  
+  annotate("text", x = 0.073, y = 0.3, label = paste("italic(r)==", round(cor.test(GSE132203_100_DHS[[5]], FACS_GSE132203_100[, 5])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.045, y = 0.257, label = paste("RMSE =", round(sqrt(mean((GSE132203_100_DHS[[5]] - FACS_GSE132203_100[, 5])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.0292, y = 0.218, label = paste("n = ", nrow(GSE132203_100_DHS)), size = 6)
+
+
+p_GSE132203_100_DHS[[6]] <- ggplot(melt_GSE132203_100_DHS[[6]], aes(x = value, y = V)) +
+  geom_point(colour = c("deepskyblue"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("Neu") +
+  scale_x_continuous(name = NULL, limits = c(0, 1), breaks = seq(0.0, 1.0, 0.2)) +
+  scale_y_continuous(name = NULL, limits = c(0, 1.2), breaks = seq(0.0, 1.2, 0.2)) +
+  
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  annotate("text", x = 0.45, y = 1.2, label = paste("italic(r)==", round(cor.test(GSE132203_100_DHS[[6]], FACS_GSE132203_100[, 6])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.28, y = 1.05, label = paste("RMSE =", round(sqrt(mean((GSE132203_100_DHS[[6]] - FACS_GSE132203_100[, 6])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.175, y = 0.9, label = paste("n = ", nrow(GSE132203_100_DHS)), size = 6)
+
+
+p_GSE132203_100_DHS_each <- ggarrange(p_GSE132203_100_DHS[[1]], p_GSE132203_100_DHS[[2]], p_GSE132203_100_DHS[[3]], p_GSE132203_100_DHS[[4]], p_GSE132203_100_DHS[[5]], p_GSE132203_100_DHS[[6]], ncol = 3, nrow = 2, font.label = list(size = 20, color = "black"))
+
+p_GSE132203_100_DHS_all_all <- ggarrange(p_melt_GSE132203_100_DHS_all, ncol = 3, nrow = 1, font.label = list(size = 20, color = "black"))
+```
+
+
+## Methylation 6 WB samples GSE77797
+
+### BPmet
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+
+out.l <- epidish(GSE77797_six, BPmet, "RPC", maxit = 100)
+GSE77797_six_BPmet <- data.frame(out.l$estF[, c(2, 3, 4, 1, 6)])
+# melt_GSE77797_six_BPmet <- melt(GSE77797_six_BPmet)
+melt_facs_GSE77797_six <- melt(facs_GSE77797_six[, -6])
+
+melt_GSE77797_six_BPmet <- melt(GSE77797_six_BPmet) %>% cbind(melt_facs_GSE77797_six$value, .)
+colnames(melt_GSE77797_six_BPmet) <- c("FACS", "cell_type", "BPmet")
+
+p_GSE77797_six_BPmet_all <- ggplot(melt_GSE77797_six_BPmet, aes(x = FACS, y = BPmet, colour = cell_type)) +
+  geom_point(shape = 19, size = 2) +
+  ggtitle("All cells") +
+  scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta")) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
+  
+  theme(axis.title.x = element_text(vjust = -0.5)) +
+  theme(axis.title.y = element_text(vjust = 1.5), legend.position = "none", panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  annotate("text", x = 0.108, y = 0.4, label = paste("italic(r)==", round(cor.test(as.matrix(GSE77797_six_BPmet), as.matrix(facs_GSE77797_six[, -6]))$est, 3), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.07, y = 0.345, label = paste("RMSE =", round(sqrt(mean((as.matrix(GSE77797_six_BPmet) - as.matrix(facs_GSE77797_six[, -6]))^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.035, y = 0.292, label = paste("n = ", nrow(GSE77797_six_BPmet)), size = 6)
+
+
+p_GSE77797_six_BPmet_all_longly <- ggplot(melt_GSE77797_six_BPmet, aes(x = FACS, y = BPmet, colour = cell_type)) +
+  geom_point(shape = 19, size = 2) +
+  ggtitle("BPmet") +
+  scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta")) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
+  
+  theme(axis.title.x = element_text(vjust = -0.5)) +
+  theme(axis.title.y = element_text(vjust = 1.5), legend.position = "none", panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  annotate("text", x = 0.108, y = 0.4, label = paste("italic(r)==", round(cor.test(as.matrix(GSE77797_six_BPmet), as.matrix(facs_GSE77797_six[, -6]))$est, 3), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+  annotate("text", x = 0.07, y = 0.345, label = paste("RMSE =", round(sqrt(mean((as.matrix(GSE77797_six_BPmet) - as.matrix(facs_GSE77797_six[, -6]))^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.035, y = 0.292, label = paste("n = ", nrow(GSE77797_six_BPmet)), size = 6)
+
+#### each cell types
+
+
+GSE77797_six_BPmet <- cbind(GSE77797_six_BPmet, facs_GSE77797_six[, -6])
+
+colnames(GSE77797_six_BPmet) <- c("V", "V", "V", "V", "V", "CD4", "CD8", "Mono", "B", "NK")
+
+
+melt_GSE77797_six_BPmet <- list()
+rmse <- list()
+G6_BPmet <- list()
+
+for (i in c(1:5)) {
+
+  # rmse[[i]] <- rmse(GSE77797_six_BPmet[,i], GSE77797_six_BPmet[,i+5])
+
+  melt_GSE77797_six_BPmet[[i]] <- melt(GSE77797_six_BPmet[, c(i, i + 5)], id.vars = colnames(GSE77797_six_BPmet)[i], measure.vars = colnames(GSE77797_six_BPmet)[i + 5])
+}
+#
+# RMSE <- data.frame(cell_type = c("CD4", "CD8", "Mono", "B", "NK"),
+#                    rmse = unlist(rmse))
+
+
+G6_BPmet[[1]] <- ggplot(melt_GSE77797_six_BPmet[[1]], aes(x = value, y = V)) +
+  geom_point(colour = c("red"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("CD4") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.4)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  
+  annotate("text", x = 0.102, y = 0.4, label = paste("italic(r)==", round(cor.test(GSE77797_six_BPmet[[1]], facs_GSE77797_six[, 1])$est, 2), "~','", "~italic(P)<", round(cor.test(GSE77797_six_BPmet[[1]], facs_GSE77797_six[, 1])$p.value, 4)), parse = TRUE, size = 6) +
+  annotate("text", x = 0.07, y = 0.345, label = paste("RMSE =", round(sqrt(mean((GSE77797_six_BPmet[[1]] - facs_GSE77797_six[, 1])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.035, y = 0.292, label = paste("n = ", nrow(GSE77797_six_BPmet)), size = 6)
+
+
+G6_BPmet[[2]] <- ggplot(melt_GSE77797_six_BPmet[[2]], aes(x = value, y = V)) +
+  geom_point(colour = c("green"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("CD8") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.15)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.3)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  
+  annotate("text", x = 0.05, y = 0.3, label = paste("italic(r)==", round(cor.test(GSE77797_six_BPmet[[2]], facs_GSE77797_six[, 2])$est, 2), "~','", "~italic(P)<", round(cor.test(GSE77797_six_BPmet[[2]], facs_GSE77797_six[, 2])$p.value, 4)), parse = TRUE, size = 6) +
+  annotate("text", x = 0.035, y = 0.257, label = paste("RMSE =", round(sqrt(mean((GSE77797_six_BPmet[[2]] - facs_GSE77797_six[, 2])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.018, y = 0.218, label = paste("n = ", nrow(GSE77797_six_BPmet)), size = 6)
+
+
+
+G6_BPmet[[3]] <- ggplot(melt_GSE77797_six_BPmet[[3]], aes(x = value, y = V)) +
+  geom_point(colour = c("blue"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("Mono") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.1), breaks = seq(0.0, 0.1, 0.02)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.2)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  
+  annotate("text", x = 0.035, y = 0.2, label = paste("italic(r)==", round(cor.test(GSE77797_six_BPmet[[3]], facs_GSE77797_six[, 3])$est, 2), "~','", "~italic(P)<", round(cor.test(GSE77797_six_BPmet[[3]], facs_GSE77797_six[, 3])$p.value, 4)), parse = TRUE, size = 6) +
+  annotate("text", x = 0.023, y = 0.173, label = paste("RMSE =", round(sqrt(mean((GSE77797_six_BPmet[[3]] - facs_GSE77797_six[, 3])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.0115, y = 0.145, label = paste("n = ", nrow(GSE77797_six_BPmet)), size = 6)
+
+
+
+G6_BPmet[[4]] <- ggplot(melt_GSE77797_six_BPmet[[4]], aes(x = value, y = V)) +
+  geom_point(colour = c("darkgoldenrod1"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("B") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.08), breaks = seq(0.0, 0.1, 0.02)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.15)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  
+  annotate("text", x = 0.028, y = 0.15, label = paste("italic(r)==", round(cor.test(GSE77797_six_BPmet[[4]], facs_GSE77797_six[, 4])$est, 2), "~','", "~italic(P)<", round(cor.test(GSE77797_six_BPmet[[4]], facs_GSE77797_six[, 4])$p.value, 4)), parse = TRUE, size = 6) +
+  annotate("text", x = 0.019, y = 0.13, label = paste("RMSE =", round(sqrt(mean((GSE77797_six_BPmet[[4]] - facs_GSE77797_six[, 4])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.01, y = 0.11, label = paste("n = ", nrow(GSE77797_six_BPmet)), size = 6)
+
+
+G6_BPmet[[5]] <- ggplot(melt_GSE77797_six_BPmet[[5]], aes(x = value, y = V)) +
+  geom_point(colour = c("darkmagenta"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("NK") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.06), breaks = seq(0.0, 0.1, 0.02)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.15)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  
+  annotate("text", x = 0.022, y = 0.15, label = paste("italic(r)==", round(cor.test(GSE77797_six_BPmet[[5]], facs_GSE77797_six[, 5])$est, 2), "~','", "~italic(P)<", round(cor.test(GSE77797_six_BPmet[[5]], facs_GSE77797_six[, 5])$p.value, 4)), parse = TRUE, size = 6) +
+  annotate("text", x = 0.015, y = 0.13, label = paste("RMSE =", round(sqrt(mean((GSE77797_six_BPmet[[5]] - facs_GSE77797_six[, 5])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.0082, y = 0.11, label = paste("n = ", nrow(GSE77797_six_BPmet)), size = 6)
+```
+
+#### MethylCIBERSORT_WB
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+
+out.l <- epidish(GSE77797_six, MethylCIBERSORT_WB, "RPC", maxit = 100)
+GSE77797_six_MethylCIBERSORT_WB <- data.frame(out.l$estF[, c(3, 5, 1, 2, 4)])
+
+
+
+# melt_GSE77797_six_MethylCIBERSORT_WB <- melt(GSE77797_six_MethylCIBERSORT_WB)
+
+melt_GSE77797_six_MethylCIBERSORT_WB <- melt(GSE77797_six_MethylCIBERSORT_WB) %>% cbind(melt_facs_GSE77797_six$value, .)
+colnames(melt_GSE77797_six_MethylCIBERSORT_WB) <- c("FACS", "cell_type", "MethylCIBERSORT")
+
+p_GSE77797_six_MethylCIBERSORT_all <- ggplot(melt_GSE77797_six_MethylCIBERSORT_WB, aes(x = FACS, y = MethylCIBERSORT, colour = cell_type)) +
+  geom_point(shape = 19, size = 2) +
+  ggtitle("All cells") +
+  scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta")) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.3)) +
+  
+  theme(axis.title.x = element_text(vjust = -0.5)) +
+  theme(axis.title.y = element_text(vjust = 1.5), legend.position = "none", panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  annotate("text", x = 0.115, y = 0.3, label = paste("italic(r)==", round(cor.test(as.matrix(GSE77797_six_MethylCIBERSORT_WB), as.matrix(facs_GSE77797_six[, -6]))$est, 2), "~','", "~italic(P)<", round(cor.test(as.matrix(GSE77797_six_MethylCIBERSORT_WB), as.matrix(facs_GSE77797_six[, -6]))$p.value, 7)), parse = TRUE, size = 6) +
+  annotate("text", x = 0.07, y = 0.257, label = paste("RMSE =", round(sqrt(mean((as.matrix(GSE77797_six_MethylCIBERSORT_WB) - as.matrix(facs_GSE77797_six[, -6]))^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.035, y = 0.218, label = paste("n = ", nrow(GSE77797_six_MethylCIBERSORT_WB)), size = 6)
+
+
+
+
+p_GSE77797_six_MethylCIBERSORT_all_longly <- ggplot(melt_GSE77797_six_MethylCIBERSORT_WB, aes(x = FACS, y = MethylCIBERSORT, colour = cell_type)) +
+  geom_point(shape = 19, size = 2) +
+  ggtitle("MethylCIBERSORT") +
+  scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta")) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.3)) +
+  
+  theme(axis.title.x = element_text(vjust = -0.5)) +
+  theme(axis.title.y = element_text(vjust = 1.5), legend.position = "none", panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  annotate("text", x = 0.115, y = 0.3, label = paste("italic(r)==", round(cor.test(as.matrix(GSE77797_six_MethylCIBERSORT_WB), as.matrix(facs_GSE77797_six[, -6]))$est, 2), "~','", "~italic(P)<", round(cor.test(as.matrix(GSE77797_six_MethylCIBERSORT_WB), as.matrix(facs_GSE77797_six[, -6]))$p.value, 7)), parse = TRUE, size = 6) +
+  annotate("text", x = 0.07, y = 0.257, label = paste("RMSE =", round(sqrt(mean((as.matrix(GSE77797_six_MethylCIBERSORT_WB) - as.matrix(facs_GSE77797_six[, -6]))^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.035, y = 0.218, label = paste("n = ", nrow(GSE77797_six_MethylCIBERSORT_WB)), size = 6)
+
+
+
+#### each cell types
+
+
+GSE77797_six_MethylCIBERSORT_WB <- cbind(GSE77797_six_MethylCIBERSORT_WB, facs_GSE77797_six[, -6])
+
+colnames(GSE77797_six_MethylCIBERSORT_WB) <- c("V", "V", "V", "V", "V", "CD4", "CD8", "Mono", "B", "NK")
+
+
+melt_GSE77797_six_MethylCIBERSORT_WB <- list()
+rmse <- list()
+G6_MethylCIBERSORT_WB <- list()
+
+for (i in c(1:5)) {
+
+  # rmse[[i]] <- rmse(GSE77797_six_MethylCIBERSORT_WB[,i], GSE77797_six_MethylCIBERSORT_WB[,i+5])
+
+  melt_GSE77797_six_MethylCIBERSORT_WB[[i]] <- melt(GSE77797_six_MethylCIBERSORT_WB[, c(i, i + 5)], id.vars = colnames(GSE77797_six_MethylCIBERSORT_WB)[i], measure.vars = colnames(GSE77797_six_MethylCIBERSORT_WB)[i + 5])
+}
+#
+# RMSE <- data.frame(cell_type = c("CD4", "CD8", "Mono", "B", "NK"),
+#                    rmse = unlist(rmse))
+
+
+G6_MethylCIBERSORT_WB[[1]] <- ggplot(melt_GSE77797_six_MethylCIBERSORT_WB[[1]], aes(x = value, y = V)) +
+  geom_point(colour = c("red"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("CD4") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.3)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  
+  annotate("text", x = 0.092, y = 0.3, label = paste("italic(r)==", round(cor.test(GSE77797_six_MethylCIBERSORT_WB[[1]], facs_GSE77797_six[, 1])$est, 2), "~','", "~italic(P)<", round(cor.test(GSE77797_six_MethylCIBERSORT_WB[[1]], facs_GSE77797_six[, 1])$p.value, 3)), parse = TRUE, size = 6) +
+  annotate("text", x = 0.065, y = 0.257, label = paste("RMSE =", round(sqrt(mean((GSE77797_six_MethylCIBERSORT_WB[[1]] - facs_GSE77797_six[, 1])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.032, y = 0.218, label = paste("n = ", nrow(GSE77797_six_MethylCIBERSORT_WB)), size = 6)
+
+
+G6_MethylCIBERSORT_WB[[2]] <- ggplot(melt_GSE77797_six_MethylCIBERSORT_WB[[2]], aes(x = value, y = V)) +
+  geom_point(colour = c("green"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("CD8") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.15)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.2)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  
+  annotate("text", x = 0.045, y = 0.2, label = paste("italic(r)==", round(cor.test(GSE77797_six_MethylCIBERSORT_WB[[2]], facs_GSE77797_six[, 2])$est, 2), "~','", "~italic(P)<", round(cor.test(GSE77797_six_MethylCIBERSORT_WB[[2]], facs_GSE77797_six[, 2])$p.value, 3)), parse = TRUE, size = 6) +
+  annotate("text", x = 0.035, y = 0.173, label = paste("RMSE =", round(sqrt(mean((GSE77797_six_MethylCIBERSORT_WB[[2]] - facs_GSE77797_six[, 2])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.018, y = 0.145, label = paste("n = ", nrow(GSE77797_six_MethylCIBERSORT_WB)), size = 6)
+
+
+
+G6_MethylCIBERSORT_WB[[3]] <- ggplot(melt_GSE77797_six_MethylCIBERSORT_WB[[3]], aes(x = value, y = V)) +
+  geom_point(colour = c("blue"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("Mono") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.1), breaks = seq(0.0, 0.1, 0.02)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.2)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  
+  annotate("text", x = 0.035, y = 0.2, label = paste("italic(r)==", round(cor.test(GSE77797_six_MethylCIBERSORT_WB[[3]], facs_GSE77797_six[, 3])$est, 2), "~','", "~italic(P)<", round(cor.test(GSE77797_six_MethylCIBERSORT_WB[[3]], facs_GSE77797_six[, 3])$p.value, 4)), parse = TRUE, size = 6) +
+  annotate("text", x = 0.023, y = 0.173, label = paste("RMSE =", round(sqrt(mean((GSE77797_six_MethylCIBERSORT_WB[[3]] - facs_GSE77797_six[, 3])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.0115, y = 0.145, label = paste("n = ", nrow(GSE77797_six_MethylCIBERSORT_WB)), size = 6)
+
+
+G6_MethylCIBERSORT_WB[[4]] <- ggplot(melt_GSE77797_six_MethylCIBERSORT_WB[[4]], aes(x = value, y = V)) +
+  geom_point(colour = c("darkgoldenrod1"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("B") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.08), breaks = seq(0.0, 0.1, 0.02)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.15)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  
+  annotate("text", x = 0.028, y = 0.15, label = paste("italic(r)==", round(cor.test(GSE77797_six_MethylCIBERSORT_WB[[4]], facs_GSE77797_six[, 4])$est, 2), "~','", "~italic(P)<", round(cor.test(GSE77797_six_MethylCIBERSORT_WB[[4]], facs_GSE77797_six[, 4])$p.value, 4)), parse = TRUE, size = 6) +
+  annotate("text", x = 0.019, y = 0.13, label = paste("RMSE =", round(sqrt(mean((GSE77797_six_MethylCIBERSORT_WB[[4]] - facs_GSE77797_six[, 4])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.01, y = 0.11, label = paste("n = ", nrow(GSE77797_six_MethylCIBERSORT_WB)), size = 6)
+
+
+
+G6_MethylCIBERSORT_WB[[5]] <- ggplot(melt_GSE77797_six_MethylCIBERSORT_WB[[5]], aes(x = value, y = V)) +
+  geom_point(colour = c("darkmagenta"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("NK") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.06), breaks = seq(0.0, 0.1, 0.02)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.2)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  
+  annotate("text", x = 0.0205, y = 0.2, label = paste("italic(r)==", round(cor.test(GSE77797_six_MethylCIBERSORT_WB[[5]], facs_GSE77797_six[, 5])$est, 2), "~','", "~italic(P)<", round(cor.test(GSE77797_six_MethylCIBERSORT_WB[[5]], facs_GSE77797_six[, 5])$p.value, 4)), parse = TRUE, size = 6) +
+  annotate("text", x = 0.015, y = 0.173, label = paste("RMSE =", round(sqrt(mean((GSE77797_six_MethylCIBERSORT_WB[[5]] - facs_GSE77797_six[, 5])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.0082, y = 0.145, label = paste("n = ", nrow(GSE77797_six_MethylCIBERSORT_WB)), size = 6)
+```
+
+### DHS 
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+
+out.l <- epidish(GSE77797_six, centDHSbloodDMC.m, "RPC", maxit = 100)
+GSE77797_six_DHS <- data.frame(out.l$estF[, c(3, 4, 5, 1, 2)])
+colnames(GSE77797_six_DHS) <- c("CD4", "CD8", "Mono", "B", "NK")
+
+
+
+
+# melt_GSE77797_six_DHS <- melt(GSE77797_six_DHS)
+
+melt_GSE77797_six_DHS <- melt(GSE77797_six_DHS) %>% cbind(melt_facs_GSE77797_six$value, .)
+colnames(melt_GSE77797_six_DHS) <- c("FACS", "cell_type", "DHS")
+
+p_GSE77797_six_DHS_all <- ggplot(melt_GSE77797_six_DHS, aes(x = FACS, y = DHS, colour = cell_type)) +
+  geom_point(shape = 19, size = 2) +
+  ggtitle("All cells") +
+  scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta")) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.3)) +
+  
+  theme(axis.title.x = element_text(vjust = -0.5)) +
+  theme(axis.title.y = element_text(vjust = 1.5), legend.position = "none", panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  annotate("text", x = 0.108, y = 0.3, label = paste("italic(r)==", round(cor.test(as.matrix(GSE77797_six_DHS), as.matrix(facs_GSE77797_six[, -6]))$est, 2), "~','", "~italic(P)<", round(cor.test(as.matrix(GSE77797_six_DHS), as.matrix(facs_GSE77797_six[, -6]))$p.value, 10)), parse = TRUE, size = 6) +
+  annotate("text", x = 0.07, y = 0.257, label = paste("RMSE =", round(sqrt(mean((as.matrix(GSE77797_six_DHS) - as.matrix(facs_GSE77797_six[, -6]))^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.035, y = 0.218, label = paste("n = ", nrow(GSE77797_six_DHS)), size = 6)
+
+
+
+p_GSE77797_six_DHS_all_longly <- ggplot(melt_GSE77797_six_DHS, aes(x = FACS, y = DHS, colour = cell_type)) +
+  geom_point(shape = 19, size = 2) +
+  ggtitle("DHS") +
+  scale_color_manual(values = c("red", "green", "blue", "darkgoldenrod1", "darkmagenta")) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.3)) +
+  
+  theme(axis.title.x = element_text(vjust = -0.5)) +
+  theme(axis.title.y = element_text(vjust = 1.5), legend.position = "none", panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  annotate("text", x = 0.115, y = 0.3, label = paste("italic(r)==", round(cor.test(as.matrix(GSE77797_six_DHS), as.matrix(facs_GSE77797_six[, -6]))$est, 2), "~','", "~italic(P)<", round(cor.test(as.matrix(GSE77797_six_DHS), as.matrix(facs_GSE77797_six[, -6]))$p.value, 10)), parse = TRUE, size = 6) +
+  annotate("text", x = 0.07, y = 0.257, label = paste("RMSE =", round(sqrt(mean((as.matrix(GSE77797_six_DHS) - as.matrix(facs_GSE77797_six[, -6]))^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.035, y = 0.218, label = paste("n = ", nrow(GSE77797_six_DHS)), size = 6)
+
+#################################################################################
+
+#### each cell types
+
+GSE77797_six_DHS <- cbind(GSE77797_six_DHS, facs_GSE77797_six[, -6])
+
+colnames(GSE77797_six_DHS) <- c("V", "V", "V", "V", "V", "CD4", "CD8", "Mono", "B", "NK")
+
+
+melt_GSE77797_six_DHS <- list()
+rmse <- list()
+G6_DHS <- list()
+
+for (i in c(1:5)) {
+
+  # rmse[[i]] <- rmse(GSE77797_six_DHS[,i], GSE77797_six_DHS[,i+5])
+
+  melt_GSE77797_six_DHS[[i]] <- melt(GSE77797_six_DHS[, c(i, i + 5)], id.vars = colnames(GSE77797_six_DHS)[i], measure.vars = colnames(GSE77797_six_DHS)[i + 5])
+}
+
+# RMSE <- data.frame(cell_type = c("CD4", "CD8", "Mono", "B", "NK"),
+#                    rmse = unlist(rmse))
+
+
+G6_DHS[[1]] <- ggplot(melt_GSE77797_six_DHS[[1]], aes(x = value, y = V)) +
+  geom_point(colour = c("red"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("CD4") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.3)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.3)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  
+  annotate("text", x = 0.092, y = 0.3, label = paste("italic(r)==", round(cor.test(GSE77797_six_DHS[[1]], facs_GSE77797_six[, 1])$est, 2), "~','", "~italic(P)<", round(cor.test(GSE77797_six_DHS[[1]], facs_GSE77797_six[, 1])$p.value, 3)), parse = TRUE, size = 6) +
+  annotate("text", x = 0.065, y = 0.257, label = paste("RMSE =", round(sqrt(mean((GSE77797_six_DHS[[1]] - facs_GSE77797_six[, 1])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.032, y = 0.218, label = paste("n = ", nrow(GSE77797_six_DHS)), size = 6)
+
+
+G6_DHS[[2]] <- ggplot(melt_GSE77797_six_DHS[[2]], aes(x = value, y = V)) +
+  geom_point(colour = c("green"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("CD8") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.15)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.2)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  
+  annotate("text", x = 0.047, y = 0.2, label = paste("italic(r)==", round(cor.test(GSE77797_six_DHS[[2]], facs_GSE77797_six[, 2])$est, 2), "~','", "~italic(P)<", round(cor.test(GSE77797_six_DHS[[2]], facs_GSE77797_six[, 2])$p.value, 3)), parse = TRUE, size = 6) +
+  annotate("text", x = 0.035, y = 0.173, label = paste("RMSE =", round(sqrt(mean((GSE77797_six_DHS[[2]] - facs_GSE77797_six[, 2])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.018, y = 0.145, label = paste("n = ", nrow(GSE77797_six_DHS)), size = 6)
+
+
+G6_DHS[[3]] <- ggplot(melt_GSE77797_six_DHS[[3]], aes(x = value, y = V)) +
+  geom_point(colour = c("blue"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("Mono") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.1), breaks = seq(0.0, 0.1, 0.02)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.2)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  
+  annotate("text", x = 0.033, y = 0.2, label = paste("italic(r)==", round(cor.test(GSE77797_six_DHS[[3]], facs_GSE77797_six[, 3])$est, 2), "~','", "~italic(P)<", round(cor.test(GSE77797_six_DHS[[3]], facs_GSE77797_six[, 3])$p.value, 4)), parse = TRUE, size = 6) +
+  annotate("text", x = 0.023, y = 0.173, label = paste("RMSE =", round(sqrt(mean((GSE77797_six_DHS[[3]] - facs_GSE77797_six[, 3])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.0115, y = 0.145, label = paste("n = ", nrow(GSE77797_six_DHS)), size = 6)
+
+
+G6_DHS[[4]] <- ggplot(melt_GSE77797_six_DHS[[4]], aes(x = value, y = V)) +
+  geom_point(colour = c("darkgoldenrod1"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("B") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.08), breaks = seq(0.0, 0.1, 0.02)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.15)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  
+  annotate("text", x = 0.028, y = 0.15, label = paste("italic(r)==", round(cor.test(GSE77797_six_DHS[[4]], facs_GSE77797_six[, 4])$est, 2), "~','", "~italic(P)<", round(cor.test(GSE77797_six_DHS[[4]], facs_GSE77797_six[, 4])$p.value, 4)), parse = TRUE, size = 6) +
+  annotate("text", x = 0.019, y = 0.13, label = paste("RMSE =", round(sqrt(mean((GSE77797_six_DHS[[4]] - facs_GSE77797_six[, 4])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.01, y = 0.11, label = paste("n = ", nrow(GSE77797_six_DHS)), size = 6)
+
+
+
+G6_DHS[[5]] <- ggplot(melt_GSE77797_six_DHS[[5]], aes(x = value, y = V)) +
+  geom_point(colour = c("darkmagenta"), size = 2) +
+  stat_smooth(method = lm, size = 0.2, color = "black", se = FALSE, fullrange = T) +
+  ggtitle("NK") +
+  scale_x_continuous(name = NULL, limits = c(0, 0.06), breaks = seq(0.0, 0.1, 0.02)) +
+  scale_y_continuous(name = NULL, limits = c(0, 0.2)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
+  
+  annotate("text", x = 0.0215, y = 0.2, label = paste("italic(r)==", round(cor.test(GSE77797_six_DHS[[5]], facs_GSE77797_six[, 5])$est, 2), "~','", "~italic(P)<", round(cor.test(GSE77797_six_DHS[[5]], facs_GSE77797_six[, 5])$p.value, 4)), parse = TRUE, size = 6) +
+  annotate("text", x = 0.015, y = 0.173, label = paste("RMSE =", round(sqrt(mean((GSE77797_six_DHS[[5]] - facs_GSE77797_six[, 5])^2, na.rm = T)), 2)), parse = F, size = 6) +
+  annotate("text", x = 0.0082, y = 0.145, label = paste("n = ", nrow(GSE77797_six_DHS)), size = 6)
+```
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+
+Fig_S1a <- annotate_figure(ggarrange(p_GSE132203_100_BPmet_all_all, p_GSE132203_100_BPmet_each, ncol = 1, nrow = 2, heights = 1:3.5, font.label = list(size = 20, color = "black")), left = text_grob("BPmet estimate", color = "black", size = 14, rot = 90), bottom = text_grob("FACS", color = "black", size = 14), fig.lab = "a", fig.lab.face = "bold", fig.lab.size = 16)
+
+
+Fig_S1b <- annotate_figure(ggarrange(p_GSE132203_100_MethylCIBERSORT_all_all, p_GSE132203_100_MethylCIBERSORT_each, ncol = 1, nrow = 2, heights = 1:3.5, font.label = list(size = 20, color = "black")), left = text_grob("MethylCIBERSORT estimate", color = "black", size = 14, rot = 90), bottom = text_grob("FACS", color = "black", size = 14), fig.lab = "b", fig.lab.face = "bold", fig.lab.size = 16)
+
+
+Fig_S1c <- annotate_figure(ggarrange(p_GSE132203_100_DHS_all_all, p_GSE132203_100_DHS_each, ncol = 1, nrow = 2, heights = 1:3.5, font.label = list(size = 20, color = "black")), left = text_grob("DHS estimate", color = "black", size = 14, rot = 90), bottom = text_grob("FACS", color = "black", size = 14), fig.lab = "c", fig.lab.face = "bold", fig.lab.size = 16)
+
+
+Fig_S2a <- annotate_figure(ggarrange(p_GSE77797_six_BPmet_all, G6_BPmet[[1]], G6_BPmet[[2]], G6_BPmet[[3]], G6_BPmet[[4]], G6_BPmet[[5]], ncol = 3, nrow = 2, font.label = list(size = 20, color = "black")), left = text_grob("BPmet estimate", color = "black", size = 14, rot = 90), bottom = text_grob("FACS", color = "black", size = 14), fig.lab = "a", fig.lab.face = "bold", fig.lab.size = 16)
+
+Fig_S2b <- annotate_figure(ggarrange(p_GSE77797_six_MethylCIBERSORT_all, G6_MethylCIBERSORT_WB[[1]], G6_MethylCIBERSORT_WB[[2]], G6_MethylCIBERSORT_WB[[3]], G6_MethylCIBERSORT_WB[[4]], G6_MethylCIBERSORT_WB[[5]], ncol = 3, nrow = 2, font.label = list(size = 20, color = "black")), left = text_grob("MethylCIBERSORT estimate", color = "black", size = 14, rot = 90), bottom = text_grob("FACS", color = "black", size = 14), fig.lab = "b", fig.lab.face = "bold", fig.lab.size = 16)
+
+
+Fig_S2c <- annotate_figure(ggarrange(p_GSE77797_six_DHS_all, G6_DHS[[1]], G6_DHS[[2]], G6_DHS[[3]], G6_DHS[[4]], G6_DHS[[5]], ncol = 3, nrow = 2, font.label = list(size = 20, color = "black")), left = text_grob("DHS estimate", color = "black", size = 14, rot = 90), bottom = text_grob("FACS", color = "black", size = 14), fig.lab = "c", fig.lab.face = "bold", fig.lab.size = 16)
+```
+
+### Figure S1
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+Fig_S1a
+Fig_S1b
+Fig_S1c
+```
+
+### Figure S2
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+Fig_S2a
+Fig_S2b
+Fig_S2c
+```
