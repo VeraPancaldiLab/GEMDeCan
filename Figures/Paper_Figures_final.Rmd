@@ -96,6 +96,7 @@ myeloma_all_signs = data.frame(
   round(., 2) %>% t(.) %>% as.data.frame(.)
 colnames(myeloma_all_signs) = c("NK", "CD4", "CD8")
 
+
 myeloma_all_signs_p  = data.frame(
                                "quanTIseq" = c(myeloma.pval[1,1], myeloma.pval[2,2], myeloma.pval[3,3]),
                                "MCPcounter" = c(myeloma.pval[4,1], NA, myeloma.pval[5,3]),
@@ -123,8 +124,11 @@ myeloma_all_signs_p  = data.frame(
   round(., 2) %>% t(.) %>% as.data.frame(.)
 colnames(myeloma_all_signs_p) = c("NK", "CD4", "CD8")
 
-myeloma_all_signs["Mean", ] = colMeans(myeloma_all_signs, na.rm = T) %>% round(., 3)
-myeloma_all_signs_p["Mean", ] = colMeans(myeloma_all_signs_p, na.rm = T)
+myeloma_all_signs$Mean = rowMeans(myeloma_all_signs, na.rm = T) %>% round(., 3)
+myeloma_all_signs_p$Mean = rowMeans(myeloma_all_signs, na.rm = T)
+
+myeloma_all_signs = myeloma_all_signs[order(myeloma_all_signs$Mean, decreasing = T), ]
+myeloma_all_signs_p = myeloma_all_signs_p[rownames(myeloma_all_signs), ]
 ```
 
 
@@ -274,8 +278,11 @@ Melanoma_GSE72056_all_signs_p  = data.frame(
   round(., 2) %>% t(.) %>% as.data.frame(.)
 colnames(Melanoma_GSE72056_all_signs_p) = c("Macrophages", "NK", "CD4", "CD8", "Cancer")
 
-Melanoma_GSE72056_all_signs["Mean", ] = colMeans(Melanoma_GSE72056_all_signs, na.rm = T) %>% round(., 3)
-Melanoma_GSE72056_all_signs_p["Mean", ] = colMeans(Melanoma_GSE72056_all_signs_p, na.rm = T)
+Melanoma_GSE72056_all_signs$Mean = rowMeans(Melanoma_GSE72056_all_signs, na.rm = T) %>% round(., 3)
+Melanoma_GSE72056_all_signs_p$Mean = rowMeans(Melanoma_GSE72056_all_signs_p, na.rm = T)
+
+Melanoma_GSE72056_all_signs = Melanoma_GSE72056_all_signs[order(Melanoma_GSE72056_all_signs$Mean, decreasing = T), ]
+Melanoma_GSE72056_all_signs_p = Melanoma_GSE72056_all_signs_p[rownames(Melanoma_GSE72056_all_signs), ]
 ```
 
 ```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
@@ -449,29 +456,29 @@ Melanoma_GSE93722_all_signs_p  = data.frame(
                                                cor.test(meta$Quantiseq_T_cell_CD8., meta_facs$CD8_Tcells)$p.value, NA),
                                "MCPcounter" = c(cor.test(meta$MCP_B_lineage, meta_facs$Bcells)$p.value, cor.test(meta$MCP_NK_cells, meta_facs$NKcells)$p.value, NA,
                                                cor.test(meta$MCP_CD8_T_cells, meta_facs$CD8_Tcells)$p.value, NA),
-                               "EpiDISH (BPRNACan)" = c(cor.test(meta$Epidish_BPRNACan_B, meta_facs$Bcells)$p.value, cor.test(meta$Epidish_BPRNACan_NK, meta_facs$NKcells)$p.value,
+                               "EpiDISH BPRNACan" = c(cor.test(meta$Epidish_BPRNACan_B, meta_facs$Bcells)$p.value, cor.test(meta$Epidish_BPRNACan_NK, meta_facs$NKcells)$p.value,
                                                         cor.test(meta$Epidish_BPRNACan_CD4, meta_facs$CD4_Tcells)$p.value,
                                                         cor.test(meta$Epidish_BPRNACan_CD8, meta_facs$CD8_Tcells)$p.value, 
                                                         cor.test(meta$Epidish_BPRNACan_cancer,meta_facs$Cancer_cells)$p.value),
-                               "EpiDISH (BPRNACanProMet)" = c(cor.test(meta$Epidish_BPRNACanProMet_B, meta_facs$Bcells)$p.value, 
+                               "EpiDISH BPRNACanProMet" = c(cor.test(meta$Epidish_BPRNACanProMet_B, meta_facs$Bcells)$p.value, 
                                                               cor.test(meta$Epidish_BPRNACanProMet_NK, meta_facs$NKcells)$p.value,
                                                         cor.test(meta$Epidish_BPRNACanProMet_CD4, meta_facs$CD4_Tcells)$p.value,
                                                         cor.test(meta$Epidish_BPRNACanProMet_CD8, meta_facs$CD8_Tcells)$p.value, 
                                                         cor.test(meta$Epidish_BPRNACanProMet_cancer,meta_facs$Cancer_cells)$p.value),
-                               "EpiDISH (BPRNACan3DProMet)" = c(cor.test(meta$Epidish_BPRNACan3DProMet_B, meta_facs$Bcells)$p.value,
+                               "EpiDISH BPRNACan3DProMet" = c(cor.test(meta$Epidish_BPRNACan3DProMet_B, meta_facs$Bcells)$p.value,
                                                                 cor.test(meta$Epidish_BPRNACan3DProMet_NK, meta_facs$NKcells)$p.value,
                                                         cor.test(meta$Epidish_BPRNACan3DProMet_CD4, meta_facs$CD4_Tcells)$p.value,
                                                         cor.test(meta$Epidish_BPRNACan3DProMet_CD8, meta_facs$CD8_Tcells)$p.value, 
                                                         cor.test(meta$Epidish_BPRNACan3DProMet_cancer,meta_facs$Cancer_cells)$p.value),
-                               "EpiDISH (Melanoma)" = c(cor.test(meta$Epidish_CBSX.melanoma_B.cells, meta_facs$Bcells)$p.value,
+                               "EpiDISH Melanoma" = c(cor.test(meta$Epidish_CBSX.melanoma_B.cells, meta_facs$Bcells)$p.value,
                                                       NA, cor.test(meta$Epidish_CBSX.melanoma_T.cells.CD4, meta_facs$CD4_Tcells)$p.value,
                                                cor.test(meta$Epidish_CBSX.melanoma_T.cells.CD8, meta_facs$CD8_Tcells)$p.value,
                                                cor.test(meta$Epidish_CBSX.melanoma_Malignant, meta_facs$Cancer_cells)$p.value),
-                               "EpiDISH (HNSCC)" = c(cor.test(meta$Epidish_CBSX.HNSCC_B.cell, meta_facs$Bcells)$p.value,
+                               "EpiDISH HNSCC" = c(cor.test(meta$Epidish_CBSX.HNSCC_B.cell, meta_facs$Bcells)$p.value,
                                                      NA, cor.test(meta$Epidish_CBSX.HNSCC_T.cells.CD4, meta_facs$CD4_Tcells)$p.value,
                                                cor.test(meta$Epidish_CBSX.HNSCC_T.cells.CD8, meta_facs$CD8_Tcells)$p.value,
                                                cor.test(meta$Epidish_CBSX.HNSCC_Malignant, meta_facs$Cancer_cells)$p.value),
-                               "EpiDISH (NSCLC)" = c(cor.test(meta$Epidish_CBSX.NSCLC_B.cells, meta_facs$Bcells)$p.value,
+                               "EpiDISH NSCLC" = c(cor.test(meta$Epidish_CBSX.NSCLC_B.cells, meta_facs$Bcells)$p.value,
                                                      cor.test(meta$Epidish_CBSX.NSCLC_NK.cells, meta_facs$NKcells)$p.value, 
                                                      cor.test(meta$Epidish_CBSX.NSCLC_T.cells.CD4, meta_facs$CD4_Tcells)$p.value,
                                                cor.test(meta$Epidish_CBSX.NSCLC_T.cells.CD8, meta_facs$CD8_Tcells)$p.value, NA),
@@ -533,8 +540,11 @@ Melanoma_GSE93722_all_signs_p  = data.frame(
   round(., 2) %>% t(.) %>% as.data.frame(.) 
 colnames(Melanoma_GSE93722_all_signs_p) = c("B", "NK", "CD4", "CD8", "Cancer")
 
-Melanoma_GSE93722_all_signs["Mean", ] = colMeans(Melanoma_GSE93722_all_signs, na.rm = T) %>% round(., 3)
-Melanoma_GSE93722_all_signs_p["Mean", ] = colMeans(Melanoma_GSE93722_all_signs_p, na.rm = T)
+Melanoma_GSE93722_all_signs$Mean = rowMeans(Melanoma_GSE93722_all_signs, na.rm = T) %>% round(., 3)
+Melanoma_GSE93722_all_signs_p$Mean = rowMeans(Melanoma_GSE93722_all_signs_p, na.rm = T)
+
+Melanoma_GSE93722_all_signs = Melanoma_GSE93722_all_signs[order(Melanoma_GSE93722_all_signs$Mean, decreasing = T), ]
+Melanoma_GSE93722_all_signs_p = Melanoma_GSE93722_all_signs_p[rownames(Melanoma_GSE93722_all_signs), ]
 ```
 
 
