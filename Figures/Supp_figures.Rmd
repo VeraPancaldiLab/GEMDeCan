@@ -59,14 +59,14 @@ for (i in 1:(ncol(data) - 1)) {
       scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
       theme(axis.title.x= element_text(size = 12, face="bold"), 
           axis.title.y= element_text(size = 12, face="bold") )  + 
-      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(CD4.*)|(_T_cell.*)|(_T.cell.*)")) +
+      ylab("Deconv estimate") + xlab("FACS") + ggtitle(str_remove_all(names(data)[i], "(T_cell.)|(T.cell.)")) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
-      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 7)
   })
 }
-grid.arrange(grobs = cd4, ncol = 3, top = textGrob("CD4", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+grid.arrange(grobs = cd4, ncol = 3, top = textGrob("CD4", gp=gpar(fontsize=20,font=3,face="bold")))
 
 # CD8
 cd8 <- list()
@@ -83,14 +83,14 @@ for (i in 1:(ncol(data) - 1)) {
       scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
       theme(axis.title.x= element_text(size = 12, face="bold"), 
           axis.title.y= element_text(size = 12, face="bold") )  + 
-      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(CD8.*)|(_T_cell.*)|(_T.cell.*)")) +
+      ylab("Deconv estimate") + xlab("FACS") + ggtitle(str_remove_all(names(data)[i], "(T_cell.)|(T.cell.)")) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
-      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 7)
   })
 }
-grid.arrange(grobs = cd8, ncol = 3, top = textGrob("CD8", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+grid.arrange(grobs = cd8, ncol = 3, top = textGrob("CD8", gp=gpar(fontsize=20,font=3,face="bold")))
 
 # Monocytes
 mono <- list()
@@ -107,14 +107,14 @@ for (i in 1:(ncol(data) - 1)) {
       scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
       theme(axis.title.x= element_text(size = 12, face="bold"), 
           axis.title.y= element_text(size = 12, face="bold") )  + 
-      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_Mono.*")) +
+      ylab("Deconv estimate") + xlab("FACS") + ggtitle(names(data)[i]) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
-      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 7)
   })
 }
-grid.arrange(grobs = mono, ncol = 3, top = textGrob("Monocytes", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+grid.arrange(grobs = mono, ncol = 3, top = textGrob("Monocytes", gp=gpar(fontsize=20,font=3,face="bold")))
 
 # M1
 m1 <- list()
@@ -131,14 +131,14 @@ for (i in 1:(ncol(data) - 1)) {
       scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
       theme(axis.title.x= element_text(size = 12, face="bold"), 
           axis.title.y= element_text(size = 12, face="bold") )  + 
-      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(M1)|(_Macro.*)")) +
+      ylab("Deconv estimate") + xlab("FACS") + ggtitle(str_remove_all(names(data)[i], "(Macrophage.)|(Macrophages.)")) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
-      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 7)
   })
 }
-grid.arrange(grobs = m1, ncol = 3, top = textGrob("Macrophages M1", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+grid.arrange(grobs = m1, ncol = 3, top = textGrob("Macrophages M1", gp=gpar(fontsize=20,font=3,face="bold")))
 
 # M2
 m2 <- list()
@@ -155,14 +155,14 @@ for (i in 1:(ncol(data) - 1)) {
       scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
       theme(axis.title.x= element_text(size = 12, face="bold"), 
           axis.title.y= element_text(size = 12, face="bold") )  + 
-      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(M2)|(_Macro.*)")) +
+      ylab("Deconv estimate") + xlab("FACS") + ggtitle(str_remove_all(names(data)[i], "(Macrophage.)|(Macrophages.)")) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
-      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 7)
   })
 }
-grid.arrange(grobs = m2, ncol = 3, top = textGrob("Macrophages M2", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+grid.arrange(grobs = m2, ncol = 3, top = textGrob("Macrophages M2", gp=gpar(fontsize=20,font=3,face="bold")))
 
 # B
 b <- list()
@@ -179,14 +179,14 @@ for (i in 1:(ncol(data) - 1)) {
       scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
       theme(axis.title.x= element_text(size = 12, face="bold"), 
           axis.title.y= element_text(size = 12, face="bold") )  + 
-      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(B_cell.*)|(_B.cell.*)|(_B_lin.*)")) +
+      ylab("Deconv estimate") + xlab("FACS") + ggtitle(str_remove_all(names(data)[i], ".cell.*")) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
-      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 7)
   })
 }
-grid.arrange(grobs = b, ncol = 3, top = textGrob("B cells", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+grid.arrange(grobs = b, ncol = 3, top = textGrob("B cells", gp=gpar(fontsize=20,font=3,face="bold")))
 
 # NK
 nk <- list()
@@ -203,14 +203,14 @@ for (i in 1:(ncol(data) - 1)) {
       scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
       theme(axis.title.x= element_text(size = 12, face="bold"), 
           axis.title.y= element_text(size = 12, face="bold") )  + 
-      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_NK.*")) +
+      ylab("Deconv estimate") + xlab("FACS") + ggtitle(names(data)[i]) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
-      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 7)
   })
 }
-grid.arrange(grobs = nk, ncol = 3, top = textGrob("Natural Killers", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+grid.arrange(grobs = nk, ncol = 3, top = textGrob("Natural Killers", gp=gpar(fontsize=20,font=3,face="bold")))
 
 # neutro
 neutro <- list()
@@ -227,14 +227,14 @@ for (i in 1:(ncol(data) -1)) {
       scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
       theme(axis.title.x= element_text(size = 12, face="bold"), 
           axis.title.y= element_text(size = 12, face="bold") )  + 
-      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_Neu.*")) +
+      ylab("Deconv estimate") + xlab("FACS") + ggtitle(names(data)[i]) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
-      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 7)
   })
 }
-grid.arrange(grobs = neutro, ncol = 3, top = textGrob("Neutrophils", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+grid.arrange(grobs = neutro, ncol = 3, top = textGrob("Neutrophils", gp=gpar(fontsize=20,font=3,face="bold")))
 ```
 
 
@@ -277,14 +277,14 @@ for (i in 1:(ncol(data) - 1)) {
       scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
       theme(axis.title.x= element_text(size = 12, face="bold"), 
           axis.title.y= element_text(size = 12, face="bold") )  + 
-      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(CD4.*)|(_T_cell.*)|(_T.cell.*)")) +
+      ylab("Deconv estimate") + xlab("FACS") + ggtitle(str_remove_all(names(data)[i], "(T_cell.)|(T.cell.)")) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
-      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 7)
   })
 }
-grid.arrange(grobs = cd4, ncol = 3, top = textGrob("CD4", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+grid.arrange(grobs = cd4, ncol = 3, top = textGrob("CD4", gp=gpar(fontsize=20,font=3,face="bold")))
 
 # CD8
 cd8 <- list()
@@ -301,14 +301,14 @@ for (i in 1:(ncol(data) - 1)) {
       scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
       theme(axis.title.x= element_text(size = 12, face="bold"), 
           axis.title.y= element_text(size = 12, face="bold") )  + 
-      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(CD8.*)|(_T_cell.*)|(_T.cell.*)")) +
+      ylab("Deconv estimate") + xlab("FACS") + ggtitle(str_remove_all(names(data)[i], "(T_cell.)|(T.cell.)")) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
-      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 7)
   })
 }
-grid.arrange(grobs = cd8, ncol = 3, top = textGrob("CD8", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+grid.arrange(grobs = cd8, ncol = 3, top = textGrob("CD8", gp=gpar(fontsize=20,font=3,face="bold")))
 
 # NK
 nk <- list()
@@ -325,14 +325,14 @@ for (i in 1:(ncol(data) - 1)) {
       scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
       theme(axis.title.x= element_text(size = 12, face="bold"), 
           axis.title.y= element_text(size = 12, face="bold") )  + 
-      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_NK.*")) +
+      ylab("Deconv estimate") + xlab("FACS") + ggtitle(names(data)[i]) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
-      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 7)
   })
 }
-grid.arrange(grobs = nk, ncol = 3, top = textGrob("Natural Killers", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+grid.arrange(grobs = nk, ncol = 3, top = textGrob("Natural Killers", gp=gpar(fontsize=20,font=3,face="bold")))
 
 ```
 
@@ -376,14 +376,14 @@ for (i in 1:(ncol(data) - 1)) {
       scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
       theme(axis.title.x= element_text(size = 12, face="bold"), 
           axis.title.y= element_text(size = 12, face="bold") )  + 
-      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(CD4.*)|(_T_cell.*)|(_T.cell.*)")) +
+      ylab("Deconv estimate") + xlab("FACS") + ggtitle(str_remove_all(names(data)[i], "(T_cell.)|(T.cell.)")) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
-      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 7)
   })
 }
-grid.arrange(grobs = cd4, ncol = 3, top = textGrob("CD4", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+grid.arrange(grobs = cd4, ncol = 3, top = textGrob("CD4", gp=gpar(fontsize=20,font=3,face="bold")))
 
 # CD8
 cd8 <- list()
@@ -400,14 +400,14 @@ for (i in 1:(ncol(data) - 1)) {
       scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
       theme(axis.title.x= element_text(size = 12, face="bold"), 
           axis.title.y= element_text(size = 12, face="bold") )  + 
-      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(CD8.*)|(_T_cell.*)|(_T.cell.*)")) +
+      ylab("Deconv estimate") + xlab("FACS") + ggtitle(str_remove_all(names(data)[i], "(T_cell.)|(T.cell.)")) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
-      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 7)
   })
 }
-grid.arrange(grobs = cd8, ncol = 3, top = textGrob("CD8", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+grid.arrange(grobs = cd8, ncol = 3, top = textGrob("CD8", gp=gpar(fontsize=20,font=3,face="bold")))
 
 # Macrophages
 macro <- list()
@@ -424,14 +424,14 @@ for (i in 1:(ncol(data) - 1)) {
       scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
       theme(axis.title.x= element_text(size = 12, face="bold"), 
           axis.title.y= element_text(size = 12, face="bold") )  + 
-      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_Macro.*")) +
+      ylab("Deconv estimate") + xlab("FACS") + ggtitle(names(data)[i]) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
-      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 7)
   })
 }
-grid.arrange(grobs = macro, ncol = 3, top = textGrob("Macrophages", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+grid.arrange(grobs = macro, ncol = 3, top = textGrob("Macrophages", gp=gpar(fontsize=20,font=3,face="bold")))
 
 # B
 b <- list()
@@ -448,14 +448,14 @@ for (i in 1:(ncol(data) - 1)) {
       scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
       theme(axis.title.x= element_text(size = 12, face="bold"), 
           axis.title.y= element_text(size = 12, face="bold") )  + 
-      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(B_cell.*)|(_B.cell.*)|(_B_lin.*)")) +
+      ylab("Deconv estimate") + xlab("FACS") + ggtitle(str_remove_all(names(data)[i], ".cell.*")) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
-      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 7)
   })
 }
-grid.arrange(grobs = b, ncol = 3, top = textGrob("B cells", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+grid.arrange(grobs = b, ncol = 3, top = textGrob("B cells", gp=gpar(fontsize=20,font=3,face="bold")))
 
 # NK
 nk <- list()
@@ -472,14 +472,14 @@ for (i in 1:(ncol(data) - 1)) {
       scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
       theme(axis.title.x= element_text(size = 12, face="bold"), 
           axis.title.y= element_text(size = 12, face="bold") )  + 
-      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_NK.*")) +
+      ylab("Deconv estimate") + xlab("FACS") + ggtitle(names(data)[i]) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
-      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 7)
   })
 }
-grid.arrange(grobs = nk, ncol = 3, top = textGrob("Natural Killers", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+grid.arrange(grobs = nk, ncol = 3, top = textGrob("Natural Killers", gp=gpar(fontsize=20,font=3,face="bold")))
 
 ```
 
@@ -525,14 +525,14 @@ for (i in 1:(ncol(data) - 1)) {
       scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
       theme(axis.title.x= element_text(size = 12, face="bold"), 
           axis.title.y= element_text(size = 12, face="bold") )  + 
-      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(CD4.*)|(_T_cell.*)|(_T.cell.*)")) +
+      ylab("Deconv estimate") + xlab("FACS") + ggtitle(str_remove_all(names(data)[i], "(T_cell.)|(T.cell.)")) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
-      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 7)
   })
 }
-grid.arrange(grobs = cd4, ncol = 3, top = textGrob("CD4", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+grid.arrange(grobs = cd4, ncol = 3, top = textGrob("CD4", gp=gpar(fontsize=20,font=3,face="bold")))
 
 # CD8
 cd8 <- list()
@@ -549,14 +549,14 @@ for (i in 1:(ncol(data) - 1)) {
       scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
       theme(axis.title.x= element_text(size = 12, face="bold"), 
           axis.title.y= element_text(size = 12, face="bold") )  + 
-      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(CD8.*)|(_T_cell.*)|(_T.cell.*)")) +
+      ylab("Deconv estimate") + xlab("FACS") + ggtitle(str_remove_all(names(data)[i], "(T_cell.)|(T.cell.)")) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
-      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 7)
   })
 }
-grid.arrange(grobs = cd8, ncol = 3, top = textGrob("CD8", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+grid.arrange(grobs = cd8, ncol = 3, top = textGrob("CD8", gp=gpar(fontsize=20,font=3,face="bold")))
 
 # B
 b <- list()
@@ -573,14 +573,14 @@ for (i in 1:(ncol(data) - 1)) {
       scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
       theme(axis.title.x= element_text(size = 12, face="bold"), 
           axis.title.y= element_text(size = 12, face="bold") )  + 
-      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_(B_cell.*)|(_B.cell.*)|(_B_lin.*)")) +
+      ylab("Deconv estimate") + xlab("FACS") + ggtitle(str_remove_all(names(data)[i], ".cell.*")) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
-      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 7)
   })
 }
-grid.arrange(grobs = b, ncol = 3, top = textGrob("B cells", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+grid.arrange(grobs = b, ncol = 3, top = textGrob("B cells", gp=gpar(fontsize=20,font=3,face="bold")))
 
 # NK
 nk <- list()
@@ -597,14 +597,14 @@ for (i in 1:(ncol(data) - 1)) {
       scale_y_continuous(limits = c(0, max(data[, i])), breaks = seq(0.0, 1.2, 0.2)) +
       theme(axis.title.x= element_text(size = 12, face="bold"), 
           axis.title.y= element_text(size = 12, face="bold") )  + 
-      ylab("") + xlab("") + ggtitle(str_remove_all(names(data)[i], "_NK.*")) +
+      ylab("Deconv estimate") + xlab("FACS") + ggtitle(names(data)[i]) +
       theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
-      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 6) +
-      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 6)
+      annotate("text", x = -Inf, y = Inf, hjust=-0.5, vjust=1, label = paste("italic(r)==", round(cor.test(data[, i], data[, ncol(data)])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=2, label = paste("RMSE =", round(sqrt(mean((data[, i] - data[, ncol(data)])^2, na.rm = T)), 2)), parse = F, size = 7) +
+      annotate("text", x = -Inf, y = Inf, hjust=2, vjust=3, label = paste("n = ", nrow(data)), size = 7)
   })
 }
-grid.arrange(grobs = nk, ncol = 3, top = textGrob("Natural Killers", gp=gpar(fontsize=20,font=3,face="bold")), left = textGrob("Deconvolution", gp=gpar(fontsize=14, face="bold"), rot=90), bottom= textGrob("FACS", gp=gpar(fontsize=14, face="bold")))
+grid.arrange(grobs = nk, ncol = 3, top = textGrob("Natural Killers", gp=gpar(fontsize=20,font=3,face="bold")))
 
 ```
 
