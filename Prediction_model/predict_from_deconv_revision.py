@@ -1282,7 +1282,7 @@ for comb in combinations(condis, 2):
 # ### Plot models coefficients and Odds Ratios
 
 # %%
-coefs.index
+# coefs.index
 
 # %%
 dir_load = r"../data/processed/Deconvolution_paper_revision/data_version-all_deconvolutions_2021-11-02/only_melanoma/drop_scores/cv-5/l1_ratios-advised/"
@@ -1383,7 +1383,7 @@ for signature in signatures:
 # ## Reorder models' performance data
 
 # %%
-filename = dir_save / ('l1_ratios-' + l1_name) / 'scores_signatures_deconv.csv'
+filename = os.path.join(dir_save, 'scores_signatures_deconv.csv')
 df = pd.read_csv(filename, index_col=0)
 df
 
@@ -1397,7 +1397,7 @@ for score_label in score_labels:
     df_select['mean all datasets'] = df_select.mean(axis=1)
     df_select.sort_values(by='mean lodo', ascending=False, inplace=True)
 
-    filename = dir_save / ('l1_ratios-' + l1_name) / ('scores_signatures_deconv_sorted-' + score_label + '.csv')
+    filename = os.path.join(dir_save, ('scores_signatures_deconv_sorted-' + score_label + '.csv'))
     df_select.to_csv(filename)
 
 # %%
