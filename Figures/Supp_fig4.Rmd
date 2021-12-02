@@ -1,7 +1,7 @@
 ---
 title: "Supp figure 4"
 output: html_document
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
@@ -16,149 +16,131 @@ suppressPackageStartupMessages({
   library(gridExtra)
   library(grid)
 })
-knitr::opts_chunk$set(fig.width=15, fig.height=15) 
-``` 
+knitr::opts_chunk$set(fig.width = 15, fig.height = 15)
+```
 
 ```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
 
 # Load and parse data
 
-tcga_deconv = read.table("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Miguel/deconvolutions_pipeline/all_deconvolutions/all_deconvolutions_all_TCGA.txt", header=T)
+tcga_deconv <- read.table("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Miguel/deconvolutions_pipeline/all_deconvolutions/all_deconvolutions_all_TCGA.txt", header = T)
 Aran_all_facs <- read.csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/facs/Aran_facs.csv", sep = "\t")
 HE_all_TCGA <- read.csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/HE_fractions.csv", row.names = 1)
 
-colnames(tcga_deconv) = colnames(tcga_deconv) %>% str_replace_all("(CBSX__Fig2ab.NSCLC_PBMCs_scRNAseq_sigmatrix_)|(CBSX_Fig2ab.NSCLC_PBMCs_scRNAseq_sigmatrix)", "CBSX.NSCLC")
-colnames(tcga_deconv) = colnames(tcga_deconv) %>% str_replace_all("(CBSX__scRNA.Seq_melanoma_Tirosh_sigmatrix_SuppFig_3.b_)|(CBSX_scRNA.Seq_melanoma_Tirosh_sigmatrix_SuppFig_3.b)", "CBSX.melanoma")
-colnames(tcga_deconv) = colnames(tcga_deconv) %>% str_replace_all("(CBSX__sigmatrix_HNSCC_Fig2cd_)|(CBSX_sigmatrix_HNSCC_Fig2cd)", "CBSX.HNSCC")
-colnames(tcga_deconv) = colnames(tcga_deconv) %>% str_replace_all("CBSX__LM22_" , "CBSX.LM22")
+colnames(tcga_deconv) <- colnames(tcga_deconv) %>% str_replace_all("(CBSX__Fig2ab.NSCLC_PBMCs_scRNAseq_sigmatrix_)|(CBSX_Fig2ab.NSCLC_PBMCs_scRNAseq_sigmatrix)", "CBSX.NSCLC")
+colnames(tcga_deconv) <- colnames(tcga_deconv) %>% str_replace_all("(CBSX__scRNA.Seq_melanoma_Tirosh_sigmatrix_SuppFig_3.b_)|(CBSX_scRNA.Seq_melanoma_Tirosh_sigmatrix_SuppFig_3.b)", "CBSX.melanoma")
+colnames(tcga_deconv) <- colnames(tcga_deconv) %>% str_replace_all("(CBSX__sigmatrix_HNSCC_Fig2cd_)|(CBSX_sigmatrix_HNSCC_Fig2cd)", "CBSX.HNSCC")
+colnames(tcga_deconv) <- colnames(tcga_deconv) %>% str_replace_all("CBSX__LM22_", "CBSX.LM22")
 
 HE_all_TCGA$ParticipantBarcode <- HE_all_TCGA$ParticipantBarcode %>% str_replace_all(., "-", ".")
 
-Aran_all_facs$Sample_ID <- Aran_all_facs$Sample_ID %>% str_remove_all(., ".01A.*") %>% str_replace_all(., "-", ".")
-Aran_all_facs <- Aran_all_facs[Aran_all_facs$CPE != "NaN",]
+Aran_all_facs$Sample_ID <- Aran_all_facs$Sample_ID %>%
+  str_remove_all(., ".01A.*") %>%
+  str_replace_all(., "-", ".")
+Aran_all_facs <- Aran_all_facs[Aran_all_facs$CPE != "NaN", ]
 
-tcga_deconv$Samples <- tcga_deconv$Samples %>% str_remove_all(., ".01A.*") %>% str_replace_all(., "-", ".")
+tcga_deconv$Samples <- tcga_deconv$Samples %>%
+  str_remove_all(., ".01A.*") %>%
+  str_replace_all(., "-", ".")
 
 Comm_samples <- Reduce(intersect, list(HE_all_TCGA$ParticipantBarcode, Aran_all_facs$Sample_ID, tcga_deconv$Samples))
 
-Aran_all_facs <- Aran_all_facs %>% .[.$Sample_ID %in% Comm_samples, ] %>% .[order(.$Sample_ID), ]
-HE_all_TCGA <- HE_all_TCGA %>% .[.$ParticipantBarcode %in% Comm_samples, ] %>% .[order(.$ParticipantBarcode),]
+Aran_all_facs <- Aran_all_facs %>%
+  .[.$Sample_ID %in% Comm_samples, ] %>%
+  .[order(.$Sample_ID), ]
+HE_all_TCGA <- HE_all_TCGA %>%
+  .[.$ParticipantBarcode %in% Comm_samples, ] %>%
+  .[order(.$ParticipantBarcode), ]
 tcga_deconv <- tcga_deconv %>% .[.$Samples %in% Comm_samples, ]
 tcga_deconv <- tcga_deconv
 
 # REMOVE NON UNIQUE SAMPLES IN TCGA DECONV and attribute cancer type
 tcga_deconv <- tcga_deconv %>%
   group_by(Samples) %>%
-  summarise_all(mean)%>%
+  summarise_all(mean) %>%
   as.data.frame()
-tcga_deconv <- merge(tcga_deconv, Aran_all_facs[,1:2], by.x = "Samples", by.y = "Sample_ID")
-rownames(tcga_deconv) = tcga_deconv$Samples
-tcga_deconv <- tcga_deconv[,-1]
+tcga_deconv <- merge(tcga_deconv, Aran_all_facs[, 1:2], by.x = "Samples", by.y = "Sample_ID")
+rownames(tcga_deconv) <- tcga_deconv$Samples
+tcga_deconv <- tcga_deconv[, -1]
 
 # for each method_signature make a DF with all 3 cell type in H&E
-make_df <- function(met_sign, DF){
-  data = DF %>% select(colnames(DF)[grepl(met_sign, colnames(DF))])
-  lymph = data %>% 
-    select(colnames(data)[grepl("CD4", colnames(data))], colnames(data)[grepl("CD8", colnames(data))], 
-           colnames(data)[grepl("NK", colnames(data))]) %>% 
+make_df <- function(met_sign, DF) {
+  data <- DF %>% select(colnames(DF)[grepl(met_sign, colnames(DF))])
+  lymph <- data %>%
+    select(
+      colnames(data)[grepl("CD4", colnames(data))], colnames(data)[grepl("CD8", colnames(data))],
+      colnames(data)[grepl("NK", colnames(data))]
+    ) %>%
     replace(is.na(.), 0) %>%
     mutate(sum = rowSums(across(where(is.numeric))))
-  macro = data %>% 
-    select(colnames(data)[grepl("M0", colnames(data))], colnames(data)[grepl("M1", colnames(data))], 
-           colnames(data)[grepl("M2", colnames(data))], colnames(data)[grepl("Mono", colnames(data))],
-           colnames(data)[grepl("Macro", colnames(data))]) %>% 
+  macro <- data %>%
+    select(
+      colnames(data)[grepl("M0", colnames(data))], colnames(data)[grepl("M1", colnames(data))],
+      colnames(data)[grepl("M2", colnames(data))], colnames(data)[grepl("Mono", colnames(data))],
+      colnames(data)[grepl("Macro", colnames(data))]
+    ) %>%
     replace(is.na(.), 0) %>%
     mutate(sum = rowSums(across(where(is.numeric))))
-  neutro = data %>% 
-    select(colnames(data)[grepl("Neu", colnames(data))]) %>% 
+  neutro <- data %>%
+    select(colnames(data)[grepl("Neu", colnames(data))]) %>%
     replace(is.na(.), 0) %>%
     mutate(sum = rowSums(across(where(is.numeric))))
 
-  final_df = data.frame(Lymphocytes = lymph$sum, Neutrophils = neutro$sum,
-                        Macrophages = macro$sum, row.names = rownames(data))
+  final_df <- data.frame(
+    Lymphocytes = lymph$sum, Neutrophils = neutro$sum,
+    Macrophages = macro$sum, row.names = rownames(data)
+  )
   final_df
-  }
+}
 
-colcol = c("darkslategrey", "green", "coral")
-make_plot <- function(data, method_data, method){
-  ploty = list()
+colcol <- c("darkslategrey", "green", "coral")
+make_plot <- function(data, data_HE, method, method_data, cancer_type) {
+  ploty <- list()
   for (i in 1:3) {
     ploty[[i]] <- local({
       i <- i
-      x = ggplot(data, aes(x = data_HE[, i], y = method_data[, i])) +
+      ggplot(data, aes(x = data_HE[, i], y = method_data[, i])) +
         geom_point(colour = colcol[i]) +
-        stat_smooth(method = lm, size = 0.2, color = "black", se = F, fullrange = T) +
-        scale_x_continuous(limits = c(0, max(method_data[,i]))) +
-        scale_y_continuous(limits = c(0, max(method_data[,i]))) +
-        theme(axis.title.x= element_text(size = 12, face="bold"), 
-            axis.title.y= element_text(size = 12, face="bold") )  + 
-        ylab(method) + xlab("FACS") + ggtitle(colnames(method_data)[i]) +
+        stat_smooth(method = lm, formula = y ~ x, size = 0.2, color = "black", se = F, fullrange = T) +
+        scale_x_continuous(limits = c(0, max(method_data[, i]))) +
+        scale_y_continuous(limits = c(0, max(method_data[, i]))) +
+        theme(
+          axis.title.x = element_text(size = 12, face = "bold"),
+          axis.title.y = element_text(size = 12, face = "bold")
+        ) +
+        ylab(method) +
+        xlab("FACS") +
+        ggtitle(colnames(method_data)[i]) +
         theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title = element_text(color = "black", size = 14, face = "bold.italic", hjust = 0.5, vjust = 1.5)) +
-        annotate("text", x = -Inf, y = Inf, hjust=-0.2, vjust=1, label = paste("italic(r)==", round(cor.test(method_data[, i], data_HE[, i])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
-        annotate("text", x = -Inf, y = Inf, hjust=-1, vjust=3, label = paste("RMSE =", round(sqrt(mean((method_data[, i] - data_HE[, i])^2, na.rm = T)), 2)), parse = F, size = 6) 
+        annotate("text", x = -Inf, y = Inf, hjust = -0.2, vjust = 1, label = paste("italic(r)==", round(cor.test(method_data[, i], data_HE[, i])$est, 2), "~','", "~italic(P)<", "2.2e-16"), parse = TRUE, size = 6) +
+        annotate("text", x = -Inf, y = Inf, hjust = -1, vjust = 3, label = paste("RMSE =", round(sqrt(mean((method_data[, i] - data_HE[, i])^2, na.rm = T)), 2)), parse = F, size = 6)
     })
   }
   grid.arrange(grobs = ploty, ncol = 3)
 }
 
+make_plots <- function(tcga_deconv, signatures_list, HE_all_TCGA, cancer_type) {
+  cancer_type_data <- tcga_deconv %>% filter(Cancer_type == cancer_type)
+
+  cancer_type_data_HE <- HE_all_TCGA %>% filter(Study == cancer_type) %>% select(3:5)
+  
+  for (signature in signatures_list) {
+    signature_data <- make_df(signature, cancer_type_data)
+    curated_signature <- str_remove(signature, fixed("^"))
+    make_plot(cancer_type_data, cancer_type_data_HE, curated_signature, signature_data, cancer_type)
+  }
+}
+```
+
+
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+signatures_list <- c("Quantiseq", "Epidish_BPRNACan", "DeconRNASeq_BPRNACan", "Epidish_BPRNACanProMet", "DeconRNASeq_BPRNACanProMet", "Epidish_BPRNACan3DProMet", "DeconRNASeq_BPRNACan3DProMet", "Epidish_CBSX.NSCLC", "DeconRNASeq_CBSX.NSCLC", "Epidish_CBSX_LM22", "DeconRNASeq_CBSX_LM22", "Epidish_CBSX.melanoma", "DeconRNASeq_CBSX.melanoma", "Epidish_CBSX.HNSCC", "DeconRNASeq_CBSX.HNSCC", "^CBSX.LM22", "^CBSX.NSCLC", "^CBSX.melanoma", "^CBSX.HNSCC")
 ```
 
 ## LUAD
 ```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
 
-data = tcga_deconv %>% filter(Cancer_type == "LUAD")
-data_HE = HE_all_TCGA %>% filter(Study == "LUAD")
-data_HE = data_HE[, 3:5]
-
-
-QT = make_df("Quantiseq", data)
-make_plot(data, QT, "QuantiSeq")
-
-Epidish_BPRNACan = make_df("Epidish_BPRNACan", data)
-make_plot(data, Epidish_BPRNACan, "Epidish_BPRNACan")
-
-DeconRNASeq_BPRNACan = make_df("DeconRNASeq_BPRNACan", data)
-make_plot(data, DeconRNASeq_BPRNACan, "DeconRNASeq_BPRNACan")
-
-Epidish_BPRNACanProMet = make_df("Epidish_BPRNACanProMet", data)
-make_plot(data, Epidish_BPRNACanProMet, "Epidish_BPRNACanProMet")
-DeconRNASeq_BPRNACanProMet = make_df("DeconRNASeq_BPRNACanProMet", data)
-make_plot(data, DeconRNASeq_BPRNACanProMet, "DeconRNASeq_BPRNACanProMet")
-
-Epidish_BPRNACan3DProMet = make_df("Epidish_BPRNACan3DProMet", data)
-make_plot(data, Epidish_BPRNACan3DProMet, "Epidish_BPRNACan3DProMet")
-DeconRNASeq_BPRNACan3DProMet = make_df("DeconRNASeq_BPRNACan3DProMet", data)
-make_plot(data, DeconRNASeq_BPRNACan3DProMet, "DeconRNASeq_BPRNACan3DProMet")
-
-Epidish_CBSX.NSCLC = make_df("Epidish_CBSX.NSCLC", data)
-make_plot(data, Epidish_CBSX.NSCLC, "Epidish_CBSX.NSCLC")
-DeconRNASeq_CBSX.NSCLC = make_df("DeconRNASeq_CBSX.NSCLC", data)
-make_plot(data, DeconRNASeq_CBSX.NSCLC, "DeconRNASeq_CBSX.NSCLC")
-
-Epidish_CBSX_LM22 = make_df("Epidish_CBSX_LM22", data)
-make_plot(data, Epidish_CBSX_LM22, "Epidish_CBSX_LM22")
-DeconRNASeq_CBSX_LM22 = make_df("DeconRNASeq_CBSX_LM22", data)
-make_plot(data, DeconRNASeq_CBSX_LM22, "DeconRNASeq_CBSX_LM22")
-
-Epidish_CBSX.melanoma = make_df("Epidish_CBSX.melanoma", data)
-make_plot(data, Epidish_CBSX.melanoma, "Epidish_CBSX.melanoma")
-DeconRNASeq_CBSX.melanoma = make_df("DeconRNASeq_CBSX.melanoma", data)
-make_plot(data, DeconRNASeq_CBSX.melanoma, "DeconRNASeq_CBSX.melanoma")
-
-Epidish_CBSX.HNSCC = make_df("Epidish_CBSX.HNSCC", data)
-make_plot(data, Epidish_CBSX.HNSCC, "Epidish_CBSX.HNSCC")
-DeconRNASeq_CBSX.HNSCC = make_df("DeconRNASeq_CBSX.HNSCC", data)
-make_plot(data, DeconRNASeq_CBSX.HNSCC, "DeconRNASeq_CBSX.HNSCC")
-
-CBSX.LM22 = make_df("^CBSX.LM22", data)
-make_plot(data, CBSX.LM22, "CBSX.LM22")
-CBSX.NSCLC = make_df("^CBSX.NSCLC", data)
-make_plot(data, CBSX.NSCLC, "CBSX.NSCLC")
-CBSX.melanoma = make_df("^CBSX.melanoma", data)
-make_plot(data, CBSX.melanoma, "CBSX.melanoma")
-CBSX.HNSCC = make_df("^CBSX.HNSCC", data)
-make_plot(data, CBSX.HNSCC, "CBSX.HNSCC")
-
+make_plots(tcga_deconv, signatures_list, HE_all_TCGA, "LUAD")
 ```
 
 
@@ -166,523 +148,54 @@ make_plot(data, CBSX.HNSCC, "CBSX.HNSCC")
 ## LUSC
 ```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
 
-data = tcga_deconv %>% filter(Cancer_type == "LUSC")
-data_HE = HE_all_TCGA %>% filter(Study == "LUSC")
-data_HE = data_HE[, 3:5]
-
-
-QT = make_df("Quantiseq", data)
-make_plot(data, QT, "QuantiSeq")
-
-Epidish_BPRNACan = make_df("Epidish_BPRNACan", data)
-make_plot(data, Epidish_BPRNACan, "Epidish_BPRNACan")
-
-DeconRNASeq_BPRNACan = make_df("DeconRNASeq_BPRNACan", data)
-make_plot(data, DeconRNASeq_BPRNACan, "DeconRNASeq_BPRNACan")
-
-Epidish_BPRNACanProMet = make_df("Epidish_BPRNACanProMet", data)
-make_plot(data, Epidish_BPRNACanProMet, "Epidish_BPRNACanProMet")
-DeconRNASeq_BPRNACanProMet = make_df("DeconRNASeq_BPRNACanProMet", data)
-make_plot(data, DeconRNASeq_BPRNACanProMet, "DeconRNASeq_BPRNACanProMet")
-
-Epidish_BPRNACan3DProMet = make_df("Epidish_BPRNACan3DProMet", data)
-make_plot(data, Epidish_BPRNACan3DProMet, "Epidish_BPRNACan3DProMet")
-DeconRNASeq_BPRNACan3DProMet = make_df("DeconRNASeq_BPRNACan3DProMet", data)
-make_plot(data, DeconRNASeq_BPRNACan3DProMet, "DeconRNASeq_BPRNACan3DProMet")
-
-Epidish_CBSX.NSCLC = make_df("Epidish_CBSX.NSCLC", data)
-make_plot(data, Epidish_CBSX.NSCLC, "Epidish_CBSX.NSCLC")
-DeconRNASeq_CBSX.NSCLC = make_df("DeconRNASeq_CBSX.NSCLC", data)
-make_plot(data, DeconRNASeq_CBSX.NSCLC, "DeconRNASeq_CBSX.NSCLC")
-
-Epidish_CBSX_LM22 = make_df("Epidish_CBSX_LM22", data)
-make_plot(data, Epidish_CBSX_LM22, "Epidish_CBSX_LM22")
-DeconRNASeq_CBSX_LM22 = make_df("DeconRNASeq_CBSX_LM22", data)
-make_plot(data, DeconRNASeq_CBSX_LM22, "DeconRNASeq_CBSX_LM22")
-
-Epidish_CBSX.melanoma = make_df("Epidish_CBSX.melanoma", data)
-make_plot(data, Epidish_CBSX.melanoma, "Epidish_CBSX.melanoma")
-DeconRNASeq_CBSX.melanoma = make_df("DeconRNASeq_CBSX.melanoma", data)
-make_plot(data, DeconRNASeq_CBSX.melanoma, "DeconRNASeq_CBSX.melanoma")
-
-Epidish_CBSX.HNSCC = make_df("Epidish_CBSX.HNSCC", data)
-make_plot(data, Epidish_CBSX.HNSCC, "Epidish_CBSX.HNSCC")
-DeconRNASeq_CBSX.HNSCC = make_df("DeconRNASeq_CBSX.HNSCC", data)
-make_plot(data, DeconRNASeq_CBSX.HNSCC, "DeconRNASeq_CBSX.HNSCC")
-
-CBSX.LM22 = make_df("^CBSX.LM22", data)
-make_plot(data, CBSX.LM22, "CBSX.LM22")
-CBSX.NSCLC = make_df("^CBSX.NSCLC", data)
-make_plot(data, CBSX.NSCLC, "CBSX.NSCLC")
-CBSX.melanoma = make_df("^CBSX.melanoma", data)
-make_plot(data, CBSX.melanoma, "CBSX.melanoma")
-CBSX.HNSCC = make_df("^CBSX.HNSCC", data)
-make_plot(data, CBSX.HNSCC, "CBSX.HNSCC")
-
+make_plots(tcga_deconv, signatures_list, HE_all_TCGA, "LUSC")
 ```
 
 
 ## PRAD
 ```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
 
-data = tcga_deconv %>% filter(Cancer_type == "PRAD")
-data_HE = HE_all_TCGA %>% filter(Study == "PRAD")
-data_HE = data_HE[, 3:5]
-
-
-QT = make_df("Quantiseq", data)
-make_plot(data, QT, "QuantiSeq")
-
-Epidish_BPRNACan = make_df("Epidish_BPRNACan", data)
-make_plot(data, Epidish_BPRNACan, "Epidish_BPRNACan")
-
-DeconRNASeq_BPRNACan = make_df("DeconRNASeq_BPRNACan", data)
-make_plot(data, DeconRNASeq_BPRNACan, "DeconRNASeq_BPRNACan")
-
-Epidish_BPRNACanProMet = make_df("Epidish_BPRNACanProMet", data)
-make_plot(data, Epidish_BPRNACanProMet, "Epidish_BPRNACanProMet")
-DeconRNASeq_BPRNACanProMet = make_df("DeconRNASeq_BPRNACanProMet", data)
-make_plot(data, DeconRNASeq_BPRNACanProMet, "DeconRNASeq_BPRNACanProMet")
-
-Epidish_BPRNACan3DProMet = make_df("Epidish_BPRNACan3DProMet", data)
-make_plot(data, Epidish_BPRNACan3DProMet, "Epidish_BPRNACan3DProMet")
-DeconRNASeq_BPRNACan3DProMet = make_df("DeconRNASeq_BPRNACan3DProMet", data)
-make_plot(data, DeconRNASeq_BPRNACan3DProMet, "DeconRNASeq_BPRNACan3DProMet")
-
-Epidish_CBSX.NSCLC = make_df("Epidish_CBSX.NSCLC", data)
-make_plot(data, Epidish_CBSX.NSCLC, "Epidish_CBSX.NSCLC")
-DeconRNASeq_CBSX.NSCLC = make_df("DeconRNASeq_CBSX.NSCLC", data)
-make_plot(data, DeconRNASeq_CBSX.NSCLC, "DeconRNASeq_CBSX.NSCLC")
-
-Epidish_CBSX_LM22 = make_df("Epidish_CBSX_LM22", data)
-make_plot(data, Epidish_CBSX_LM22, "Epidish_CBSX_LM22")
-DeconRNASeq_CBSX_LM22 = make_df("DeconRNASeq_CBSX_LM22", data)
-make_plot(data, DeconRNASeq_CBSX_LM22, "DeconRNASeq_CBSX_LM22")
-
-Epidish_CBSX.melanoma = make_df("Epidish_CBSX.melanoma", data)
-make_plot(data, Epidish_CBSX.melanoma, "Epidish_CBSX.melanoma")
-DeconRNASeq_CBSX.melanoma = make_df("DeconRNASeq_CBSX.melanoma", data)
-make_plot(data, DeconRNASeq_CBSX.melanoma, "DeconRNASeq_CBSX.melanoma")
-
-Epidish_CBSX.HNSCC = make_df("Epidish_CBSX.HNSCC", data)
-make_plot(data, Epidish_CBSX.HNSCC, "Epidish_CBSX.HNSCC")
-DeconRNASeq_CBSX.HNSCC = make_df("DeconRNASeq_CBSX.HNSCC", data)
-make_plot(data, DeconRNASeq_CBSX.HNSCC, "DeconRNASeq_CBSX.HNSCC")
-
-CBSX.LM22 = make_df("^CBSX.LM22", data)
-make_plot(data, CBSX.LM22, "CBSX.LM22")
-CBSX.NSCLC = make_df("^CBSX.NSCLC", data)
-make_plot(data, CBSX.NSCLC, "CBSX.NSCLC")
-CBSX.melanoma = make_df("^CBSX.melanoma", data)
-make_plot(data, CBSX.melanoma, "CBSX.melanoma")
-CBSX.HNSCC = make_df("^CBSX.HNSCC", data)
-make_plot(data, CBSX.HNSCC, "CBSX.HNSCC")
-
+make_plots(tcga_deconv, signatures_list, HE_all_TCGA, "PRAD")
 ```
 
 ## BLCA
 ```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
 
-data = tcga_deconv %>% filter(Cancer_type == "BLCA")
-data_HE = HE_all_TCGA %>% filter(Study == "BLCA")
-data_HE = data_HE[, 3:5]
-
-
-QT = make_df("Quantiseq", data)
-make_plot(data, QT, "QuantiSeq")
-
-Epidish_BPRNACan = make_df("Epidish_BPRNACan", data)
-make_plot(data, Epidish_BPRNACan, "Epidish_BPRNACan")
-
-DeconRNASeq_BPRNACan = make_df("DeconRNASeq_BPRNACan", data)
-make_plot(data, DeconRNASeq_BPRNACan, "DeconRNASeq_BPRNACan")
-
-Epidish_BPRNACanProMet = make_df("Epidish_BPRNACanProMet", data)
-make_plot(data, Epidish_BPRNACanProMet, "Epidish_BPRNACanProMet")
-DeconRNASeq_BPRNACanProMet = make_df("DeconRNASeq_BPRNACanProMet", data)
-make_plot(data, DeconRNASeq_BPRNACanProMet, "DeconRNASeq_BPRNACanProMet")
-
-Epidish_BPRNACan3DProMet = make_df("Epidish_BPRNACan3DProMet", data)
-make_plot(data, Epidish_BPRNACan3DProMet, "Epidish_BPRNACan3DProMet")
-DeconRNASeq_BPRNACan3DProMet = make_df("DeconRNASeq_BPRNACan3DProMet", data)
-make_plot(data, DeconRNASeq_BPRNACan3DProMet, "DeconRNASeq_BPRNACan3DProMet")
-
-Epidish_CBSX.NSCLC = make_df("Epidish_CBSX.NSCLC", data)
-make_plot(data, Epidish_CBSX.NSCLC, "Epidish_CBSX.NSCLC")
-DeconRNASeq_CBSX.NSCLC = make_df("DeconRNASeq_CBSX.NSCLC", data)
-make_plot(data, DeconRNASeq_CBSX.NSCLC, "DeconRNASeq_CBSX.NSCLC")
-
-Epidish_CBSX_LM22 = make_df("Epidish_CBSX_LM22", data)
-make_plot(data, Epidish_CBSX_LM22, "Epidish_CBSX_LM22")
-DeconRNASeq_CBSX_LM22 = make_df("DeconRNASeq_CBSX_LM22", data)
-make_plot(data, DeconRNASeq_CBSX_LM22, "DeconRNASeq_CBSX_LM22")
-
-Epidish_CBSX.melanoma = make_df("Epidish_CBSX.melanoma", data)
-make_plot(data, Epidish_CBSX.melanoma, "Epidish_CBSX.melanoma")
-DeconRNASeq_CBSX.melanoma = make_df("DeconRNASeq_CBSX.melanoma", data)
-make_plot(data, DeconRNASeq_CBSX.melanoma, "DeconRNASeq_CBSX.melanoma")
-
-Epidish_CBSX.HNSCC = make_df("Epidish_CBSX.HNSCC", data)
-make_plot(data, Epidish_CBSX.HNSCC, "Epidish_CBSX.HNSCC")
-DeconRNASeq_CBSX.HNSCC = make_df("DeconRNASeq_CBSX.HNSCC", data)
-make_plot(data, DeconRNASeq_CBSX.HNSCC, "DeconRNASeq_CBSX.HNSCC")
-
-CBSX.LM22 = make_df("^CBSX.LM22", data)
-make_plot(data, CBSX.LM22, "CBSX.LM22")
-CBSX.NSCLC = make_df("^CBSX.NSCLC", data)
-make_plot(data, CBSX.NSCLC, "CBSX.NSCLC")
-CBSX.melanoma = make_df("^CBSX.melanoma", data)
-make_plot(data, CBSX.melanoma, "CBSX.melanoma")
-CBSX.HNSCC = make_df("^CBSX.HNSCC", data)
-make_plot(data, CBSX.HNSCC, "CBSX.HNSCC")
-
+make_plots(tcga_deconv, signatures_list, HE_all_TCGA, "BLCA")
 ```
 
 ## CESC
 ```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
 
-data = tcga_deconv %>% filter(Cancer_type == "CESC")
-data_HE = HE_all_TCGA %>% filter(Study == "CESC")
-data_HE = data_HE[, 3:5]
-
-
-QT = make_df("Quantiseq", data)
-make_plot(data, QT, "QuantiSeq")
-
-Epidish_BPRNACan = make_df("Epidish_BPRNACan", data)
-make_plot(data, Epidish_BPRNACan, "Epidish_BPRNACan")
-
-DeconRNASeq_BPRNACan = make_df("DeconRNASeq_BPRNACan", data)
-make_plot(data, DeconRNASeq_BPRNACan, "DeconRNASeq_BPRNACan")
-
-Epidish_BPRNACanProMet = make_df("Epidish_BPRNACanProMet", data)
-make_plot(data, Epidish_BPRNACanProMet, "Epidish_BPRNACanProMet")
-DeconRNASeq_BPRNACanProMet = make_df("DeconRNASeq_BPRNACanProMet", data)
-make_plot(data, DeconRNASeq_BPRNACanProMet, "DeconRNASeq_BPRNACanProMet")
-
-Epidish_BPRNACan3DProMet = make_df("Epidish_BPRNACan3DProMet", data)
-make_plot(data, Epidish_BPRNACan3DProMet, "Epidish_BPRNACan3DProMet")
-DeconRNASeq_BPRNACan3DProMet = make_df("DeconRNASeq_BPRNACan3DProMet", data)
-make_plot(data, DeconRNASeq_BPRNACan3DProMet, "DeconRNASeq_BPRNACan3DProMet")
-
-Epidish_CBSX.NSCLC = make_df("Epidish_CBSX.NSCLC", data)
-make_plot(data, Epidish_CBSX.NSCLC, "Epidish_CBSX.NSCLC")
-DeconRNASeq_CBSX.NSCLC = make_df("DeconRNASeq_CBSX.NSCLC", data)
-make_plot(data, DeconRNASeq_CBSX.NSCLC, "DeconRNASeq_CBSX.NSCLC")
-
-Epidish_CBSX_LM22 = make_df("Epidish_CBSX_LM22", data)
-make_plot(data, Epidish_CBSX_LM22, "Epidish_CBSX_LM22")
-DeconRNASeq_CBSX_LM22 = make_df("DeconRNASeq_CBSX_LM22", data)
-make_plot(data, DeconRNASeq_CBSX_LM22, "DeconRNASeq_CBSX_LM22")
-
-Epidish_CBSX.melanoma = make_df("Epidish_CBSX.melanoma", data)
-make_plot(data, Epidish_CBSX.melanoma, "Epidish_CBSX.melanoma")
-DeconRNASeq_CBSX.melanoma = make_df("DeconRNASeq_CBSX.melanoma", data)
-make_plot(data, DeconRNASeq_CBSX.melanoma, "DeconRNASeq_CBSX.melanoma")
-
-Epidish_CBSX.HNSCC = make_df("Epidish_CBSX.HNSCC", data)
-make_plot(data, Epidish_CBSX.HNSCC, "Epidish_CBSX.HNSCC")
-DeconRNASeq_CBSX.HNSCC = make_df("DeconRNASeq_CBSX.HNSCC", data)
-make_plot(data, DeconRNASeq_CBSX.HNSCC, "DeconRNASeq_CBSX.HNSCC")
-
-CBSX.LM22 = make_df("^CBSX.LM22", data)
-make_plot(data, CBSX.LM22, "CBSX.LM22")
-CBSX.NSCLC = make_df("^CBSX.NSCLC", data)
-make_plot(data, CBSX.NSCLC, "CBSX.NSCLC")
-CBSX.melanoma = make_df("^CBSX.melanoma", data)
-make_plot(data, CBSX.melanoma, "CBSX.melanoma")
-CBSX.HNSCC = make_df("^CBSX.HNSCC", data)
-make_plot(data, CBSX.HNSCC, "CBSX.HNSCC")
-
+make_plots(tcga_deconv, signatures_list, HE_all_TCGA, "CESC")
 ```
 
 ## BRCA
 ```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
 
-data = tcga_deconv %>% filter(Cancer_type == "BRCA")
-data_HE = HE_all_TCGA %>% filter(Study == "BRCA")
-data_HE = data_HE[, 3:5]
-
-
-QT = make_df("Quantiseq", data)
-make_plot(data, QT, "QuantiSeq")
-
-Epidish_BPRNACan = make_df("Epidish_BPRNACan", data)
-make_plot(data, Epidish_BPRNACan, "Epidish_BPRNACan")
-
-DeconRNASeq_BPRNACan = make_df("DeconRNASeq_BPRNACan", data)
-make_plot(data, DeconRNASeq_BPRNACan, "DeconRNASeq_BPRNACan")
-
-Epidish_BPRNACanProMet = make_df("Epidish_BPRNACanProMet", data)
-make_plot(data, Epidish_BPRNACanProMet, "Epidish_BPRNACanProMet")
-DeconRNASeq_BPRNACanProMet = make_df("DeconRNASeq_BPRNACanProMet", data)
-make_plot(data, DeconRNASeq_BPRNACanProMet, "DeconRNASeq_BPRNACanProMet")
-
-Epidish_BPRNACan3DProMet = make_df("Epidish_BPRNACan3DProMet", data)
-make_plot(data, Epidish_BPRNACan3DProMet, "Epidish_BPRNACan3DProMet")
-DeconRNASeq_BPRNACan3DProMet = make_df("DeconRNASeq_BPRNACan3DProMet", data)
-make_plot(data, DeconRNASeq_BPRNACan3DProMet, "DeconRNASeq_BPRNACan3DProMet")
-
-Epidish_CBSX.NSCLC = make_df("Epidish_CBSX.NSCLC", data)
-make_plot(data, Epidish_CBSX.NSCLC, "Epidish_CBSX.NSCLC")
-DeconRNASeq_CBSX.NSCLC = make_df("DeconRNASeq_CBSX.NSCLC", data)
-make_plot(data, DeconRNASeq_CBSX.NSCLC, "DeconRNASeq_CBSX.NSCLC")
-
-Epidish_CBSX_LM22 = make_df("Epidish_CBSX_LM22", data)
-make_plot(data, Epidish_CBSX_LM22, "Epidish_CBSX_LM22")
-DeconRNASeq_CBSX_LM22 = make_df("DeconRNASeq_CBSX_LM22", data)
-make_plot(data, DeconRNASeq_CBSX_LM22, "DeconRNASeq_CBSX_LM22")
-
-Epidish_CBSX.melanoma = make_df("Epidish_CBSX.melanoma", data)
-make_plot(data, Epidish_CBSX.melanoma, "Epidish_CBSX.melanoma")
-DeconRNASeq_CBSX.melanoma = make_df("DeconRNASeq_CBSX.melanoma", data)
-make_plot(data, DeconRNASeq_CBSX.melanoma, "DeconRNASeq_CBSX.melanoma")
-
-Epidish_CBSX.HNSCC = make_df("Epidish_CBSX.HNSCC", data)
-make_plot(data, Epidish_CBSX.HNSCC, "Epidish_CBSX.HNSCC")
-DeconRNASeq_CBSX.HNSCC = make_df("DeconRNASeq_CBSX.HNSCC", data)
-make_plot(data, DeconRNASeq_CBSX.HNSCC, "DeconRNASeq_CBSX.HNSCC")
-
-CBSX.LM22 = make_df("^CBSX.LM22", data)
-make_plot(data, CBSX.LM22, "CBSX.LM22")
-CBSX.NSCLC = make_df("^CBSX.NSCLC", data)
-make_plot(data, CBSX.NSCLC, "CBSX.NSCLC")
-CBSX.melanoma = make_df("^CBSX.melanoma", data)
-make_plot(data, CBSX.melanoma, "CBSX.melanoma")
-CBSX.HNSCC = make_df("^CBSX.HNSCC", data)
-make_plot(data, CBSX.HNSCC, "CBSX.HNSCC")
-
+make_plots(tcga_deconv, signatures_list, HE_all_TCGA, "BRCA")
 ```
 
 ## UCEC
 ```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
 
-data = tcga_deconv %>% filter(Cancer_type == "UCEC")
-data_HE = HE_all_TCGA %>% filter(Study == "UCEC")
-data_HE = data_HE[, 3:5]
-
-
-QT = make_df("Quantiseq", data)
-make_plot(data, QT, "QuantiSeq")
-
-Epidish_BPRNACan = make_df("Epidish_BPRNACan", data)
-make_plot(data, Epidish_BPRNACan, "Epidish_BPRNACan")
-
-DeconRNASeq_BPRNACan = make_df("DeconRNASeq_BPRNACan", data)
-make_plot(data, DeconRNASeq_BPRNACan, "DeconRNASeq_BPRNACan")
-
-Epidish_BPRNACanProMet = make_df("Epidish_BPRNACanProMet", data)
-make_plot(data, Epidish_BPRNACanProMet, "Epidish_BPRNACanProMet")
-DeconRNASeq_BPRNACanProMet = make_df("DeconRNASeq_BPRNACanProMet", data)
-make_plot(data, DeconRNASeq_BPRNACanProMet, "DeconRNASeq_BPRNACanProMet")
-
-Epidish_BPRNACan3DProMet = make_df("Epidish_BPRNACan3DProMet", data)
-make_plot(data, Epidish_BPRNACan3DProMet, "Epidish_BPRNACan3DProMet")
-DeconRNASeq_BPRNACan3DProMet = make_df("DeconRNASeq_BPRNACan3DProMet", data)
-make_plot(data, DeconRNASeq_BPRNACan3DProMet, "DeconRNASeq_BPRNACan3DProMet")
-
-Epidish_CBSX.NSCLC = make_df("Epidish_CBSX.NSCLC", data)
-make_plot(data, Epidish_CBSX.NSCLC, "Epidish_CBSX.NSCLC")
-DeconRNASeq_CBSX.NSCLC = make_df("DeconRNASeq_CBSX.NSCLC", data)
-make_plot(data, DeconRNASeq_CBSX.NSCLC, "DeconRNASeq_CBSX.NSCLC")
-
-Epidish_CBSX_LM22 = make_df("Epidish_CBSX_LM22", data)
-make_plot(data, Epidish_CBSX_LM22, "Epidish_CBSX_LM22")
-DeconRNASeq_CBSX_LM22 = make_df("DeconRNASeq_CBSX_LM22", data)
-make_plot(data, DeconRNASeq_CBSX_LM22, "DeconRNASeq_CBSX_LM22")
-
-Epidish_CBSX.melanoma = make_df("Epidish_CBSX.melanoma", data)
-make_plot(data, Epidish_CBSX.melanoma, "Epidish_CBSX.melanoma")
-DeconRNASeq_CBSX.melanoma = make_df("DeconRNASeq_CBSX.melanoma", data)
-make_plot(data, DeconRNASeq_CBSX.melanoma, "DeconRNASeq_CBSX.melanoma")
-
-Epidish_CBSX.HNSCC = make_df("Epidish_CBSX.HNSCC", data)
-make_plot(data, Epidish_CBSX.HNSCC, "Epidish_CBSX.HNSCC")
-DeconRNASeq_CBSX.HNSCC = make_df("DeconRNASeq_CBSX.HNSCC", data)
-make_plot(data, DeconRNASeq_CBSX.HNSCC, "DeconRNASeq_CBSX.HNSCC")
-
-CBSX.LM22 = make_df("^CBSX.LM22", data)
-make_plot(data, CBSX.LM22, "CBSX.LM22")
-CBSX.NSCLC = make_df("^CBSX.NSCLC", data)
-make_plot(data, CBSX.NSCLC, "CBSX.NSCLC")
-CBSX.melanoma = make_df("^CBSX.melanoma", data)
-make_plot(data, CBSX.melanoma, "CBSX.melanoma")
-CBSX.HNSCC = make_df("^CBSX.HNSCC", data)
-make_plot(data, CBSX.HNSCC, "CBSX.HNSCC")
-
+make_plots(tcga_deconv, signatures_list, HE_all_TCGA, "UCEC")
 ```
 
 ## COAD
 ```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
 
-data = tcga_deconv %>% filter(Cancer_type == "COAD")
-data_HE = HE_all_TCGA %>% filter(Study == "COAD")
-data_HE = data_HE[, 3:5]
-
-
-QT = make_df("Quantiseq", data)
-make_plot(data, QT, "QuantiSeq")
-
-Epidish_BPRNACan = make_df("Epidish_BPRNACan", data)
-make_plot(data, Epidish_BPRNACan, "Epidish_BPRNACan")
-
-DeconRNASeq_BPRNACan = make_df("DeconRNASeq_BPRNACan", data)
-make_plot(data, DeconRNASeq_BPRNACan, "DeconRNASeq_BPRNACan")
-
-Epidish_BPRNACanProMet = make_df("Epidish_BPRNACanProMet", data)
-make_plot(data, Epidish_BPRNACanProMet, "Epidish_BPRNACanProMet")
-DeconRNASeq_BPRNACanProMet = make_df("DeconRNASeq_BPRNACanProMet", data)
-make_plot(data, DeconRNASeq_BPRNACanProMet, "DeconRNASeq_BPRNACanProMet")
-
-Epidish_BPRNACan3DProMet = make_df("Epidish_BPRNACan3DProMet", data)
-make_plot(data, Epidish_BPRNACan3DProMet, "Epidish_BPRNACan3DProMet")
-DeconRNASeq_BPRNACan3DProMet = make_df("DeconRNASeq_BPRNACan3DProMet", data)
-make_plot(data, DeconRNASeq_BPRNACan3DProMet, "DeconRNASeq_BPRNACan3DProMet")
-
-Epidish_CBSX.NSCLC = make_df("Epidish_CBSX.NSCLC", data)
-make_plot(data, Epidish_CBSX.NSCLC, "Epidish_CBSX.NSCLC")
-DeconRNASeq_CBSX.NSCLC = make_df("DeconRNASeq_CBSX.NSCLC", data)
-make_plot(data, DeconRNASeq_CBSX.NSCLC, "DeconRNASeq_CBSX.NSCLC")
-
-Epidish_CBSX_LM22 = make_df("Epidish_CBSX_LM22", data)
-make_plot(data, Epidish_CBSX_LM22, "Epidish_CBSX_LM22")
-DeconRNASeq_CBSX_LM22 = make_df("DeconRNASeq_CBSX_LM22", data)
-make_plot(data, DeconRNASeq_CBSX_LM22, "DeconRNASeq_CBSX_LM22")
-
-Epidish_CBSX.melanoma = make_df("Epidish_CBSX.melanoma", data)
-make_plot(data, Epidish_CBSX.melanoma, "Epidish_CBSX.melanoma")
-DeconRNASeq_CBSX.melanoma = make_df("DeconRNASeq_CBSX.melanoma", data)
-make_plot(data, DeconRNASeq_CBSX.melanoma, "DeconRNASeq_CBSX.melanoma")
-
-Epidish_CBSX.HNSCC = make_df("Epidish_CBSX.HNSCC", data)
-make_plot(data, Epidish_CBSX.HNSCC, "Epidish_CBSX.HNSCC")
-DeconRNASeq_CBSX.HNSCC = make_df("DeconRNASeq_CBSX.HNSCC", data)
-make_plot(data, DeconRNASeq_CBSX.HNSCC, "DeconRNASeq_CBSX.HNSCC")
-
-CBSX.LM22 = make_df("^CBSX.LM22", data)
-make_plot(data, CBSX.LM22, "CBSX.LM22")
-CBSX.NSCLC = make_df("^CBSX.NSCLC", data)
-make_plot(data, CBSX.NSCLC, "CBSX.NSCLC")
-CBSX.melanoma = make_df("^CBSX.melanoma", data)
-make_plot(data, CBSX.melanoma, "CBSX.melanoma")
-CBSX.HNSCC = make_df("^CBSX.HNSCC", data)
-make_plot(data, CBSX.HNSCC, "CBSX.HNSCC")
-
+make_plots(tcga_deconv, signatures_list, HE_all_TCGA, "COAD")
 ```
 
 ## READ
 ```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
 
-data = tcga_deconv %>% filter(Cancer_type == "READ")
-data_HE = HE_all_TCGA %>% filter(Study == "READ")
-data_HE = data_HE[, 3:5]
-
-
-QT = make_df("Quantiseq", data)
-make_plot(data, QT, "QuantiSeq")
-
-Epidish_BPRNACan = make_df("Epidish_BPRNACan", data)
-make_plot(data, Epidish_BPRNACan, "Epidish_BPRNACan")
-
-DeconRNASeq_BPRNACan = make_df("DeconRNASeq_BPRNACan", data)
-make_plot(data, DeconRNASeq_BPRNACan, "DeconRNASeq_BPRNACan")
-
-Epidish_BPRNACanProMet = make_df("Epidish_BPRNACanProMet", data)
-make_plot(data, Epidish_BPRNACanProMet, "Epidish_BPRNACanProMet")
-DeconRNASeq_BPRNACanProMet = make_df("DeconRNASeq_BPRNACanProMet", data)
-make_plot(data, DeconRNASeq_BPRNACanProMet, "DeconRNASeq_BPRNACanProMet")
-
-Epidish_BPRNACan3DProMet = make_df("Epidish_BPRNACan3DProMet", data)
-make_plot(data, Epidish_BPRNACan3DProMet, "Epidish_BPRNACan3DProMet")
-DeconRNASeq_BPRNACan3DProMet = make_df("DeconRNASeq_BPRNACan3DProMet", data)
-make_plot(data, DeconRNASeq_BPRNACan3DProMet, "DeconRNASeq_BPRNACan3DProMet")
-
-Epidish_CBSX.NSCLC = make_df("Epidish_CBSX.NSCLC", data)
-make_plot(data, Epidish_CBSX.NSCLC, "Epidish_CBSX.NSCLC")
-DeconRNASeq_CBSX.NSCLC = make_df("DeconRNASeq_CBSX.NSCLC", data)
-make_plot(data, DeconRNASeq_CBSX.NSCLC, "DeconRNASeq_CBSX.NSCLC")
-
-Epidish_CBSX_LM22 = make_df("Epidish_CBSX_LM22", data)
-make_plot(data, Epidish_CBSX_LM22, "Epidish_CBSX_LM22")
-DeconRNASeq_CBSX_LM22 = make_df("DeconRNASeq_CBSX_LM22", data)
-make_plot(data, DeconRNASeq_CBSX_LM22, "DeconRNASeq_CBSX_LM22")
-
-Epidish_CBSX.melanoma = make_df("Epidish_CBSX.melanoma", data)
-make_plot(data, Epidish_CBSX.melanoma, "Epidish_CBSX.melanoma")
-DeconRNASeq_CBSX.melanoma = make_df("DeconRNASeq_CBSX.melanoma", data)
-make_plot(data, DeconRNASeq_CBSX.melanoma, "DeconRNASeq_CBSX.melanoma")
-
-Epidish_CBSX.HNSCC = make_df("Epidish_CBSX.HNSCC", data)
-make_plot(data, Epidish_CBSX.HNSCC, "Epidish_CBSX.HNSCC")
-DeconRNASeq_CBSX.HNSCC = make_df("DeconRNASeq_CBSX.HNSCC", data)
-make_plot(data, DeconRNASeq_CBSX.HNSCC, "DeconRNASeq_CBSX.HNSCC")
-
-CBSX.LM22 = make_df("^CBSX.LM22", data)
-make_plot(data, CBSX.LM22, "CBSX.LM22")
-CBSX.NSCLC = make_df("^CBSX.NSCLC", data)
-make_plot(data, CBSX.NSCLC, "CBSX.NSCLC")
-CBSX.melanoma = make_df("^CBSX.melanoma", data)
-make_plot(data, CBSX.melanoma, "CBSX.melanoma")
-CBSX.HNSCC = make_df("^CBSX.HNSCC", data)
-make_plot(data, CBSX.HNSCC, "CBSX.HNSCC")
-
+make_plots(tcga_deconv, signatures_list, HE_all_TCGA, "READ")
 ```
 
 ## SKCM
 ```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
 
-data = tcga_deconv %>% filter(Cancer_type == "SKCM")
-data_HE = HE_all_TCGA %>% filter(Study == "SKCM")
-data_HE = data_HE[, 3:5]
-
-
-QT = make_df("Quantiseq", data)
-make_plot(data, QT, "QuantiSeq")
-
-Epidish_BPRNACan = make_df("Epidish_BPRNACan", data)
-make_plot(data, Epidish_BPRNACan, "Epidish_BPRNACan")
-
-DeconRNASeq_BPRNACan = make_df("DeconRNASeq_BPRNACan", data)
-make_plot(data, DeconRNASeq_BPRNACan, "DeconRNASeq_BPRNACan")
-
-Epidish_BPRNACanProMet = make_df("Epidish_BPRNACanProMet", data)
-make_plot(data, Epidish_BPRNACanProMet, "Epidish_BPRNACanProMet")
-DeconRNASeq_BPRNACanProMet = make_df("DeconRNASeq_BPRNACanProMet", data)
-make_plot(data, DeconRNASeq_BPRNACanProMet, "DeconRNASeq_BPRNACanProMet")
-
-Epidish_BPRNACan3DProMet = make_df("Epidish_BPRNACan3DProMet", data)
-make_plot(data, Epidish_BPRNACan3DProMet, "Epidish_BPRNACan3DProMet")
-DeconRNASeq_BPRNACan3DProMet = make_df("DeconRNASeq_BPRNACan3DProMet", data)
-make_plot(data, DeconRNASeq_BPRNACan3DProMet, "DeconRNASeq_BPRNACan3DProMet")
-
-Epidish_CBSX.NSCLC = make_df("Epidish_CBSX.NSCLC", data)
-make_plot(data, Epidish_CBSX.NSCLC, "Epidish_CBSX.NSCLC")
-DeconRNASeq_CBSX.NSCLC = make_df("DeconRNASeq_CBSX.NSCLC", data)
-make_plot(data, DeconRNASeq_CBSX.NSCLC, "DeconRNASeq_CBSX.NSCLC")
-
-Epidish_CBSX_LM22 = make_df("Epidish_CBSX_LM22", data)
-make_plot(data, Epidish_CBSX_LM22, "Epidish_CBSX_LM22")
-DeconRNASeq_CBSX_LM22 = make_df("DeconRNASeq_CBSX_LM22", data)
-make_plot(data, DeconRNASeq_CBSX_LM22, "DeconRNASeq_CBSX_LM22")
-
-Epidish_CBSX.melanoma = make_df("Epidish_CBSX.melanoma", data)
-make_plot(data, Epidish_CBSX.melanoma, "Epidish_CBSX.melanoma")
-DeconRNASeq_CBSX.melanoma = make_df("DeconRNASeq_CBSX.melanoma", data)
-make_plot(data, DeconRNASeq_CBSX.melanoma, "DeconRNASeq_CBSX.melanoma")
-
-Epidish_CBSX.HNSCC = make_df("Epidish_CBSX.HNSCC", data)
-make_plot(data, Epidish_CBSX.HNSCC, "Epidish_CBSX.HNSCC")
-DeconRNASeq_CBSX.HNSCC = make_df("DeconRNASeq_CBSX.HNSCC", data)
-make_plot(data, DeconRNASeq_CBSX.HNSCC, "DeconRNASeq_CBSX.HNSCC")
-
-CBSX.LM22 = make_df("^CBSX.LM22", data)
-make_plot(data, CBSX.LM22, "CBSX.LM22")
-CBSX.NSCLC = make_df("^CBSX.NSCLC", data)
-make_plot(data, CBSX.NSCLC, "CBSX.NSCLC")
-CBSX.melanoma = make_df("^CBSX.melanoma", data)
-make_plot(data, CBSX.melanoma, "CBSX.melanoma")
-CBSX.HNSCC = make_df("^CBSX.HNSCC", data)
-make_plot(data, CBSX.HNSCC, "CBSX.HNSCC")
-
+make_plots(tcga_deconv, signatures_list, HE_all_TCGA, "SKCM")
 ```
-
