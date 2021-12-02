@@ -76,6 +76,11 @@ TEST_CLOUG = True    # models trained on all datasets are tested on the Cloughes
 CV_ADAPT = False     # increase k, the number of CV folds, if training didn't converged with previous k
 CV_TRAIN = 5         # default number of splits for CV
 CV_MAX = 10          # max splits if previous training failed
+PLOT_MODE = False    # enable/disable plot figures on the screen
+
+def plot_figure(plt, PLOT_MODE):
+    if PLOT_MODE:
+        plt.show()
 
 path_interm = Path("../data/intermediate/Deconvolution_paper")
 data_version = 'all_deconvolutions_2021-08-10'
@@ -579,7 +584,7 @@ for l1_name, l1_ratios in l1_ratios_list:
                 score_split[clin_col + ' - diff ' + metric] = score_split[clin_col + ' - ' + metric] - score_split[test_name + ' - ' + metric]
                 
         score_condi[str_condi] = score_split
-        plt.show()
+        plot_figure(plt, PLOT_MODE)
 
     scores = pd.DataFrame.from_dict(score_condi, orient='index')
     scores.index.name = 'signature'
@@ -653,7 +658,7 @@ for score_label in score_labels:
         title = f"Gain in predictive power by {score_label} and feature importance of {clin_col}"
         ax.set_title(title)
         fig.savefig(dir_load / title, facecolor='white')
-        fig.show()
+        plot_figure(fig, PLOT_MODE)
 
 # %% [markdown] tags=[]
 # ### Cell types proportions
@@ -948,7 +953,7 @@ for l1_name, l1_ratios in l1_ratios_list:
             plt.title(param_string + f" l1_ratio {l1_ratio}, C {C}")
             plt.savefig(dir_save / f"coef_{param_string}.png", bbox_inches='tight', facecolor='white')
 
-            plt.show()
+            plot_figure(plt, PLOT_MODE)
             plt.close('all')
         
         if TEST_CLOUG:
@@ -1195,7 +1200,7 @@ plt.ylabel('coef')
 plt.title(param_string + f" l1_ratio {l1_ratio}, C {C}")
 # plt.savefig(dir_save / f"coef_{param_string}.png", bbox_inches='tight', facecolor='white')
 
-plt.show()
+plot_figure(plt, PLOT_MODE)
 plt.close('all')
 
 if TEST_CLOUG:
