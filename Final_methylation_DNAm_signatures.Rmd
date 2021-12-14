@@ -1,0 +1,256 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+
+### import bigwig data  ###
+
+```{r}
+
+# Function for importing bigWig data
+
+FeatureBigWig <- function(x) {
+	coverage <- c()
+	for (i in 1:length(x)) {
+    coverage <- c(coverage, list(data.frame(import(x[[i]]))))
+  }
+	coverage
+}
+
+# Merge the same samples's data
+
+combine <- function(x){
+    k <- c()
+    for (i in seq(from = 1, to = length(x), by = 2)) {
+        k <- c(k, list(data.frame(merge(x[[i]], x[[i + 1]], by.x = c('seqnames', 'start', 'end'), by.y = c('seqnames', 'start', 'end')))))
+  }
+    k
+}
+
+# Discards bases that have coverage below 10X
+
+filter <- function(cg){
+    flt <- c()
+        for (i in 1:length(cg)) { 
+        flt <- c(flt, list(data.frame(cg[[i]][cg[[i]]$score.y <= quantile(cg[[i]]$score.y, .999) & cg[[i]]$score.y >= 10,])))
+        }
+    flt
+}
+
+# Merge the all samples 
+
+final_merge <- function(path) {
+  
+    library(rtracklayer)
+
+    files <- dir(path,  full.names = TRUE)
+
+    Feature.cell <- FeatureBigWig(files)
+
+    merge.cell <- combine(Feature.cell)
+
+    filter.merge.cell <- filter(merge.cell)
+    
+    names.files <- c(names(filter.merge.cell[[1]])[1:3],unique(gsub('.CPG.*', '', dir(path))))
+
+    dat = filter.merge.cell[[1]]
+
+for (i in 2:length(filter.merge.cell)) {
+    dat <- merge(dat, filter.merge.cell[[i]], by.x = c('seqnames', 'start', 'end'), by.y = c('seqnames', 'start', 'end'))
+    }
+    a <- dat[,1:3]
+    for (j in seq(from = 6, to = ncol(dat), by = 6)) {
+        a <- cbind(a,dat[, j])
+        }
+    colnames(a) <- names.files 
+    a
+}
+
+```
+
+# Generate signatures codes
+
+```{r}
+
+# Find different methylation positions (DMPs)
+
+  DMPs <- function(data, Phenotype, method){
+      require(limma)
+      require(dplyr)
+      
+      message("[===========================]")
+      message("[<<<< DMPs START >>>>>]")
+      message("-----------------------------")
+      
+      design.pairs <- function(levels) {
+          n <- length(levels)
+          design <- matrix(0,n,choose(n,2))
+          rownames(design) <- levels
+          colnames(design) <- 1:choose(n,2)
+          k <- 0
+          for (i in 1:(n - 1))
+              for (j in (i + 1):n) {
+                  k <- k + 1
+                  design[i,k] <- 1
+                  design[j,k] <- -1
+                  colnames(design)[k] <- paste(levels[i], "-", levels[j],sep = "")
+              }
+          design
+      }
+          
+          design <- model.matrix(~0 + Phenotype)
+          contr.matrix <- design.pairs(levels(factor(Phenotype)))
+          colnames(design) <- rownames(contr.matrix)   
+     
+      Fit <- lmFit(data, design) %>%
+          contrasts.fit(., contrasts = contr.matrix) %>%
+          eBayes(.)
+      
+      if (method == "TM") {
+        
+        FitList <- list()
+        for (i in 1:ncol(contr.matrix)) {
+            FitList[[i]] <- topTable(Fit[which(decideTests(Fit)[,i] != 0),], coef = i, adjust.method = "BH", number = nrow(data)) %>% mutate(ID = rownames(.))
+            message(paste0(i, " done"))
+        }
+        
+        } else if (method == "TIL") {
+            FitList <- list()
+            for (i in 1:ncol(contr.matrix)) {
+               FitList[[i]] <- topTable(Fit, coef = i, adjust.method = "BH", number = nrow(data)) %>% mutate(ID = rownames(.)) 
+              message(paste0(i, " done"))
+        
+        }
+      }
+      names(FitList) <- colnames(contr.matrix)
+      
+      message("[<<<<< DMPs END >>>>>>]")
+      message("[===========================]")
+      return(FitList)
+  }
+      
+  
+  # Function to get median value of each gene from an input dataframe
+  
+  getMedVal <- function(data, Phenotype){
+    library(matrixStats)
+    Trans <- data.frame(t(data))
+    Mt.Split <- split(Trans, Phenotype)
+    Mt.Split <- lapply(Mt.Split, function(x) colMedians(data.matrix(x)))
+    Mt.Split <- do.call(cbind, Mt.Split)
+    rownames(Mt.Split) <- rownames(data)
+    return(Mt.Split)
+  }
+  
+  Signfeature <- function(data, Phenotype, FitList, FDR, FCcuoff, MaxDMRs, method) {
+    require(dplyr)
+    require(matrixStats)
+    require(limma)
+    
+      message("[===========================]")
+      message("[<<<< Signature START >>>>>]")
+      message("-----------------------------")
+      
+  # Filter by thresholds
+  if (method == "TM") {
+       A1 <- list()
+      for (i in 1:length(FitList)) {
+           A1[[i]] <- filter(FitList[[i]], adj.P.Val < FDR & abs(logFC) > FCcuoff) #%>% arrange(., desc(logFC))
+          if (nrow(A1[[i]]) > MaxDMRs) { 
+            A1[[i]] <- A1[[i]][1:MaxDMRs,]
+            }
+      }
+  } else if (method == "TIL") {
+      A1 <- list()
+      for (i in 1:length(FitList)) {
+          A1[[i]] <- filter(FitList[[i]], adj.P.Val < FDR & abs(logFC) > FCcuoff) #%>% arrange(., desc(logFC))
+          if (nrow(A1[[i]]) > MaxDMRs) { 
+            A1[[i]] <- A1[[i]][1:MaxDMRs,]
+            }
+      }
+  }
+      
+  
+    sig <- lapply(A1, function(x) dplyr::select(x,ID))
+    sig <- do.call(rbind, sig)
+    sig <- filter(sig, !duplicated(ID))
+    data1 <- data[rownames(data) %in% sig$ID,]
+  
+  # Print number of selected probes (signature)
+   nrow(data1)
+     
+    result <- getMedVal(data1, Phenotype)
+      message("[===========================]")
+      message("[<<<< Signature END >>>>>]")
+      message("-----------------------------")
+     return(result)
+  }
+  
+  # function to extract expression values of a list of CpGs 
+  
+  getExpMatrix <- function(geneList, expression){
+      
+      df_out <- expression[geneList, ]
+      return(df_out)
+  }
+  
+  
+DGEs.QC <- function(FitList, FDR) {
+    
+    require(ggpubr)
+    
+    p <- list()
+    
+    for (i in 1:length(FitList)) {
+        p[[i]] <- ggplot(FitList[[i]][FitList[[i]]$adj.P.Val < FDR,], aes(x = logFC)) + geom_density(colour = "red") + labs(title = names(FitList)[i], x = "logFC", y = "Density") + theme(plot.title = element_text(hjust = 0.5)) + scale_x_continuous(breaks = seq(-1, 1, 0.2)) + theme(axis.text.x = element_text(size = 10, color = "Black"), axis.text.y = element_text(size = 10, color = "Black"))
+    }
+    return(do.call(ggarrange, p))
+}  
+
+```
+
+## BPmet signature ##
+
+```{r}
+
+FitList_IC_blood <- DMPs(data = Normal_cancer_WB_blueprint_WGBS_genomic_numeric[, c(56:80, 93:105)], Phenotype = blueprint_pheno[c(1:25, 38:50)], method = "TIL")
+
+Mediant_IC_blood <- getMedVal(data = Normal_cancer_WB_blueprint_WGBS_genomic_numeric[,c(56:80, 93:105)], Phenotype = blueprint_pheno[-c(26:37,51:52)])
+
+BPmet <- Signfeature(data = Normal_cancer_WB_blueprint_WGBS_genomic_numeric[,c(56:80, 93:105)], Phenotype = blueprint_pheno[-c(26:37,51:52)], FitList = FitList_IC_blood, FDR = 0.05, FCcuoff = 0.2, MaxDMRs = 100, method = "TIL")
+
+```
+
+
+## BPmetCan signature ##
+
+```{r}
+
+  group <- c(rep("normal", 17), rep("cancer", 34), rep("wb", 4))
+  
+  Pheno2 <- c(as.character(group[18:51]), as.character(blueprint_pheno))
+  
+  FitList_TM <- DMPs(data = Normal_cancer_WB_blueprint_WGBS_genomic_numeric[,-c(56:107)], Phenotype = group, method = "TM")
+  
+  # FitList_IC <- DMPs(data = Normal_cancer_WB_blueprint_WGBS_genomic_numeric[,-c(1:55,81:92,106:107)], Phenotype = blueprint_pheno[-c(26:37,51:52)], method = "TIL")
+  
+  FitList_TIC <- DMPs(data = Normal_cancer_WB_blueprint_WGBS_genomic_numeric[,c(18:51,56:107)], Phenotype = Pheno2, method = "TIL")
+
+Mediant_T <- getMedVal(data = Normal_cancer_WB_blueprint_WGBS_genomic_numeric[,-c(56:107)], Phenotype = group)
+
+# Mediant_IC <- getMedVal(data = Normal_cancer_WB_blueprint_WGBS_genomic_numeric[,-c(1:55,81:92,106:107)], Phenotype = blueprint_pheno[-c(26:37,51:52)])
+
+Mediant_TIC <- getMedVal(data = Normal_cancer_WB_blueprint_WGBS_genomic_numeric[,c(18:51, 56:107)], Phenotype = Pheno2)
+
+
+Tumor.sig <- Signfeature(data = Normal_cancer_WB_blueprint_WGBS_genomic_numeric[,-c(56:107)], Phenotype = group, FitList = FitList_TM, FDR = 0.05, FCcuoff = 0.5, MaxDMRs = 100, method = "TM")
+
+TIC.sig <- Signfeature(data = Normal_cancer_WB_blueprint_WGBS_genomic_numeric[,c(18:51,56:107)], Phenotype = Pheno2, FitList = FitList_TIC, FDR = 10e-6, FCcuoff = 0.3, MaxDMRs = 300, method = "TIL")
+
+Immune_Tumor_CpGs <- unique(c(rownames(Tumor.sig), rownames(TIC.sig)))
+  
+BPmetCan <- getExpMatrix(geneList = Immune_Tumor_CpGs, expression = Mediant_TIC)
+
+```
