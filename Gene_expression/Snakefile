@@ -64,6 +64,16 @@ if config["Do_rnaseq"] == "yes":
         if config["Genome"] is None:
             exit_error("Genome")
 
+    if config["Quantification_with"] == "salmon":
+        if config["CDNA"] is None:
+            exit_error("CDNA")
+        if config["Genome"] is None:
+            exit_error("Genome")
+
+    if config["Quantification_with"] == "kallisto":
+        if config["CDNA"] is None:
+            exit_error("CDNA")
+
     if config["Index_rnaseq"] is None and config["Compute_index"] != "yes":
         exit_error("Index_rnaseq")
 
