@@ -439,7 +439,7 @@ if config["Do_rnaseq"] == "yes":
                 threads:
                     config["THREADS"]
                 benchmark:
-                    "benchmark/star_index.txt"
+                    "benchmarks/star_index.txt"
                 message:
                     "Computing STAR index"
                 conda:
