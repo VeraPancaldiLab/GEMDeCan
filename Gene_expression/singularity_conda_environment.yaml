@@ -4,53 +4,55 @@ channels:
   - bioconda
   - dranew # bcl2fastq
 dependencies:
-  - r-base=4.0.3
+  - r-base=4.1.1
   # ImportError: libdatrie.so.1: cannot open shared object file: No such file or directory
   # Fix using python3.8
   - python=3.8.8
-  - snakemake=6.1.1
+  - snakemake=6.13.1
     # ModuleNotFoundError: No module named 'snakemake_wrapper_utils'
     # Fix installing explicitly snakemake-wrapper-utils
     # wrappers
     # Trimmomatic/pe
   - trimmomatic=0.36
   - pigz=2.6
-  - snakemake-wrapper-utils=0.1.3
+  - snakemake-wrapper-utils=0.2.0
     # multiqc
   - multiqc=1.10.1
     # trim_galore/pe
-  - trim-galore=0.4.5
+  - trim-galore=0.6.7
     # analyse.yaml
-  - r-rmarkdown=2.7
-  - r-hmisc=4.5_0
-  - r-viridis=0.6.0
+  - r-rmarkdown=2.11
+  - r-hmisc=4.6_0
+  - r-viridis=0.6.2
   - r-rcolorbrewer=1.1_2
   - r-pheatmap=1.0.12
-  - r-corrplot=0.84
-  - r-dplyr=1.0.5
+  - r-corrplot=0.92
+  - r-dplyr=1.0.7
     # bcl2fastq.yaml
   - bcl2fastq=2.19.0
     # deconvolution.yaml
   - r-immunedeconv=2.0.3
-  - bioconductor-deconrnaseq=1.32.0
-  - bioconductor-epidish=2.6.0
+  - bioconductor-deconrnaseq=1.36.0
+  - bioconductor-epidish=2.10.0
   - r-mcpcounter=1.1.0
   - r-purrr=0.3.4
-  - r-readr=1.4.0
+  - r-readr=2.1.1
   - r-stringr=1.4.0
   - r-magrittr=2.0.1
     # fastqc.yaml
   - fastqc=0.11.9
     # kallisto.yaml
-  - kallisto=0.46.2
-  - bioconductor-tximport=1.18.0
-  - bioconductor-rhdf5=2.34.0
-  - bioconductor-organism.dplyr=1.18.0
-  - bioconductor-org.hs.eg.db=3.12.0
-  - bioconductor-txdb.hsapiens.ucsc.hg38.knowngene=3.10.0
+  - kallisto=0.48.0
+  - bioconductor-biobase=2.54.0
+  - bioconductor-annotationdbi=1.56.1
+  - bioconductor-tximport=1.22.0
+  # - bioconductor-rhdf5=2.38.0 # package bioconductor-rhdf5-2.38.0-r41hfe70e90_1 requires openssl >=1.1.1l,<1.1.2a
+  - bioconductor-organism.dplyr=1.22.1
+  - bioconductor-org.hs.eg.db=3.14.0
+  - bioconductor-txdb.hsapiens.ucsc.hg38.knowngene=3.14.0
     # rename.yaml
   - rename=1.601
   - rsem=1.3.3
-  - salmon=1.4.0
-  - star=2.7.8a
+  - salmon=1.6.0
+  - star=2.7.10a
 
