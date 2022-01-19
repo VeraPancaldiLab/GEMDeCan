@@ -404,7 +404,13 @@ if config["Do_rnaseq"] == "yes":
                 conda:
                     "Tools/salmon.yaml"
                 shell:
-                    "bash Tools/compute_index_salmon.sh {input.GENOME} {input.CDNA} {threads} {params}"
+                    """
+                      mkdir -p {params}
+                      grep "^>" <(gunzip -c "{input.GENOME}") | cut -d" " -f1 >{params}/decoys.txt
+                      sed -i.bak -e 's/>//g' {params}/decoys.txt
+                      cat {input.CDNA} {input.GENOME} >{params}/gentrome.fa.gz
+                      salmon index -t {params}/gentrome.fa.gz -d {params}/decoys.txt -p {threads} --gencode  -i {params}
+                    """
             index = rules.salmon_index.output
         else:
             index = config["Index_rnaseq"]
