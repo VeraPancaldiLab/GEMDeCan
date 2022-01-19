@@ -31,13 +31,13 @@ Index_rnaseq: # path to kallisto Index file location or Salmon or STAR 2.7.6a In
 # If you can't provide the index :
 Compute_index:
   "yes"
-CDNA: # Required for Salmon and Kallisto
+CDNA: # Required for Salmon and Kallisto in gzip
   data/Homo_sapiens.GRCh38.cdna.all.fa.gz
   # Computing indexes requires the 2 following files. They are
-Genome: # Path to the reference genome sequence. It must be fasta format. Required for Salmon and STAR
-  data/Homo_sapiens.GRCh38.dna_rm.chromosome.22.fa
-GTF: # Path to the GTF file. Not a zipped format. Required if you chose to run STAR+RSEM
-  data/Homo_sapiens.GRCh38.103.chr.gtf
+Genome: # Path to the reference genome sequence. It must be a gzip fasta format. Required for Salmon and STAR
+  data/Homo_sapiens.GRCh38.dna_rm.chromosome.22.fa.gz
+GTF: # Path to the gzip GTF file. Required if you chose to run STAR+RSEM
+  data/Homo_sapiens.GRCh38.103.chr.gtf.gz
 
 # Deconvolution option
 Do_deconv: # run the deconvolution ? "yes" or "no", don't forget the ""

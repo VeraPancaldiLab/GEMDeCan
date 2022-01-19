@@ -134,6 +134,30 @@ elif config["Do_deconv"] == "no" and config["Do_rnaseq"] == "yes":
 ####### RNA-SEQ #######
 #######################
 
+rule gunzip_genome:
+  input:
+    config["Genome"]
+  output:
+    config["Genome"].replace(".gz", "")
+  conda:
+    "Tools/gunzip.yaml"
+  singularity:
+    "docker://continuumio/miniconda3:4.10.3"
+  shell:
+    "gunzip -k -d {input}"
+
+rule gunzip_gtf:
+  input:
+    config["GTF"]
+  output:
+    config["GTF"].replace(".gz", "")
+  conda:
+    "Tools/gunzip.yaml"
+  singularity:
+    "docker://continuumio/miniconda3:4.10.3"
+  shell:
+    "gunzip -k -d {input}"
+
 if config["Do_rnaseq"] == "yes":
 
     ## Converts base call (.BCL) files into FASTQ
@@ -432,8 +456,8 @@ if config["Do_rnaseq"] == "yes":
         if config["Compute_index"] == "yes":
             rule star_index:
                 input:
-                    GENOME = config["Genome"],
-                    GTF = config["GTF"]
+                    GENOME = rules.gunzip_genome.output,
+                    GTF = rules.gunzip_gtf.output
                 output:
                     directory("data/genome/star")
                 threads:
@@ -461,7 +485,7 @@ if config["Do_rnaseq"] == "yes":
                 config["Output_Directory"] + "/star/{samples}/Aligned.toTranscriptome.out.bam"
             params:
                 OUT = config["Output_Directory"] + "/star/{samples}/",
-                GTF = config["GTF"]
+                GTF = rules.gunzip_gtf.output
             threads:
                 config["THREADS"]
             benchmark:
