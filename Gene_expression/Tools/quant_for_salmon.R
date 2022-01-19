@@ -9,8 +9,7 @@ samples <- snakemake@params[[2]]
 files <- sort(paste0(samples, "/quant.sf"))
 names(files) <- sort(samples)
 
-src <- src_organism("TxDb.Hsapiens.UCSC.hg38.knownGene")
-src <- src_ucsc("Homo sapiens")
+src <- src_organism("TxDb.Hsapiens.UCSC.hg38.knownGene", overwrite=T)
 k <- keys(src, keytype = "tx_id")
 tx2gene <- select(src, keys = k, columns = c("tx_name", "symbol"), keytype = "entrez")
 tx2gene <- tx2gene[, -1]
