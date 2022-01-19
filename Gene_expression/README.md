@@ -25,17 +25,14 @@ This computational pipeline takes as input BCL or FASTQ files of RNA-seq reads, 
 
 
 ## Installation
-Snakemake allows for a very efficient and user friendly way of using pipelines. It is designed so all you need to install is Conda (required to install Snakemake and mamba) and Snakemake itself.
+Snakemake allows for a very efficient and user friendly way of using pipelines. It is designed so all you need to install is _mamba_ which is required to install Snakemake
 
-Note that officially only Linux is supported for this pipeline. This also requires an Internet connection in order to use conda auto-generated environments for all necessary software and packages.
-All R scripts within this pipeline were written with R version 4.1.2. You may experience packages conflicts while running previous version of R.
-
-Conda is required for this pipeline, here's the installation process :
-* [Linux](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
+Note that officially only Linux is supported for this pipeline. This also requires an Internet connection in order to use _mamba_ auto-generated environments for all necessary software and packages.
 
 Mamba
 * [Linux](https://github.com/mamba-org/mamba)
-`conda install mamba -n base -c conda-forge`
+`curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh"`
+`bash Mambaforge-$(uname)-$(uname -m).sh`
 
 Snakemake
 * [Linux](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html)
@@ -43,25 +40,7 @@ Snakemake
 `mamba install snakemake -n base -c conda-forge -c bioconda`
 
 ## Dependencies
-All dependencies are automatically installed by snakemake using the .yaml configuration files in Tools. So the user does not need to configure the conda environments as it is done within the pipeline. For information, here are the versions of libraries that are used :
-* r-rmarkdown=2.7
-* r-hmisc=4.4.1
-* r-viridis=0.5.1
-* bcl2fastq=2.19.0
-* r-immunedeconv=2.0.1
-* bioconductor-deconrnaseq=1.28.0
-* bioconductor-epidish=2.2.0
-* r-mcpcounter=1.1.0
-* fastqc=0.11.9
-* bioconductor-tximport=1.18.0
-* bioconductor-rhdf5=2.34.0
-* bioconductor-organism.dplyr=1.18.0
-* bioconductor-org.hs.eg.db=3.12.0
-* bioconductor-txdb.hsapiens.ucsc.hg38.knowngene=3.10.0
-* rename=1.601
-* rsem=1.3.3
-* salmon=1.1.0
-* star=2.7.6a
+All dependencies are automatically installed by snakemake using the .yaml configuration files in Tools. So the user does not need to configure the conda environments as it is done within the pipeline.
 
 ## Configure your workspace
 The snakefile shouldn't be modified. A provided `config.yaml` file takes as input all needed directories and files.
