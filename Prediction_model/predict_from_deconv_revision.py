@@ -59,6 +59,9 @@ from scipy.stats import loguniform
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer, SimpleImputer, KNNImputer
 
+import pprint
+import shap
+
 
 # %%
 def write_log(file, message):
@@ -72,7 +75,8 @@ def write_log(file, message):
 # %%
 ONLY_MELANOMA = True
 DROP_SCORES = True   # discard XCELL's 'ImmuneScore', 'StromaScore' and 'MicroenvironmentScore'
-TEST_CLOUG = True    # models trained on all datasets are tested on the Cloughesy dataset
+TEST_CLOUG = False    # models trained on all datasets are tested on the Cloughesy dataset
+TEST_LP = True    # models trained on all datasets are tested on the Cloughesy dataset
 CV_ADAPT = False     # increase k, the number of CV folds, if training didn't converged with previous k
 CV_TRAIN = 5         # default number of splits for CV
 CV_MAX = 10          # max splits if previous training failed
@@ -209,6 +213,31 @@ if TEST_CLOUG:
     for key, val in dic_rename.items():
         new_cols = [x.replace(key, val) for x in deconv_cloug.columns]
         deconv_cloug.columns = new_cols
+
+if TEST_LP:
+    path_data = path_deconv / ('all_deconvolutions_' + 'LP_FFPE_STAR_RSEM_TPM' + '.txt')
+    deconv_lp = pd.read_csv(path_data, sep='\t', index_col=0)
+    # deconv_lp.index = ['lphesy_' + x for x in deconv_lp.index]
+    response_lp = pd.read_csv(path_interm / "LP_progressionDeces6mois.csv", index_col=0)
+    common_ids_lp = set(response_lp.index).intersection(deconv_lp.index)
+    deconv_lp = deconv_lp.loc[common_ids_lp, :]
+    response_lp = response_lp.loc[deconv_lp.index, :]
+
+    if len(drop_col) > 0:
+        deconv_lp.drop(columns=drop_col, inplace=True)
+    # set inf values to nan
+    to_nan = ~np.isfinite(deconv_lp.values)
+    nb_nan = to_nan.sum()
+    if nb_nan != 0:
+        print(f"There are {nb_nan} nan values")
+        deconv_lp[to_nan] = np.nan
+        # impute non finite values (nan, +/-inf)
+        # imputer = IterativeImputer(max_iter=100, random_state=0)
+        imputer = KNNImputer(n_neighbors=5, weights="distance")
+        deconv_lp.loc[:,:] = imputer.fit_transform(deconv_lp.values)
+    for key, val in dic_rename.items():
+        new_cols = [x.replace(key, val) for x in deconv_lp.columns]
+        deconv_lp.columns = new_cols
     # add CIBERSORTx method name where it's missing
     # new_cols = ['CIBERSORTx_' + x if ('CBSX' in x and not ('EpiDISH' in x or 'DeconRNASeq' in x)) else x for x in deconv_cloug.columns]
     # deconv_cloug.columns = new_cols
@@ -726,6 +755,8 @@ for l1_name, l1_ratios in l1_ratios_list:
     log_file = open(dir_save / "training_logs.txt","a")
 
     score_condi = {}
+    predict_scores = []
+    coefficients_all_df = pd.DataFrame()
     # condi = conditions[0]
     for condi in conditions:
         write_log(log_file, f"Training using {condi}")
@@ -986,7 +1017,66 @@ for l1_name, l1_ratios in l1_ratios_list:
                 score_split[test_name + ' - ' + metric] = score[metric]
                 write_log(log_file, f"        {metric} {test_name}: {score[metric]}")
             score_condi[str_condi] = score_split
+
+        if TEST_LP:
+            # ------ All datasets with CV splitting ------
+            if training_succeeded:
+                write_log(log_file, f"    testing on LP dataset")
+                X_test = deconv_lp.loc[:, var_idx].values
+                y_test = response_lp['Progression_6_months'].values
+                # reverse labels to match "equaling progressive disease" objective
+                y_test = -(y_test-1)
+                # Standardize data to give same weight to regularization
+                X_test = scaler.transform(X_test)
+
+                y_pred_proba = clf.predict_proba(X_test)[:, 1]
+                y_pred = clf.predict(X_test)
+
+                score =clf.score(X_test, y_test)
+                print(f"Score: {score}")
+                predict_scores.append({"signature": str_condi, "score": score})
+
+                coefs = pd.DataFrame(
+                    clf.coef_,
+                    columns=deconv_lp.loc[:, var_idx].columns,
+                    index = ["Coefficients"]
+                ).T.sort_values(by ="Coefficients", ascending=False, key=abs)
+                print("Coefficient")
+                print(coefs)
+                coefs.to_csv(dir_save/f"LP_coefficients_{str_condi}.csv")
+                coefficients_all_df = coefficients_all_df.append(coefs)
+
+                X_test = pd.DataFrame(scaler.transform(X_test))
+                X_test.columns = deconv_lp.loc[:, var_idx].columns
+                explainer = shap.Explainer(clf, X_test)
+                shap_values = explainer(X_test)
+                shap.summary_plot(shap_values, X_test, show = False)
+                plt.savefig(dir_save/f"LP_shap_values_{str_condi}.svg", bbox_inches='tight')
+                shap.summary_plot(shap_values, X_test, plot_type = "bar", show = False)
+                plt.savefig(dir_save/f"LP_shap_values_bar_{str_condi}.svg", bbox_inches='tight')
+
+                score = {
+                    'ROC AUC': metrics.roc_auc_score(y_test, y_pred_proba),
+                    'AP' : metrics.average_precision_score(y_test, y_pred_proba),
+                    'MCC': metrics.matthews_corrcoef(y_test, y_pred),
+                }
+            else:
+                score = {
+                    'ROC AUC': np.nan,
+                    'AP' : np.nan,
+                    'MCC': np.nan,
+                }
+                write_log(log_file, f"        training failed with cv <= {CV_MAX}")
+            test_name = 'CV all datasets test LP'
+            for metric in score_labels:
+                score_split[test_name + ' - ' + metric] = score[metric]
+                write_log(log_file, f"        {metric} {test_name}: {score[metric]}")
+            score_condi[str_condi] = score_split
             
+
+    predict_scores_df = pd.DataFrame(predict_scores)
+    predict_scores_df.to_csv(dir_save / 'LP_predict_scores.csv', index = False)
+    coefficients_all_df.to_csv(dir_save / 'LP_all_coefficients.csv')
 
     scores = pd.DataFrame.from_dict(score_condi, orient='index')
     scores.index.name = 'signature'
@@ -1216,6 +1306,21 @@ if TEST_CLOUG:
     y_pred = clf.predict_proba(X_test)[:, 1]
     score_cloug = metrics.roc_auc_score(y_test, y_pred)
 
+if TEST_LP:
+    # ------ All datasets with CV splitting ------
+    print(f"    CV training on all datasets")
+    X_test = deconv_lp.loc[:, var_idx].values
+    y_test = response_lp['Progression_6_months'].values
+    # reverse labels to match "equaling progressive disease" objective
+    y_test = -(y_test-1)
+    # Standardize data to give same weight to regularization
+    X_test = scaler.transform(X_test)
+
+    y_pred = clf.predict_proba(X_test)[:, 1]
+    score_lp = metrics.roc_auc_score(y_test, y_pred)
+
+    pprint.pprint(score_lp)
+
 # %% [markdown]
 # ## Cell types proportions predicted by each signature
 
@@ -1390,7 +1495,13 @@ df
 # %%
 for score_label in score_labels:
     col_score = [x for x in df.columns if x.endswith(' - ' + score_label)]
-    cols = [x for x in col_score if ('Cloughesy' not in x)]
+    if TEST_CLOUG:
+        cols = [x for x in col_score if ('Cloughesy' not in x)]
+    elif TEST_LP:
+        cols = [x for x in col_score if ('LP' not in x)]
+    else:
+        cols = [x for x in col_score]
+
     df_select = df[cols]
 
     df_select['mean lodo'] = df_select.iloc[:, :3].mean(axis=1)
