@@ -2,4 +2,4 @@ channels:
     - bioconda
     - conda-forge
 dependencies:
-    - salmon =1.1.0
+    - salmon=1.6.0

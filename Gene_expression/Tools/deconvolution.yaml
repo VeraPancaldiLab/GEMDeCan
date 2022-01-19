@@ -2,12 +2,12 @@ channels:
   - bioconda
   - conda-forge
 dependencies:
-  - r-immunedeconv =2.0.1
-  - bioconductor-deconrnaseq= 1.28.0
-  - bioconductor-epidish= 2.2.0
+  - r-immunedeconv=2.0.3
+  - bioconductor-deconrnaseq= 1.36.0
+  - bioconductor-epidish=2.10.0
   - r-mcpcounter=1.1.0
-  - r-purrr
-  - r-dplyr
-  - r-readr
-  - r-stringr
-  - r-magrittr
+  - r-purrr=0.3.4
+  - r-dplyr=1.0.7
+  - r-readr=2.1.1
+  - r-stringr=1.4.0
+  - r-magrittr=2.0.1

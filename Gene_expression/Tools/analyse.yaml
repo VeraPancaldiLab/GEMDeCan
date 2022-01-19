@@ -1,10 +1,10 @@
 channels:
     - conda-forge
 dependencies:
-    - r-rmarkdown =2.3
-    - r-hmisc =4.4.1
-    - r-viridis =0.5.1
-    - r-rcolorbrewer
-    - r-pheatmap
-    - r-corrplot
-    - r-dplyr
+    - r-rmarkdown=2.11
+    - r-hmisc=4.6_0
+    - r-viridis=0.6.2
+    - r-rcolorbrewer=1.1_2
+    - r-pheatmap=1.0.12
+    - r-corrplot=0.92
+    - r-dplyr=1.0.7

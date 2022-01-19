@@ -2,8 +2,8 @@ channels:
     - bioconda
     - conda-forge
 dependencies:
-    - bioconductor-tximport= 1.18.0
-    - bioconductor-rhdf5= 2.34.0
-    - bioconductor-organism.dplyr= 1.18.0
-    - bioconductor-org.hs.eg.db= 3.12.0
-    - bioconductor-txdb.hsapiens.ucsc.hg38.knowngene= 3.10.0
+    - bioconductor-tximport=1.22.0
+    # - bioconductor-rhdf5=2.38.0
+    - bioconductor-organism.dplyr=1.22.1
+    - bioconductor-org.hs.eg.db=3.14.0
+    - bioconductor-txdb.hsapiens.ucsc.hg38.knowngene=3.14.0
