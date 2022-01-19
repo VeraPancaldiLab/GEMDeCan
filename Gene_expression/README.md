@@ -25,19 +25,22 @@ This computational pipeline takes as input BCL or FASTQ files of RNA-seq reads, 
 
 
 ## Installation
+Snakemake allows for a very efficient and user friendly way of using pipelines. It is designed so all you need to install is Conda (required to install Snakemake and mamba) and Snakemake itself.
+
+Note that officially only Linux is supported for this pipeline. This also requires an Internet connection in order to use conda auto-generated environments for all necessary software and packages.
+All R scripts within this pipeline were written with R version 4.1.2. You may experience packages conflicts while running previous version of R.
+
 Conda is required for this pipeline, here's the installation process :
 * [Linux](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
 
-Snakemake allows for a very efficient and user friendly way of using pipelines. It is designed so all you need to install is Conda (required to install Snakemake) and Snakemake itself.
-You can refer to this link for installation, using the "Installation via Conda" chapter : [Install Snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html)
+Mamba
+* [Linux](https://github.com/mamba-org/mamba)
+`conda install mamba -n base -c conda-forge`
 
-
-Once the snakemake environment is activated, you need to add the following channels :
-* `conda config --add channels bioconda`
-* `conda config --add channels conda-forge`
-
-Note that officially only Linux is supported for this pipeline. This also requires an Internet connection in order to use conda auto-generated environments for all necessary softwares and packages.
-All R scripts within this pipeline were written with R version 4.0.3. You may experience packages conflicts while running previous version of R.
+Snakemake
+* [Linux](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html)
+`conda activate base`
+`mamba install snakemake -n base -c conda-forge -c bioconda`
 
 ## Dependencies
 All dependencies are automatically installed by snakemake using the .yaml configuration files in Tools. So the user does not need to configure the conda environments as it is done within the pipeline. For information, here are the versions of libraries that are used :
