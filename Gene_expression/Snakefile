@@ -176,7 +176,7 @@ if config["Do_rnaseq"] == "yes":
                 "Tools/bcl2fastq.yaml"
             threads: config["THREADS"]
             singularity:
-                "docker://continuumio/miniconda3:4.8.2"
+                "docker://continuumio/miniconda3:4.10.3"
             shell:
                 """
                 bcl2fastq -w {threads} -R {input.INDIR} -o {params} --sample-sheet {input.SHEET} --no-lane-splitting
@@ -193,6 +193,8 @@ if config["Do_rnaseq"] == "yes":
                 OUTbcl
             conda:
                 "Tools/rename.yaml"
+            singularity:
+                "docker://continuumio/miniconda3:4.10.3"
             shell:
                 """
                 rename 's/S[0-9]+_(R1|R2)_001/$1/g' {params}/*.fastq.gz
@@ -212,7 +214,7 @@ if config["Do_rnaseq"] == "yes":
         output:
             zip1 = OUTfastqc + "/{samples}_R1_fastqc.zip",
             zip2 = OUTfastqc + "/{samples}_R2_fastqc.zip"
-        threads: 
+        threads:
             config["THREADS"]
         benchmark:
             "benchmarks/benchmark.fastqc1_{samples}.txt"
@@ -222,6 +224,8 @@ if config["Do_rnaseq"] == "yes":
             OUTfastqc
         conda:
             "Tools/fastqc.yaml"
+        singularity:
+            "docker://continuumio/miniconda3:4.10.3"
         shell:
             "fastqc -t {threads} --quiet --outdir {params} {input.r1} {input.r2}"
 
@@ -302,7 +306,7 @@ if config["Do_rnaseq"] == "yes":
         output:
             zip1 = OUTfastqc2 + "/{samples}_R1_fastqc.zip",
             zip2 = OUTfastqc2 + "/{samples}_R2_fastqc.zip"
-        threads: 
+        threads:
             config["THREADS"]
         message:
             "Quality control after trimming"
@@ -312,6 +316,8 @@ if config["Do_rnaseq"] == "yes":
             OUTfastqc2
         conda:
             "Tools/fastqc.yaml"
+        singularity:
+            "docker://continuumio/miniconda3:4.10.3"
         shell:
             "fastqc -t {threads} --quiet --outdir {params} {input.r1} {input.r2}"
 
@@ -337,18 +343,20 @@ if config["Do_rnaseq"] == "yes":
                     "Building Kallisto index"
                 conda:
                     "Tools/kallisto.yaml"
+                singularity:
+                    "docker://continuumio/miniconda3:4.10.3"
                 shell:
                     "kallisto index -i {output} {input}"
             index = rules.kallisto_index.output
         else:
             index = config["Index_rnaseq"]
-        
+
         rule kallisto:
             input:
                 R1 = OUTcut + "/{samples}_R1.fastq.gz",
                 R2 = OUTcut + "/{samples}_R2.fastq.gz",
                 INDEX = index
-            threads: 
+            threads:
                 config["THREADS"]
             output:
                 QUANTIF + "/{samples}/abundance.tsv",
@@ -362,7 +370,7 @@ if config["Do_rnaseq"] == "yes":
             conda:
                 "Tools/kallisto.yaml"
             singularity:
-                "docker://continuumio/miniconda3:4.8.2"
+                "docker://continuumio/miniconda3:4.10.3"
             shell:
                 "kallisto quant -t {threads} -i {input.INDEX} -b 30 "
                 "-o {params.OUTDIRE} "
@@ -381,7 +389,7 @@ if config["Do_rnaseq"] == "yes":
             conda:
                 "Tools/quantif.yaml"
             singularity:
-                "docker://continuumio/miniconda3:4.8.2"
+                "docker://continuumio/miniconda3:4.10.3"
             script:
                 "Tools/quant_for_kallisto.R"
 
@@ -434,7 +442,7 @@ if config["Do_rnaseq"] == "yes":
             conda:
                 "Tools/salmon.yaml"
             singularity:
-                "docker://continuumio/miniconda3:4.8.2"
+                "docker://continuumio/miniconda3:4.10.3"
             shell:
                 "salmon quant -i {input.INDEX} -l {params.libtype} "
                 "-1 {input.r1} -2 {input.r2} "
@@ -454,7 +462,7 @@ if config["Do_rnaseq"] == "yes":
             conda:
                 "Tools/quantif.yaml"
             singularity:
-                "docker://continuumio/miniconda3:4.8.2"
+                "docker://continuumio/miniconda3:4.10.3"
             script:
                 "Tools/quant_for_salmon.R"
 
@@ -481,7 +489,7 @@ if config["Do_rnaseq"] == "yes":
             index = rules.star_index.output
         else:
             index =  config["Index_rnaseq"]
- 
+
         rule star:
             input:
                 fq1 = OUTcut + "/{samples}_R1.fastq.gz",
@@ -498,6 +506,8 @@ if config["Do_rnaseq"] == "yes":
                 "benchmarks/star_{samples}.txt"
             conda:
                 "Tools/star.yaml"
+            singularity:
+                "docker://continuumio/miniconda3:4.10.3"
             shell:
                 "STAR "
                 "--runThreadN {threads} "
@@ -513,16 +523,18 @@ if config["Do_rnaseq"] == "yes":
 
         rule RSEM_ref:
             input:
-                config["GTF"]
+                rules.gunzip_gtf.output
             output:
                 "data/rsem/gen.seq"
             params:
-                GEN = config["Genome"],
+                GEN = rules.gunzip_genome.output,
                 REF = "data/rsem/gen"
             threads:
                 config["THREADS"]
             conda:
                 "Tools/rsem.yaml"
+            singularity:
+                "docker://continuumio/miniconda3:4.10.3"
             shell:
                 "rsem-prepare-reference "
                 "-p {threads} "
@@ -545,6 +557,8 @@ if config["Do_rnaseq"] == "yes":
                 "benchmarks/rsem_{samples}.txt"
             conda:
                 "Tools/rsem.yaml"
+            singularity:
+                "docker://continuumio/miniconda3:4.10.3"
             shell:
                 "rsem-calculate-expression "
                 "-p {threads} "
@@ -566,6 +580,8 @@ if config["Do_rnaseq"] == "yes":
                 SAMPLES
             conda:
                 "Tools/quantif.yaml"
+            singularity:
+                "docker://continuumio/miniconda3:4.10.3"
             script:
                 "Tools/quant_for_star.R"
 
@@ -595,7 +611,7 @@ if config["Do_deconv"] == "yes":
         conda:
             "Tools/deconvolution.yaml"
         singularity:
-            "docker://continuumio/miniconda3:4.8.2"
+            "docker://continuumio/miniconda3:4.10.3"
         shell:
             "Tools/deconvolution.R {input} {output} {params} {threads}"
 
@@ -610,5 +626,7 @@ if config["Do_deconv"] == "yes":
             "Generating report"
         conda:
             "Tools/analyse.yaml"
+        singularity:
+            "docker://continuumio/miniconda3:4.10.3"
         shell:
             "Rscript --vanilla -e \"rmarkdown::render('Tools/analyses.R', output_dir='{output}')\" {params}"
