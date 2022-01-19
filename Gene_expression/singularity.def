@@ -1,6 +1,6 @@
-https://www.javaer101.com/en/article/34887163.html
+# https://www.javaer101.com/en/article/34887163.html
 Bootstrap: docker
-From: continuumio/miniconda3:4.9.2
+From: continuumio/miniconda3:4.10.3
 
 %files
   singularity_conda_environment.yaml
