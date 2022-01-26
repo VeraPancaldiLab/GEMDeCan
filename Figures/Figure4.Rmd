@@ -48,25 +48,27 @@ plot_figure <- function(longer_merge, title) {
 }
 
 prepare_table <- function(correlations, pvalues) {
-  correlations %<>% select(...1, order(.[9,-1], decreasing = T))
-pvalues %<>% dplyr::select(colnames(correlations))
+  correlations %<>% select(...1, order(.[9, -1], decreasing = T))
+  pvalues %<>% dplyr::select(colnames(correlations))
 
 
-longer_correlations <- correlations %>% pivot_longer(-1) %>% arrange(name)
-longer_pvalues<- pvalues %>% pivot_longer(-1)
+  longer_correlations <- correlations %>%
+    pivot_longer(-1) %>%
+    arrange(name)
+  longer_pvalues <- pvalues %>% pivot_longer(-1)
 
-merged_all <- bind_cols(longer_correlations, longer_pvalues[, 3]) %>% dplyr::rename(cor=value...3, pvalue=value...4)
-merged_all %>%
-  mutate(text = case_when(
-    is.na(pvalue) & is.na(cor) ~ str_c("NA"),
-    is.na(pvalue) & (cor == 0) ~ str_c(cor, "\n"),
-    pvalue >= 0.05 ~ str_c(cor),
-    pvalue >= 0.01 & pvalue < 0.05 ~ str_c(cor, "\n*"),
-    pvalue >= 0.001 & pvalue < 0.01 ~ str_c(cor, "\n**"),
-    pvalue < 0.001 ~ str_c(cor, "\n***")
-  )) %>% mutate(sorted_type = factor(...1, levels = unique(...1)))
+  merged_all <- bind_cols(longer_correlations, longer_pvalues[, 3]) %>% dplyr::rename(cor = value...3, pvalue = value...4)
+  merged_all %>%
+    mutate(text = case_when(
+      is.na(pvalue) & is.na(cor) ~ str_c("NA"),
+      is.na(pvalue) & (cor == 0) ~ str_c(cor, "\n"),
+      pvalue >= 0.05 ~ str_c(cor),
+      pvalue >= 0.01 & pvalue < 0.05 ~ str_c(cor, "\n*"),
+      pvalue >= 0.001 & pvalue < 0.01 ~ str_c(cor, "\n**"),
+      pvalue < 0.001 ~ str_c(cor, "\n***")
+    )) %>%
+    mutate(sorted_type = factor(...1, levels = unique(...1)))
 }
-
 ```
 
 
@@ -74,12 +76,12 @@ merged_all %>%
 
 ### Lymphocytes
 ```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
-lymph_correlations <- read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/all_tcga_corr/lymph.csv") 
+lymph_correlations <- read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/all_tcga_corr/lymph.csv")
 lymph_pvalues <- read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/all_tcga_corr/lymph_p.csv")
 
 lymph_figure <- plot_figure(prepare_table(lymph_correlations, lymph_pvalues), "Lymphocytes")
 
-#ggsave("lymph_figure.pdf", dpi = "print", width = 210, height = 297, units = "mm", scale = 2)
+# ggsave("lymph_figure.pdf", dpi = "print", width = 210, height = 297, units = "mm", scale = 2)
 ```
 
 ### Macrophages
