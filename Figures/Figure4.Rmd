@@ -1,0 +1,105 @@
+---
+title: "Figure 4"
+output: pdf_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.width = 15, fig.height = 17, echo = FALSE, results = "hide", warning = FALSE, message = FALSE)
+```
+
+```{r}
+library(readr)
+library(stringr)
+library(dplyr)
+library(tidyr)
+library(ggpubr)
+library(grid)
+library(gridExtra)
+library(magrittr)
+```
+
+```{r}
+plot_figure <- function(longer_merge, title) {
+  longer_merge %<>%
+    mutate(name = str_replace(name, "Avg_", "Average ")) %>%
+    mutate(name = str_replace(name, "Met_", "Methylation "))
+  ggplot(longer_merge, aes(sorted_type, fct_rev(name))) +
+    geom_tile(aes(fill = cor), colour = "grey", size = 1) +
+    scale_fill_gradient2(low = "#5C5DAF", mid = "white", high = "#EA2E2D") +
+    geom_text(aes(label = text), col = "black", size = 8) +
+    theme_minimal() +
+    theme(
+      axis.title.x = element_blank(),
+      axis.ticks.x = element_blank(),
+      axis.title.y = element_blank(),
+      legend.title = element_text(size = 14),
+      legend.text = element_text(size = 14),
+      axis.text.x = element_text(
+        angle = 90, hjust = 0.5, vjust = 0.5,
+        size = 16, colour = "black", face = "bold"
+      ),
+      axis.text.y = element_text(size = 16, colour = "black", face = "bold")
+    ) +
+    labs(fill = str_c("Correlation")) +
+    ggtitle(title) +
+    theme(plot.title = element_text(hjust = 0.5, size = 16, face = "bold"))
+}
+
+prepare_table <- function(correlations, pvalues) {
+  correlations %<>% select(...1, order(.[9,-1], decreasing = T))
+pvalues %<>% dplyr::select(colnames(correlations))
+
+
+longer_correlations <- correlations %>% pivot_longer(-1) %>% arrange(name)
+longer_pvalues<- pvalues %>% pivot_longer(-1)
+
+merged_all <- bind_cols(longer_correlations, longer_pvalues[, 3]) %>% dplyr::rename(cor=value...3, pvalue=value...4)
+merged_all %>%
+  mutate(text = case_when(
+    is.na(pvalue) & is.na(cor) ~ str_c("NA"),
+    is.na(pvalue) & (cor == 0) ~ str_c(cor, "\n"),
+    pvalue >= 0.05 ~ str_c(cor),
+    pvalue >= 0.01 & pvalue < 0.05 ~ str_c(cor, "\n*"),
+    pvalue >= 0.001 & pvalue < 0.01 ~ str_c(cor, "\n**"),
+    pvalue < 0.001 ~ str_c(cor, "\n***")
+  )) %>% mutate(sorted_type = factor(...1, levels = unique(...1)))
+}
+
+```
+
+
+# Table of correlation
+
+### Lymphocytes
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+lymph_correlations <- read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/all_tcga_corr/lymph.csv") 
+lymph_pvalues <- read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/all_tcga_corr/lymph_p.csv")
+
+lymph_figure <- plot_figure(prepare_table(lymph_correlations, lymph_pvalues), "Lymphocytes")
+
+#ggsave("lymph_figure.pdf", dpi = "print", width = 210, height = 297, units = "mm", scale = 2)
+```
+
+### Macrophages
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+macro_correlations <- read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/all_tcga_corr/macro.csv")
+macro_pvalues <- read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/all_tcga_corr/macro_p.csv")
+
+
+macro_figure <- plot_figure(prepare_table(macro_correlations, macro_pvalues), "Macrophages")
+
+```
+
+### Neutrophils
+```{r, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+neutro_correlations <- read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/all_tcga_corr/neutro.csv")
+neutro_pvalues <- read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/all_tcga_corr/neutro_p.csv")
+
+neutro_figure <- plot_figure(prepare_table(neutro_correlations, neutro_pvalues), "Neutrophils")
+
+```
+```{r}
+ggsave("all_figure4_heatmaps.pdf", arrangeGrob(grobs = list(lymph_figure, macro_figure, neutro_figure)), dpi = "print", width = 210, height = 297, units = "mm", scale = 2)
+```
