@@ -495,4 +495,8 @@ SKCM_scatterplots <- scatterplot_wrapper(true_df = true_SKCM,
                                          name = "SKCM")
 ```
 RNA, methylation, and averaged values of correlation across a : lymphocytes, b:  macrophages, c :  neutrophils, using the BPRNACan and BPMetCan signatures on EpiDish.
+
+# PDF merge
+```{r}
+system("pdfunite ALL_*.pdf sup_fig4.pdf")
 ```
