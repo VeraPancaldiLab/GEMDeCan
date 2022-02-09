@@ -16,6 +16,8 @@ knitr::opts_chunk$set(fig.width = 15, fig.height = 17, echo = FALSE, results = "
 
 ```{r}
 library(tidyverse)
+library(Hmisc)
+library(ggridges)
 ```
 
 # Functions
@@ -120,51 +122,77 @@ ridgeplot_parse <- function(deconv_data, signatures_dictionary){
   results %>% dplyr::select(-Samples) %>% dplyr::select(which(!colSums(., na.rm=TRUE) %in% 0)) %>% bind_cols(Samples = results$Samples,.)
 }
 
-plot_ridgeplot <- function(data, ct){
-
-  # calculate correlations
-  data %>% dplyr::select(-c(ParticipantBarcode, Study)) %>% data.matrix() %>% rcorr() -> cor.table
-  
-  # select strings to remove from signature names
-  substring_remove <- c(paste("_",ct, sep=""),
-    "_Tirosh_sigmatrix_SuppFig_3-b",
-    "_scRNA-Seq",
-    "Fig2ab-",
-    "_PBMCs_scRNAseq_sigmatrix",
-    "sigmatrix_",
-    "_Fig2cd")
+plot_ridgeplot <- function(data){
+ data %>% dplyr::select(-c(ParticipantBarcode, Study)) %>% data.matrix() %>% rcorr() -> cor.table
+  final_plot <- list()
+  for (ct in c("Lymphocytes", "Macrophages", "Neutrophils")){
+    # select strings to remove from signature names
+    substring_remove <- c(paste("_",ct, sep=""),
+      "_Tirosh_sigmatrix_SuppFig_3-b",
+      "_scRNA-Seq",
+      "Fig2ab-",
+      "_PBMCs_scRNAseq_sigmatrix",
+      "sigmatrix_",
+      "_Fig2cd")
+      
     
+    # filter correlations
+    deconv_ct_names <- data %>% dplyr::select(matches(ct), -ct) %>% names()
+    cor.table[["r"]][ct,deconv_ct_names] %>% sort() -> cor.ct.sorted
+    names(cor.ct.sorted) <- str_remove_all(names(cor.ct.sorted), paste(substring_remove, collapse = "|"))
+    cor.ct.sorted["H&E"] = 1
+    
+    # ridgeplot perse
+    cols <- c("H&E" = "red", "CBSX" = "yellow", "Epidish" = "blue", "Quantiseq" = "pink", "DeconRNASeq" = "green")
+    
+    ct_subset = data %>%
+      dplyr::select(matches(ct)) %>%
+      rename("H&E" = ct) %>%
+      gather() %>%
+      mutate(key = str_remove_all(key, paste(substring_remove, collapse = "|")),
+             key=factor(key, levels=names(cor.ct.sorted)),
+             method = as.factor(str_extract(key, "[^_]+")))
   
-  # filter correlations
-  deconv_ct_names <- data %>% dplyr::select(matches(ct), -ct) %>% names()
-  cor.table[["r"]][ct,deconv_ct_names] %>% sort() -> cor.ct.sorted
-  names(cor.ct.sorted) <- str_remove_all(names(cor.ct.sorted), paste(substring_remove, collapse = "|"))
-  cor.ct.sorted["H&E"] = 1
-  
-  # ridgeplot perse
-  cols <- c("H&E" = "red", "CBSX" = "yellow", "Epidish" = "blue", "Quantiseq" = "pink", "DeconRNASeq" = "green")
-  
-  ct_subset = data %>%
-    dplyr::select(matches(ct)) %>%
-    rename("H&E" = ct) %>%
-    gather() %>%
-    mutate(key = str_remove_all(key, paste(substring_remove, collapse = "|")),
-           key=factor(key, levels=names(cor.ct.sorted)),
-           method = as.factor(str_extract(key, "[^_]+")))
+  final_plot[[ct]] <- ggplot(ct_subset, aes(x = value, y = key, colour = method)) +
+    geom_density_ridges2(jittered_points = TRUE, position = "raincloud", 
+                         point_size = 0.25, point_alpha = 0.25, alpha = 0.7, rel_min_height = 0.005, point_color = "black") +
+    theme_ridges() + ggtitle(ct) +
+    annotate("text", x = 1, y = 1:length(cor.ct.sorted), label = paste0("R = ",round(cor.ct.sorted, 2)), colour = "brown") +
+    scale_colour_manual(values = cols) +
+     theme(axis.text.x = element_text(color = "black", size = 12, angle = 90, hjust = .5, vjust = .5, face = "plain"),
+          axis.text.y = element_text(color = "black", size = 12, angle = 0, hjust = 1, vjust = 0, face = "plain"),  
+          axis.title.x = element_text(color = "black", size = 10, angle = 0, hjust = .5, vjust = 0, face = "plain"),
+          axis.title.y = element_text(color = "black", size = 10, angle = 90, hjust = .5, vjust = .5, face = "plain"),
+          plot.title = element_text(color = "black", size = 20)) +
+    ylab("") + xlab("% of cell type")
+  }
+  return(final_plot)
+}
 
-ggplot(ct_subset, aes(x = value, y = key, colour = method)) +
-  geom_density_ridges2(jittered_points = TRUE, position = "raincloud", 
-                       point_size = 0.25, point_alpha = 0.25, alpha = 0.7, rel_min_height = 0.005, point_color = "black") +
-  theme_ridges() + ggtitle(ct) +
-  annotate("text", x = 1, y = 1:length(cor.ct.sorted), label = paste0("R = ",round(cor.ct.sorted, 2)), colour = "brown") +
-  scale_colour_manual(values = cols) +
-   theme(axis.text.x = element_text(color = "black", size = 20, angle = 90, hjust = .5, vjust = .5, face = "plain"),
-        axis.text.y = element_text(color = "black", size = 20, angle = 0, hjust = 1, vjust = 0, face = "plain"),  
-        axis.title.x = element_text(color = "black", size = 12, angle = 0, hjust = .5, vjust = 0, face = "plain"),
-        axis.title.y = element_text(color = "black", size = 12, angle = 90, hjust = .5, vjust = .5, face = "plain"),
-        plot.title = element_text(color = "black", size = 20)) +
-  ylab("") + xlab("% of cell type")
-
+wrapper_ridgeplot <- function(deconv_data, true_estimates, cancer_abreviation){
+  
+  # build the data
+  true_estimates %>% dplyr::filter(Study == cancer_abreviation) %>%  na.exclude() %>%
+    arrange(factor(ParticipantBarcode, levels = ParticipantBarcode))  -> true_subset_
+  
+  Comm_samples <- Reduce(intersect, list(deconv_data$Samples,
+                                         true_subset_$ParticipantBarcode))
+  true_subset_ %>% 
+    dplyr::filter(ParticipantBarcode %in% Comm_samples) %>% 
+    arrange(factor(ParticipantBarcode, levels = Comm_samples)) -> true_subset
+  
+  deconv_data  %>%
+    dplyr::filter(Samples %in% Comm_samples) %>% 
+    arrange(factor(Samples, levels = Comm_samples)) -> deconv_subset
+  
+  deconv_subset_summary <- ridgeplot_parse(deconv_data = deconv_subset, signatures_dictionary = signature_dict)
+    
+  identical(true_subset$ParticipantBarcode, deconv_subset_summary$Samples) %>% stopifnot()
+  true_subset %>% bind_cols(deconv_subset_summary) %>% select(-c(Samples)) -> data_toplot
+  
+  
+  # calculate correlations
+ return(plot_ridgeplot(data_toplot))
 }
 
 
@@ -188,7 +216,8 @@ read_tsv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/facs/Aran
 read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/HE_fractions.csv") %>%
   dplyr::select(-c(...1)) %>%
   mutate_at("ParticipantBarcode", str_remove_all, ".01A*") %>%
-  mutate_at("ParticipantBarcode", str_replace_all, "-", ".") -> HE_all_TCGA
+  mutate_at("ParticipantBarcode", str_replace_all, "-", ".") %>%
+  distinct(ParticipantBarcode, .keep_all= TRUE) -> HE_all_TCGA # for the READ samples TCGA.AG.5 & TCGA.AG.3
 
 ```
 
@@ -248,7 +277,7 @@ signature_dict[["CBSX_LM22"]] <- list(Lymphocytes = c("B.cells.naive", "B.cells.
                                                         "T.cells.CD4.memory.activated", 
                                                         "T.cells.regulatory..Tregs.", "NK.cells.resting",
                                                         "NK.cells.activated"),
-                                        Macrophages = c("Monocytes", "Macrophages.M0", "Macrophages.M1", "Macrophages.M2",),
+                                        Macrophages = c("Monocytes", "Macrophages.M0", "Macrophages.M1", "Macrophages.M2"),
                                         Neutrophils = c("Neutrophils")) # skipped , "Plasma.cells" "T.cells.follicular.helper", "T.cells.gamma.delta" in Lymphos, as well as "Dendritic.cells.resting", "Dendritic.cells.activated" for macros
 
 signature_dict[["CBSX_scRNA-Seq_melanoma_Tirosh_sigmatrix_SuppFig_3-b"]] <- list(Lymphocytes = c("T.cells.CD8", "T.cells.CD4",
@@ -281,31 +310,19 @@ signature_dict[["Quantiseq"]] <- list(Lymphocytes = c("B.cell", "T.cell.CD4+.(no
 ### Data processing & ridge plot
 
 ```{r}
-HE_all_TCGA %>% dplyr::filter(Study == "LUAD") %>%  na.exclude() %>%
-  arrange(factor(ParticipantBarcode, levels = ParticipantBarcode))  -> HE_LUAD_
-
-Comm_samples <- Reduce(intersect, list(tcga_deconv$Samples,
-                                       HE_LUAD_$ParticipantBarcode))
-HE_LUAD_ %>% 
-  dplyr::filter(ParticipantBarcode %in% Comm_samples) %>% 
-  arrange(factor(ParticipantBarcode, levels = Comm_samples)) -> HE_LUAD
 
 tcga_deconv %>%
   rename_at(vars(matches("^CBSX")), ~ paste0("CBSX_", .)) %>% 
-  rename_at(vars(matches("__")), ~ str_replace_all(., "__", "_")) %>%
-  dplyr::filter(Samples %in% Comm_samples) %>% 
-  arrange(factor(Samples, levels = Comm_samples)) -> LUAD_RNA_decon
+  rename_at(vars(matches("__")), ~ str_replace_all(., "__", "_")) -> tcga_deconv_ridge
 
-LUAD_summarized <- ridgeplot_parse(deconv_data = LUAD_RNA_decon, signatures_dictionary = signature_dict)
+ridgeplots_by_cancer <- list()
+for (cancer in unique(HE_all_TCGA$Study)){
+ridgeplots_by_cancer[[cancer]] <- wrapper_ridgeplot(deconv_data = tcga_deconv_ridge, true_estimates = HE_all_TCGA, cancer_abreviation = cancer)
+}
 
-# Ridgeplot
-identical(HE_LUAD$ParticipantBarcode, LUAD_summarized$Samples) %>% stopifnot()
- HE_LUAD %>% bind_cols(LUAD_summarized) %>% select(-c(Samples)) -> LUAD_merged
-
-for (ct in c("Lymphocytes", "Macrophages", "Neutrophils")){
- print(plot_ridgeplot(data = LUAD_merged, ct = ct))
- }
-# Suplementary idea: apply the above to all TCGA and add dataset as a plot argument
+# pdf_name <- paste("test", "ridges", ".pdf", sep = "")
+#   ggsave(pdf_name, dpi = "print", width = 210, height = 297, units = "mm", scale = 2)
+# 
 
 
 ```
