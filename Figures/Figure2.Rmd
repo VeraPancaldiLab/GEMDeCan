@@ -24,7 +24,7 @@ library(ggridges)
 
 ```{r}
 # Does the typical deconvolution scatterplot comparing true proportions to certain deconvolution estimates. Called inside scatterplot_wrapper
-scatterplot_truevsestimate <- function(merged_data, x, y, title, color){
+scatterplot_truevsestimate <- function(merged_data, x, y, title, color, x_lab = "", y_lab = ""){
     merged_data %>% dplyr::select(all_of(x),all_of(y)) %>%
     na.omit() -> to_plot
   
@@ -46,7 +46,7 @@ scatterplot_truevsestimate <- function(merged_data, x, y, title, color){
   your_plot <- ggplot(to_plot) +
     aes_string(x = x, y = y) +
     geom_point(color = color) +
-    labs(title = title, subtitle = stats, x = "", y = "") +
+    labs(title = title, subtitle = stats, x = x_lab, y = y_lab) +
     geom_smooth(method=lm) +
     theme_classic() +
     theme(
@@ -147,7 +147,7 @@ plot_ridgeplot <- function(data){
     
     ct_subset = data %>%
       dplyr::select(matches(ct)) %>%
-      rename("H&E" = ct) %>%
+      dplyr::rename("H&E" = ct) %>%
       gather() %>%
       mutate(key = str_remove_all(key, paste(substring_remove, collapse = "|")),
              key=factor(key, levels=names(cor.ct.sorted)),
@@ -189,7 +189,7 @@ wrapper_ridgeplot <- function(deconv_data, true_estimates, cancer_abreviation){
   deconv_subset_summary <- ridgeplot_parse(deconv_data = deconv_subset, signatures_dictionary = signature_dict)
     
   identical(true_subset$ParticipantBarcode, deconv_subset_summary$Samples) %>% stopifnot()
-  true_subset %>% bind_cols(deconv_subset_summary) %>% select(-c(Samples)) -> data_toplot
+  true_subset %>% bind_cols(deconv_subset_summary) %>% dplyr::select(-c(Samples)) -> data_toplot
   
   
   # calculate correlations
@@ -217,18 +217,20 @@ wrapper_tpurity <- function(deconv_data, true_estimates, cancer_abreviation){
   
   final_plot = list()
   color = "black"
+  x_lab = "ESTIMATE"
      
   title = "ESTIMATE vs CCLE TIL10 Cancer"
-  final_plot[["ccle"]] <- scatterplot_truevsestimate(merged_subset, "ESTIMATE", "Epidish_CCLE_TIL10_Cancer.cells", title, color)
+  y_lab = "CCLE TIL10 Cancer"
+  final_plot[["ccle"]] <- scatterplot_truevsestimate(merged_subset, "ESTIMATE", "Epidish_CCLE_TIL10_Cancer.cells", title, color,  x_lab, y_lab)
   
   # Scatterplot BPRNACan
   title = "ESTIMATE vs BPRNACan Cancer"
-  final_plot[["bprnacan"]] <- scatterplot_truevsestimate(merged_subset, "ESTIMATE", "Epidish_BPRNACan_cancer", title, color)
+  y_lab = "BPRNACan Cancer"
+  final_plot[["bprnacan"]] <- scatterplot_truevsestimate(merged_subset, "ESTIMATE", "Epidish_BPRNACan_cancer", title, color, x_lab, y_lab)
 
   return(final_plot)
 }
 
-summary_corrplots
 
 ```
 
@@ -322,6 +324,19 @@ tcga_deconv %>%
   rename_at(vars(matches("^CBSX")), ~ paste0("CBSX_", .)) %>% 
   rename_at(vars(matches("__")), ~ str_replace_all(., "__", "_")) -> tcga_deconv_ridge
 
+wrapper_ridgeplot(deconv_data = tcga_deconv_ridge, true_estimates = HE_all_TCGA, cancer_abreviation = "LUAD")
+```
+
+## Summary Corrplot
+
+```{r}
+
+```
+
+
+# Suplementary figure
+
+```{r}
 ridgeplots_by_cancer <- list()
 tpurity_by_cancer <- list()
 blank  <- ggplot() + theme_void()
@@ -336,36 +351,14 @@ for (cancer in unique(HE_all_TCGA$Study)){
         }
   )
   tpurity_by_cancer[[cancer]]$extra = blank
+  
+  ridges <- ggarrange(plotlist = ridgeplots_by_cancer[[cancer]], ncol = 3, common.legend = T, legend = "bottom")
+  scater <- ggarrange(plotlist = tpurity_by_cancer[[cancer]], ncol = 3, common.legend = T)
+  blank  <- ggplot() + theme_void()
+  fullplot <- ggarrange(plotlist = list(scater, ridges, blank), nrow = 3, heights = c(0.15, 0.3, 0.45))
+  annotate_figure(fullplot, top = text_grob(cancer, color = "black", size = 40))
+  pdf_name <- paste("Sup.fig2_", cancer, ".pdf", sep = "")
+  ggsave(pdf_name, dpi = "print", width = 210, height = 297, units = "mm", scale = 2.5)
 }
-
-ridges <- ggarrange(plotlist = ridgeplots_by_cancer[["LUAD"]], ncol = 3, common.legend = T, legend = "bottom")
-scater <- ggarrange(plotlist = tpurity_by_cancer[["LUAD"]], ncol = 3, common.legend = T)
-blank  <- ggplot() + theme_void()
-fullplot <- ggarrange(plotlist = list(scater, ridges, blank), nrow = 3, heights = c(0.15, 0.3, 0.45))
-annotate_figure(fullplot, top = text_grob("LUAD", color = "black", size = 30))
-pdf_name <- paste("test", "ridges", ".pdf", sep = "")
-ggsave(pdf_name, dpi = "print", width = 210, height = 297, units = "mm", scale = 3)
-# for (ct in c("Lymphocytes", "Macrophages", "Neutrophils")){
-#    annotate_figure(print(ridgeplots_by_cancer[[cancer]][[ct]]),
-#                              top = text_grob("Test", color = "black", size = 30),
-#                              left = text_grob("Estimated fractions", color = "black", size = 20, rot = 90),
-#                              bottom = text_grob("H&E estimates", color = "black", size = 20))
-# }
-
-# 
-
-
-```
-
-## Summary Corrplot
-
-```{r}
-
-```
-
-
-# Suplementary figure
-
-```{r}
-
+system("pdfunite Sup.fig2_*.pdf Sup.fig2.pdf")
 ```
