@@ -24,6 +24,27 @@ library(ggridges)
 
 ```{r}
 ################################################################################
+# Customizable corrplot functions (modified from https://www.khstats.com/blog/corr-plots/corr-plots/)
+cors <- function(df, cor.stat) {
+  M <- Hmisc::rcorr(as.matrix(df), type = cor.stat)
+  Mdf <- map(M, ~data.frame(.x))
+  return(Mdf)
+}
+
+formatted_cors <- function(df, cor.stat){
+  cors(df, cor.stat) %>%
+    map(~rownames_to_column(.x, var="measure1")) %>%
+    map(~pivot_longer(.x, -measure1, "measure2")) %>%
+    bind_rows(.id = "id") %>%
+    pivot_wider(names_from = id, values_from = value) %>%
+    dplyr::rename(p = P) %>%
+    mutate(sig_p = ifelse(p < .05, T, F),
+           p_if_sig = ifelse(sig_p, p, NA),
+           r_if_sig = ifelse(sig_p, r, NA)) 
+}
+################################################################################
+
+################################################################################
 # Does the typical deconvolution scatterplot comparing true proportions to certain deconvolution estimates. Called inside scatterplot_wrapper
 scatterplot_truevsestimate <- function(merged_data, x, y, title, color, x_lab = "", y_lab = ""){
     merged_data %>% dplyr::select(all_of(x),all_of(y)) %>%
@@ -162,7 +183,9 @@ ridgeplot_parse <- function(deconv_data, signatures_dictionary){
   }
   results %>% dplyr::select(-Samples) %>% dplyr::select(which(!colSums(., na.rm=TRUE) %in% 0)) %>% bind_cols(Samples = results$Samples,.)
 }
+################################################################################
 
+################################################################################
 plot_ridgeplot <- function(data){
  data %>% dplyr::select(-c(ParticipantBarcode, Study)) %>% data.matrix() %>% rcorr() -> cor.table
   final_plot <- list()
@@ -239,6 +262,75 @@ wrapper_ridgeplot <- function(deconv_data, true_estimates, cancer_abreviation){
  return(plot_ridgeplot(data_toplot))
 }
 ################################################################################
+
+################################################################################
+wrapper_corrplots <- function(deconv_data, true_estimates, cancer_abreviation){
+  # build the data
+  true_subset_ <- true_estimates %>%  na.exclude() %>%
+    arrange(factor(ParticipantBarcode, levels = ParticipantBarcode))
+  
+  Comm_samples <- Reduce(intersect, list(deconv_data$Samples,
+                                         true_subset_$ParticipantBarcode))
+  
+  true_subset <-dplyr::filter(true_subset_, ParticipantBarcode %in% Comm_samples) %>% 
+    arrange(factor(ParticipantBarcode, levels = Comm_samples))
+  
+  deconv_subset <- dplyr::filter(deconv_data, Samples %in% Comm_samples) %>% 
+    arrange(factor(Samples, levels = Comm_samples))
+  
+  deconv_subset_summary <- ridgeplot_parse(deconv_data = deconv_subset, signatures_dictionary = signature_dict)
+  identical(true_subset$ParticipantBarcode, deconv_subset_summary$Samples) %>% stopifnot()
+  
+  to_corr <- bind_cols(true_subset, deconv_subset_summary) %>% dplyr::select(-c(Samples))
+  ct_corrplots <- list()
+   for (ct in c("Lymphocytes", "Macrophages", "Neutrophils")){
+    # select strings to remove from signature names
+    substring_remove <- c(paste0("_",ct),
+      "_Tirosh_sigmatrix_SuppFig_3.b",
+      "_scRNA.Seq",
+      "Fig2ab.",
+      "_PBMCs_scRNAseq_sigmatrix",
+      "sigmatrix_",
+      "_Fig2cd")
+    
+    store_corrs <- tibble(measure1 = character(),
+                          measure2 = character(),
+                          r = numeric(),
+                          n = numeric(),
+                          p = numeric(),
+                          sig_p = logical(),
+                          p_if_sig = numeric(),
+                          r_if_sig = numeric())
+    # segregate by cancer type
+    for (st in unique(to_corr$Study)){
+      deconv_ct_names <- dplyr::filter(to_corr, Study == st) %>%
+        # segregate by ct
+        dplyr::select(matches(ct)) %>%
+        formatted_cors(cor.stat = "pearson") %>%
+        # reduce to corrs just to ground truth
+        dplyr::filter(measure1 == all_of(ct), measure2 != all_of(ct)) %>%
+        # rename ground truth as cancer type
+        dplyr::mutate(measure1 = st)
+      #add to the rest of cancer type correlations
+      store_corrs <- add_row(store_corrs , deconv_ct_names)
+    }
+    
+    # Plot
+    ct_corrplots[[ct]] <- dplyr::mutate(store_corrs, measure2=stringr::str_remove_all(measure2, paste(substring_remove, collapse = "|"))) %>% 
+    ggplot(aes(measure2, measure1, fill=r, label=round(r_if_sig,2))) +
+    geom_tile() +
+      labs(x = NULL, y = NULL, fill = "Spearman's\nCorrelation", title= ct, 
+         subtitle="Only significant correlation coefficients shown (95% I.C.)") +
+    scale_fill_gradient2(mid="#FBFEF9",low="#0C6291",high="#A63446", limits=c(-1,1)) +
+    geom_text() +
+    theme_classic() +
+    scale_x_discrete(expand=c(0,0)) +
+    scale_y_discrete(expand=c(0,0)) +
+    rotate_x_text(angle = 45)
+   }
+  return(ct_corrplots)
+}
+
 ```
 
 # Data loading
@@ -337,7 +429,7 @@ wrapper_ridgeplot(deconv_data = tcga_deconv_ridge, true_estimates = HE_all_TCGA,
 ## Summary Corrplot
 
 ```{r}
-
+wrapper_corrplots(deconv_data = tcga_deconv_ridge, true_estimates = HE_all_TCGA)
 ```
 
 
