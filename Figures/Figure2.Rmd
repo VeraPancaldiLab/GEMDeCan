@@ -23,6 +23,7 @@ library(ggridges)
 # Functions
 
 ```{r}
+################################################################################
 # Does the typical deconvolution scatterplot comparing true proportions to certain deconvolution estimates. Called inside scatterplot_wrapper
 scatterplot_truevsestimate <- function(merged_data, x, y, title, color, x_lab = "", y_lab = ""){
     merged_data %>% dplyr::select(all_of(x),all_of(y)) %>%
@@ -57,7 +58,47 @@ scatterplot_truevsestimate <- function(merged_data, x, y, title, color, x_lab = 
   
   return(your_plot)
 }
+################################################################################
 
+################################################################################
+wrapper_tpurity <- function(deconv_data, true_estimates, cancer_abreviation){
+  true_estimates %>% dplyr::filter(Cancer_type == cancer_abreviation, CPE != "NaN") %>% 
+    arrange(factor(Sample_ID, levels = Sample_ID))  -> true_subset_
+
+  Comm_samples <- Reduce(intersect, list(deconv_data$Samples,
+                                         true_subset_$Sample_ID))
+  true_subset_ %>% 
+    dplyr::filter(Sample_ID %in% Comm_samples) %>% 
+    arrange(factor(Sample_ID, levels = Comm_samples)) -> true_subset
+  
+  deconv_data %>% 
+    dplyr::filter(Samples %in% Comm_samples) %>% 
+    arrange(factor(Samples, levels = Comm_samples)) -> deconv_subset
+  
+  
+  # Scatterplot CCLE_TIL10
+  identical(true_subset$Sample_ID, deconv_subset$Samples) %>% stopifnot()
+   true_subset %>% bind_cols(deconv_subset) -> merged_subset
+  
+  final_plot = list()
+  color = "black"
+  x_lab = "ESTIMATE"
+     
+  title = "ESTIMATE vs CCLE TIL10 Cancer"
+  y_lab = "CCLE TIL10 Cancer"
+  final_plot[["ccle"]] <- scatterplot_truevsestimate(merged_subset, "ESTIMATE", "Epidish_CCLE_TIL10_Cancer.cells", title, color,  x_lab, y_lab)
+  
+  # Scatterplot BPRNACan
+  title = "ESTIMATE vs BPRNACan Cancer"
+  y_lab = "BPRNACan Cancer"
+  final_plot[["bprnacan"]] <- scatterplot_truevsestimate(merged_subset, "ESTIMATE", "Epidish_BPRNACan_cancer", title, color, x_lab, y_lab)
+
+  return(final_plot)
+}
+################################################################################
+
+
+################################################################################
 # This function returns the Lymphocytes, Macrophages and Neutrophils summarized
 # of a given method/signature.
 # Works inside of ridgeplot_parse. it takes:
@@ -169,7 +210,9 @@ plot_ridgeplot <- function(data){
   }
   return(final_plot)
 }
+################################################################################
 
+################################################################################
 wrapper_ridgeplot <- function(deconv_data, true_estimates, cancer_abreviation){
   
   # build the data
@@ -195,43 +238,7 @@ wrapper_ridgeplot <- function(deconv_data, true_estimates, cancer_abreviation){
   # calculate correlations
  return(plot_ridgeplot(data_toplot))
 }
-
-wrapper_tpurity <- function(deconv_data, true_estimates, cancer_abreviation){
-  true_estimates %>% dplyr::filter(Cancer_type == cancer_abreviation, CPE != "NaN") %>% 
-    arrange(factor(Sample_ID, levels = Sample_ID))  -> true_subset_
-
-  Comm_samples <- Reduce(intersect, list(deconv_data$Samples,
-                                         true_subset_$Sample_ID))
-  true_subset_ %>% 
-    dplyr::filter(Sample_ID %in% Comm_samples) %>% 
-    arrange(factor(Sample_ID, levels = Comm_samples)) -> true_subset
-  
-  deconv_data %>% 
-    dplyr::filter(Samples %in% Comm_samples) %>% 
-    arrange(factor(Samples, levels = Comm_samples)) -> deconv_subset
-  
-  
-  # Scatterplot CCLE_TIL10
-  identical(true_subset$Sample_ID, deconv_subset$Samples) %>% stopifnot()
-   true_subset %>% bind_cols(deconv_subset) -> merged_subset
-  
-  final_plot = list()
-  color = "black"
-  x_lab = "ESTIMATE"
-     
-  title = "ESTIMATE vs CCLE TIL10 Cancer"
-  y_lab = "CCLE TIL10 Cancer"
-  final_plot[["ccle"]] <- scatterplot_truevsestimate(merged_subset, "ESTIMATE", "Epidish_CCLE_TIL10_Cancer.cells", title, color,  x_lab, y_lab)
-  
-  # Scatterplot BPRNACan
-  title = "ESTIMATE vs BPRNACan Cancer"
-  y_lab = "BPRNACan Cancer"
-  final_plot[["bprnacan"]] <- scatterplot_truevsestimate(merged_subset, "ESTIMATE", "Epidish_BPRNACan_cancer", title, color, x_lab, y_lab)
-
-  return(final_plot)
-}
-
-
+################################################################################
 ```
 
 # Data loading
@@ -258,7 +265,7 @@ read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/HE_fracti
 # Figure
 ## A) Tumor Purity
 ```{r}
-wrapper_tpurity(deconv_data = tcga_deconv,true_estimates = Aran_all_facs, cancer_abreviation = "LUAD")
+wrapper_tpurity(deconv_data = tcga_deconv,true_estimates = Aran_all_facs, estimate = , cancer_abreviation = "LUAD")
 ```
 
 ## B) 3 Celltypes ridge plots
