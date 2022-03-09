@@ -61,7 +61,7 @@ scatterplot_truevsestimate <- function(merged_data, x, y, title, color, x_lab = 
 ################################################################################
 
 ################################################################################
-wrapper_tpurity <- function(deconv_data, true_estimates, cancer_abreviation){
+wrapper_tpurity <- function(deconv_data, true_estimates, estimate, cancer_abreviation){
   true_estimates %>% dplyr::filter(Cancer_type == cancer_abreviation, CPE != "NaN") %>% 
     arrange(factor(Sample_ID, levels = Sample_ID))  -> true_subset_
 
@@ -82,16 +82,16 @@ wrapper_tpurity <- function(deconv_data, true_estimates, cancer_abreviation){
   
   final_plot = list()
   color = "black"
-  x_lab = "ESTIMATE"
+  x_lab = estimate
      
-  title = "ESTIMATE vs CCLE TIL10 Cancer"
+  title = paste0(estimate, " vs CCLE TIL10 Cancer")
   y_lab = "CCLE TIL10 Cancer"
-  final_plot[["ccle"]] <- scatterplot_truevsestimate(merged_subset, "ESTIMATE", "Epidish_CCLE_TIL10_Cancer.cells", title, color,  x_lab, y_lab)
+  final_plot[["ccle"]] <- scatterplot_truevsestimate(merged_subset, estimate, "Epidish_CCLE_TIL10_Cancer.cells", title, color,  x_lab, y_lab)
   
   # Scatterplot BPRNACan
-  title = "ESTIMATE vs BPRNACan Cancer"
+  title = paste0(estimate, " vs BPRNACan Cancer")
   y_lab = "BPRNACan Cancer"
-  final_plot[["bprnacan"]] <- scatterplot_truevsestimate(merged_subset, "ESTIMATE", "Epidish_BPRNACan_cancer", title, color, x_lab, y_lab)
+  final_plot[["bprnacan"]] <- scatterplot_truevsestimate(merged_subset, estimate, "Epidish_BPRNACan_cancer", title, color, x_lab, y_lab)
 
   return(final_plot)
 }
@@ -265,7 +265,7 @@ read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/HE_fracti
 # Figure
 ## A) Tumor Purity
 ```{r}
-wrapper_tpurity(deconv_data = tcga_deconv,true_estimates = Aran_all_facs, estimate = , cancer_abreviation = "LUAD")
+wrapper_tpurity(deconv_data = tcga_deconv,true_estimates = Aran_all_facs, estimate = "ABSOLUTE" , cancer_abreviation = "LUAD")
 ```
 
 ## B) 3 Celltypes ridge plots
@@ -350,7 +350,7 @@ blank  <- ggplot() + theme_void()
 
 for (cancer in unique(HE_all_TCGA$Study)){
   ridgeplots_by_cancer[[cancer]] <- wrapper_ridgeplot(deconv_data = tcga_deconv_ridge, true_estimates = HE_all_TCGA, cancer_abreviation = cancer)
-  tpurity_by_cancer[[cancer]] <- tryCatch({ wrapper_tpurity(deconv_data = tcga_deconv, true_estimates = Aran_all_facs, cancer_abreviation = cancer) # sometimes there arent enough samples of the tumour type
+  tpurity_by_cancer[[cancer]] <- tryCatch({ wrapper_tpurity(deconv_data = tcga_deconv, true_estimates = Aran_all_facs, estimate = "ABSOLUTE", cancer_abreviation = cancer) # sometimes there arent enough samples of the tumour type
         },
         error = function(cond) {
           message(paste("not enough FACs samples for ", cancer, "no scatterplot will be generated"))
