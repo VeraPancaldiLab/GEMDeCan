@@ -316,7 +316,10 @@ wrapper_corrplots <- function(deconv_data, true_estimates, cancer_abreviation){
     }
     
     # Plot
-    ct_corrplots[[ct]] <- dplyr::mutate(store_corrs, measure2=stringr::str_remove_all(measure2, paste(substring_remove, collapse = "|"))) %>% 
+    store_corrs <- dplyr::mutate(store_corrs, measure2=stringr::str_remove_all(measure2, paste(substring_remove, collapse = "|"))) 
+    
+    order <- store_corrs %>% group_by(measure2) %>% dplyr::summarize(meanr = mean(r)) %>% arrange(desc(meanr))
+    ct_corrplots[[ct]] <- dplyr::mutate(store_corrs, measure2 = factor(measure2, levels = order$measure2)) %>% dplyr::arrange( factor(measure2, levels = order$measure2)) %>%
     ggplot(aes(measure2, measure1, fill=r, label=round(r_if_sig,2))) +
     geom_tile() +
       labs(x = NULL, y = NULL, fill = "Spearman's\nCorrelation", title= ct, 
