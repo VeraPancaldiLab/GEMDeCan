@@ -319,6 +319,7 @@ wrapper_corrplots <- function(deconv_data, true_estimates, cancer_abreviation){
     store_corrs <- dplyr::mutate(store_corrs, measure2=stringr::str_remove_all(measure2, paste(substring_remove, collapse = "|"))) 
     
     order <- store_corrs %>% 
+      drop_na(r) %>% # Epidish_CBSX_LM22 dont work for UVM in Neutrophils and mean dont work with NANs
       group_by(measure2) %>%
       dplyr::summarize(r = mean(r)) %>% 
       arrange(desc(r)) %>% 
