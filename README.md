@@ -8,7 +8,7 @@ Each pipeline comes with a readme detailing its installation and usage.
 ## Data availability
 The code to reproduce all figures is available in this repository under `Paper_Figure_code.Rmd`.  
 All data to reproduce those figures are freely available on Figshare :  
-https://figshare.com/s/e45d9605ad339a4e2b5c (TEMPORARY LINK)
+https://figshare.com/account/home#/projects/134069
 
 ## Citation 
 To cite the pipeline, refer to our paper on [BiorXiv](https://www.biorxiv.org/content/10.1101/2021.04.09.439207v2) :  
