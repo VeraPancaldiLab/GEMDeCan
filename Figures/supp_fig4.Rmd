@@ -22,6 +22,7 @@ library(ggpubr)
 library(EpiDISH)
 library(stringr)
 library(grid)
+library(ggpubr)
 
 ```
 
@@ -151,6 +152,7 @@ read_tsv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/julien/gemdecan/data/all_decon
 read_tsv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/facs/Aran_facs.csv") %>%
   mutate_at("Sample_ID", str_remove_all, ".01A*") %>%
   mutate_at("Sample_ID", str_replace_all, "-", ".") -> Aran_all_facs
+
 
 read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/HE_fractions.csv") %>%
   dplyr::select(-c(...1)) %>%
