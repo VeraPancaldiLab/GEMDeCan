@@ -18,6 +18,8 @@ knitr::opts_chunk$set(fig.width = 15, fig.height = 17, echo = FALSE, results = "
 library(tidyverse)
 library(Hmisc)
 library(ggridges)
+library(ggtext)
+library(glue)
 ```
 
 # Functions
@@ -330,6 +332,10 @@ wrapper_corrplots <- function(deconv_data, true_estimates, cancer_abreviation){
              r_if_sig = r ) %>%
       dplyr::relocate(measure1, .before = measure2)
     
+    ## Function to highlight the "average" row
+    highlight = function(x, pat, color="black", family="") {
+  ifelse(grepl(pat, x), glue("<b style='font-family:{family}; color:{color}'>{x}</b>"), x)
+}
     
     ct_corrplots[[ct]] <- add_row(store_corrs, order) %>% dplyr::mutate(measure2 = factor(measure2, levels = order$measure2)) %>% dplyr::arrange(factor(measure2, levels = order$measure2)) %>%
     ggplot(aes(measure2, measure1, fill=r, label=round(r_if_sig,2))) +
@@ -340,8 +346,8 @@ wrapper_corrplots <- function(deconv_data, true_estimates, cancer_abreviation){
     geom_text() +
     theme_classic() +
     scale_x_discrete(expand=c(0,0)) +
-    scale_y_discrete(expand=c(0,0)) +
-    rotate_x_text(angle = 45)
+    scale_y_discrete(expand=c(0,0), labels= function(x) highlight(x, "Average", "red")) +
+    rotate_x_text(angle = 45) + theme(axis.text.y=element_markdown())
    }
   return(ct_corrplots)
 }
@@ -444,12 +450,16 @@ wrapper_ridgeplot(deconv_data = tcga_deconv_ridge, true_estimates = HE_all_TCGA,
 ## Summary Corrplot
 
 ```{r}
-wrapper_corrplots(deconv_data = tcga_deconv_ridge, true_estimates = HE_all_TCGA)
+corrplots <- wrapper_corrplots(deconv_data = tcga_deconv_ridge, true_estimates = HE_all_TCGA)
+corrplots$Macrophages <- summary_corr$Macrophages + rremove("y.text")
+corrplots$Neutrophils <- summary_corr$Neutrophils + rremove("y.text")
+summary_corrplot  <- ggarrange(plotlist = corrplots, ncol = 3, common.legend = T, widths = c(0.35, 0.35, 0.25) , legend = "bottom")
+
+ggsave("Fig2_summary_corrplot.pdf", dpi = "print", width = 250, height = 100, units = "mm", scale = 2.5)
 ```
 
 
 # Suplementary figure
-
 ```{r}
 ridgeplots_by_cancer <- list()
 tpurity_by_cancer <- list()
