@@ -224,7 +224,7 @@ if data_version == 'all_deconvolutions_2021-11-02':
     conditions = [
         'quanTIseq',
         'MCP',
-        'XCELL',
+        #'XCELL',
         'EpiDISH_BPRNACan_',
         'DeconRNASeq_BPRNACan_',
         'EpiDISH_BPRNACanProMet_',
@@ -248,7 +248,7 @@ else:
     conditions = [
         'quanTIseq',
         'MCP',
-        'XCELL',
+        #'XCELL',
         'EpiDISH_BPRNACan_',
         'DeconRNASeq_BPRNACan_',
         'EpiDISH_BPRNACanProMet_',
