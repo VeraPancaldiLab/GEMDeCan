@@ -255,7 +255,7 @@ wrapper_ridgeplot <- function(deconv_data, true_estimates, cancer_abreviation){
     arrange(factor(Samples, levels = Comm_samples)) -> deconv_subset
   
   deconv_subset_summary <- ridgeplot_parse(deconv_data = deconv_subset, signatures_dictionary = signature_dict)
-    
+  
   identical(true_subset$ParticipantBarcode, deconv_subset_summary$Samples) %>% stopifnot()
   true_subset %>% bind_cols(deconv_subset_summary) %>% dplyr::select(-c(Samples)) -> data_toplot
   
@@ -451,8 +451,8 @@ wrapper_ridgeplot(deconv_data = tcga_deconv_ridge, true_estimates = HE_all_TCGA,
 
 ```{r}
 corrplots <- wrapper_corrplots(deconv_data = tcga_deconv_ridge, true_estimates = HE_all_TCGA)
-corrplots$Macrophages <- summary_corr$Macrophages + rremove("y.text")
-corrplots$Neutrophils <- summary_corr$Neutrophils + rremove("y.text")
+corrplots$Macrophages <- corrplots$Macrophages + rremove("y.text")
+corrplots$Neutrophils <- corrplots$Neutrophils + rremove("y.text")
 summary_corrplot  <- ggarrange(plotlist = corrplots, ncol = 3, common.legend = T, widths = c(0.35, 0.35, 0.25) , legend = "bottom")
 
 ggsave("Fig2_summary_corrplot.pdf", dpi = "print", width = 250, height = 100, units = "mm", scale = 2.5)
