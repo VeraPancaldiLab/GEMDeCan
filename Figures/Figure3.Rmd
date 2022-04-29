@@ -1,0 +1,494 @@
+---
+title: "Figure 3 and figure 3 supplementary material"
+output: html_notebook
+  pdf_document: default
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: console
+---
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+#knitr::opts_chunk$set(fig.width = 15, fig.height = 17, echo = FALSE, results = "hide", warning = FALSE, message = FALSE)
+```
+
+# Imports
+
+```{r}
+library(tidyverse)
+library(Hmisc)
+library(ggridges)
+library(ggtext)
+library(glue)
+```
+
+# Functions
+
+```{r}
+################################################################################
+# Customizable corrplot functions (modified from https://www.khstats.com/blog/corr-plots/corr-plots/)
+cors <- function(df, cor.stat) {
+  M <- Hmisc::rcorr(as.matrix(df), type = cor.stat)
+  Mdf <- map(M, ~data.frame(.x))
+  return(Mdf)
+}
+
+formatted_cors <- function(df, cor.stat){
+  cors(df, cor.stat) %>%
+    map(~rownames_to_column(.x, var="measure1")) %>%
+    map(~pivot_longer(.x, -measure1, "measure2")) %>%
+    bind_rows(.id = "id") %>%
+    pivot_wider(names_from = id, values_from = value) %>%
+    dplyr::rename(p = P) %>%
+    mutate(sig_p = ifelse(p < .05, T, F),
+           p_if_sig = ifelse(sig_p, p, NA),
+           r_if_sig = ifelse(sig_p, r, NA)) 
+}
+################################################################################
+
+################################################################################
+# Does the typical deconvolution scatterplot comparing true proportions to certain deconvolution estimates. Called inside scatterplot_wrapper
+scatterplot_truevsestimate <- function(merged_data, x, y, title, color, x_lab = "", y_lab = ""){
+    merged_data %>% dplyr::select(all_of(x),all_of(y)) %>%
+    na.omit() -> to_plot
+  
+    to_plot.cor <- rcorr(data.matrix(to_plot[c(x,y)]), type = "pearson")
+  
+  if (to_plot.cor$P[x,y] == 0){
+    p.val = "< 2.2e-16"
+    } else {
+      p.val = paste("=", signif(to_plot.cor$P[x,y],2))
+    }
+    to_plot.rmse = sqrt(colMeans((to_plot[,y] - to_plot[,x])^2, na.rm = T))
+    
+  
+  stats <- paste("Pearson: R = ", round(to_plot.cor$r[x,y], 2),
+               ", pval ", p.val, "\n",
+               "RMSE = ", round(to_plot.rmse, 2), sep = "")
+  
+  ## plot
+  your_plot <- ggplot(to_plot) +
+    aes_string(x = x, y = y) +
+    geom_point(color = color) +
+    labs(title = title, subtitle = stats, x = x_lab, y = y_lab) +
+    geom_smooth(method=lm) +
+    theme_classic() +
+    theme(
+      plot.title=element_text(family='', face='bold', colour='black', size=25, margin=margin(t=50,b=-40)),
+      plot.subtitle=element_text(family='', face='italic', colour='black', size=18, margin=margin(t=50,b=-40)),
+      text = element_text(size=15)
+  )
+  
+  return(your_plot)
+}
+################################################################################
+
+################################################################################
+wrapper_tpurity <- function(deconv_data, true_estimates, estimate, cancer_abreviation){
+  true_estimates %>% dplyr::filter(Cancer_type == cancer_abreviation, CPE != "NaN") %>% 
+    arrange(factor(Sample_ID, levels = Sample_ID))  -> true_subset_
+
+  Comm_samples <- Reduce(intersect, list(deconv_data$Samples,
+                                         true_subset_$Sample_ID))
+  true_subset_ %>% 
+    dplyr::filter(Sample_ID %in% Comm_samples) %>% 
+    arrange(factor(Sample_ID, levels = Comm_samples)) -> true_subset
+  
+  deconv_data %>% 
+    dplyr::filter(Samples %in% Comm_samples) %>% 
+    arrange(factor(Samples, levels = Comm_samples)) -> deconv_subset
+  
+  
+  # Scatterplot CCLE_TIL10
+  identical(true_subset$Sample_ID, deconv_subset$Samples) %>% stopifnot()
+   true_subset %>% bind_cols(deconv_subset) -> merged_subset
+  
+  final_plot = list()
+  color = "black"
+  x_lab = estimate
+     
+  title = paste0(estimate, " vs MethylCBS Cancer")
+  y_lab = "MethylCBS Cancer"
+  final_plot[["ccle"]] <- scatterplot_truevsestimate(merged_subset, estimate, "EpiDISH_MethylCBS_cancer", title, color,  x_lab, y_lab)
+  
+  # Scatterplot BPRNACan
+  title = paste0(estimate, " vs BPmetCan Cancer")
+  y_lab = "BPmetCan Cancer"
+  final_plot[["bprnacan"]] <- scatterplot_truevsestimate(merged_subset, estimate, "EpiDISH_BPmetCan_cancer", title, color, x_lab, y_lab)
+
+  return(final_plot)
+}
+################################################################################
+
+
+################################################################################
+# This function returns the Lymphocytes, Macrophages and Neutrophils summarized
+# of a given method/signature.
+# Works inside of ridgeplot_parse. it takes:
+# -  'deconv_data': contains the deconvolution data to index and summarize. 
+#
+# -  'signature dictionary': contains the exact names of the method
+#                           (if it works with one signature) or the signature
+#                           (if it works with multiple methods). 
+#
+# - iterator: string to subscript the signatures_dict with either signature
+#             or methods names depending where is it called
+#
+# - prefix: string to leave just celltype names when substracted to the columns
+#             of deconv_data of the specified method (or method + signature).
+#
+# - celltype: name of the celltype to sumarize "Lymphocites", "Macrophages" or "Neutrophils"
+
+ridgeplot_parse <- function(deconv_data, signatures_dictionary){
+  
+  results <- tibble(Samples = deconv_data$Samples)
+  
+  names_table <- deconv_data %>%
+    dplyr::select(-c(Samples)) %>%
+    names() %>%
+    str_split_fixed("_", 2) %>%
+    as_tibble(.name_repair = "unique")
+  
+  for (method in unique(names_table[,1,drop=T])){
+    
+    if (method %in% c("Epidish",
+                      "DeconRNASeq",
+                      "CBSX")){
+      
+      for (signature in names(signatures_dictionary)){ # iterates through all the signatures (the ones not present for the method will yield all 0)
+        to_match <- paste(method, signature, sep = "_")
+        
+        for (celltype in names(signatures_dictionary[[signature]])){
+          if (length(signatures_dictionary[[signature]][[celltype]]) > 0){
+            name_of_summary <- paste(to_match, celltype, sep = "_")
+            columns_to_summarize <- paste(to_match, signatures_dictionary[[signature]][[celltype]], sep = ".")
+            # print(name_of_summary)
+            # deconv_data %>% dplyr::select(matches(columns_to_summarize)) %>% colnames() %>% print()
+            # cat("-------------------------\n")
+            deconv_data %>% dplyr::select(matches(columns_to_summarize)) %>% rowSums(.) -> results[name_of_summary]
+          }
+        }
+  }
+    } else{
+      
+    to_match <- method
+    
+    for (celltype in names(signatures_dictionary[[method]])){
+      if (length(signatures_dictionary[[method]][[celltype]]) > 0){
+          name_of_summary <- paste(to_match, celltype, sep = "_")
+          columns_to_summarize <- paste(to_match, signatures_dictionary[[method]][[celltype]], sep = ".")
+          
+          deconv_data %>% dplyr::select(matches(columns_to_summarize)) %>% rowSums(.) -> results[name_of_summary]
+      }
+    }
+  }
+  }
+  results %>% dplyr::select(-Samples) %>% dplyr::select(which(!colSums(., na.rm=TRUE) %in% 0)) %>% bind_cols(Samples = results$Samples,.)
+}
+################################################################################
+
+################################################################################
+plot_ridgeplot <- function(data){
+ data %>% dplyr::select(-c(ParticipantBarcode, Study)) %>% data.matrix() %>% rcorr() -> cor.table
+  final_plot <- list()
+  for (ct in c("Lymphocytes", "Macrophages", "Neutrophils")){
+    # select strings to remove from signature names
+    # substring_remove <- c(paste("_",ct, sep=""),
+    #   "_Tirosh_sigmatrix_SuppFig_3-b",
+    #   "_scRNA-Seq",
+    #   "Fig2ab-",
+    #   "_PBMCs_scRNAseq_sigmatrix",
+    #   "sigmatrix_",
+    #   "_Fig2cd")
+    substring_remove <- c("nothing")
+    
+    # filter correlations
+    deconv_ct_names <- data %>% dplyr::select(matches(ct), -ct) %>% names()
+    cor.table[["r"]][ct,deconv_ct_names] %>% sort() -> cor.ct.sorted
+    names(cor.ct.sorted) <- str_remove_all(names(cor.ct.sorted), paste(substring_remove, collapse = "|"))
+    cor.ct.sorted["H&E"] = 1
+    
+    # ridgeplot perse
+    cols <- c("H&E" = "red", "CIBERSORT" = "yellow", "EpiDISH" = "blue")
+    
+    ct_subset = data %>%
+      dplyr::select(matches(ct)) %>%
+      dplyr::rename("H&E" = ct) %>%
+      gather() %>%
+      mutate(key = str_remove_all(key, paste(substring_remove, collapse = "|")),
+             key=factor(key, levels=names(cor.ct.sorted)),
+             method = as.factor(str_extract(key, "[^_]+")))
+  adjust_x <- max(ct_subset$value)
+  final_plot[[ct]] <- print(ggplot(ct_subset, aes(x = value, y = key, colour = method)) +
+    geom_density_ridges2(jittered_points = TRUE, position = "raincloud", 
+                         point_size = 0.25, point_alpha = 0.25, alpha = 0.7, rel_min_height = 0.005, point_color = "black") +
+    theme_ridges() + ggtitle(ct) +
+    annotate("text", x = adjust_x, y = 1:length(cor.ct.sorted), label = paste0("R = ",round(cor.ct.sorted, 2)), colour = "brown") +
+    scale_x_continuous(limits = c(0, (adjust_x + adjust_x*0.2))) +
+    scale_colour_manual(values = cols) +
+     theme(axis.text.x = element_text(color = "black", size = 12, angle = 90, hjust = .5, vjust = .5, face = "plain"),
+          axis.text.y = element_text(color = "black", size = 12, angle = 0, hjust = 1, vjust = 0, face = "plain"),  
+          axis.title.x = element_text(color = "black", size = 10, angle = 0, hjust = .5, vjust = 0, face = "plain"),
+          axis.title.y = element_text(color = "black", size = 10, angle = 90, hjust = .5, vjust = .5, face = "plain"),
+          plot.title = element_text(color = "black", size = 20)) +
+    ylab("") + xlab("% of cell type"))
+  }
+  return(final_plot)
+}
+################################################################################
+
+################################################################################
+wrapper_ridgeplot <- function(deconv_data, true_estimates, cancer_abreviation){
+  
+  # build the data
+  true_estimates %>% dplyr::filter(Study == cancer_abreviation) %>%  na.exclude() %>%
+    arrange(factor(ParticipantBarcode, levels = ParticipantBarcode))  -> true_subset_
+  
+  Comm_samples <- Reduce(intersect, list(deconv_data$Samples,
+                                         true_subset_$ParticipantBarcode))
+  true_subset_ %>% 
+    dplyr::filter(ParticipantBarcode %in% Comm_samples) %>% 
+    arrange(factor(ParticipantBarcode, levels = Comm_samples)) -> true_subset
+  
+  deconv_data  %>%
+    dplyr::filter(Samples %in% Comm_samples) %>% 
+    arrange(factor(Samples, levels = Comm_samples)) -> deconv_subset
+  
+  #deconv_subset_summary <- ridgeplot_parse(deconv_data = deconv_subset, signatures_dictionary = signature_dict)
+  deconv_subset_summary <- dplyr::select(deconv_subset, matches("Samples|Lymphocytes|Macrophages|Neutrophils"))
+    
+  identical(true_subset$ParticipantBarcode, deconv_subset_summary$Samples) %>% stopifnot()
+  true_subset %>% bind_cols(deconv_subset_summary) %>% dplyr::select(-c(Samples)) -> data_toplot
+  
+  
+  # calculate correlations
+ return(plot_ridgeplot(data_toplot))
+}
+################################################################################
+
+################################################################################
+wrapper_corrplots <- function(deconv_data, true_estimates, cancer_abreviation){
+  # build the data
+  true_subset_ <- true_estimates %>%  na.exclude() %>%
+    arrange(factor(ParticipantBarcode, levels = ParticipantBarcode))
+  
+  Comm_samples <- Reduce(intersect, list(deconv_data$Samples,
+                                         true_subset_$ParticipantBarcode))
+  
+  true_subset <-dplyr::filter(true_subset_, ParticipantBarcode %in% Comm_samples) %>% 
+    arrange(factor(ParticipantBarcode, levels = Comm_samples))
+  
+  deconv_subset <- dplyr::filter(deconv_data, Samples %in% Comm_samples) %>% 
+    arrange(factor(Samples, levels = Comm_samples))
+  
+  #deconv_subset_summary <- ridgeplot_parse(deconv_data = deconv_subset, signatures_dictionary = signature_dict)
+  deconv_subset_summary <- dplyr::select(deconv_subset, matches("Samples|Lymphocytes|Macrophages|Neutrophils"))
+  identical(true_subset$ParticipantBarcode, deconv_subset_summary$Samples) %>% stopifnot()
+  
+  to_corr <- bind_cols(true_subset, deconv_subset_summary) %>% dplyr::select(-c(Samples))
+  ct_corrplots <- list()
+   for (ct in c("Lymphocytes", "Macrophages", "Neutrophils")){
+    # select strings to remove from signature names
+    # substring_remove <- c(paste0("_",ct),
+    #   "_Tirosh_sigmatrix_SuppFig_3.b",
+    #   "_scRNA.Seq",
+    #   "Fig2ab.",
+    #   "_PBMCs_scRNAseq_sigmatrix",
+    #   "sigmatrix_",
+    #   "_Fig2cd")
+    substring_remove <- c(paste0("_",ct))
+    
+    store_corrs <- tibble(measure1 = character(),
+                          measure2 = character(),
+                          r = numeric(),
+                          n = numeric(),
+                          p = numeric(),
+                          sig_p = logical(),
+                          p_if_sig = numeric(),
+                          r_if_sig = numeric())
+    # segregate by cancer type
+    for (st in unique(to_corr$Study)){
+      deconv_ct_names <- dplyr::filter(to_corr, Study == st) %>%
+        # segregate by ct
+        dplyr::select(matches(ct)) %>%
+        formatted_cors(cor.stat = "pearson") %>%
+        # reduce to corrs just to ground truth
+        dplyr::filter(measure1 == all_of(ct), measure2 != all_of(ct)) %>%
+        # rename ground truth as cancer type
+        dplyr::mutate(measure1 = st)
+      #add to the rest of cancer type correlations
+      store_corrs <- add_row(store_corrs , deconv_ct_names)
+    }
+    
+    # Plot
+    store_corrs <- dplyr::mutate(store_corrs, measure2=stringr::str_remove_all(measure2, paste(substring_remove, collapse = "|"))) 
+    
+    order <- store_corrs %>% 
+      drop_na(r) %>% # Epidish_CBSX_LM22 dont work for UVM in Neutrophils and mean dont work with NANs
+      group_by(measure2) %>%
+      dplyr::summarize(r = mean(r)) %>% 
+      arrange(desc(r)) %>% 
+      mutate(measure1 = "Average",
+             p = NA,
+             sig_p = TRUE,
+             p_if_sig = NA,
+             r_if_sig = r ) %>%
+      dplyr::relocate(measure1, .before = measure2)
+    
+    ## Function to highlight the "average" row
+    highlight = function(x, pat, color="black", family="") {
+  ifelse(grepl(pat, x), glue("<b style='font-family:{family}; color:{color}'>{x}</b>"), x)
+}
+    
+    ct_corrplots[[ct]] <- add_row(store_corrs, order) %>% dplyr::mutate(measure2 = factor(measure2, levels = order$measure2)) %>% dplyr::arrange(factor(measure2, levels = order$measure2)) %>%
+    ggplot(aes(measure2, measure1, fill=r, label=round(r_if_sig,2))) +
+    geom_tile() +
+      labs(x = NULL, y = NULL, fill = "Spearman's\nCorrelation", title= ct, 
+         subtitle="Only significant correlation coefficients shown (95% I.C.)") +
+    scale_fill_gradient2(mid="#FBFEF9",low="#0C6291",high="#A63446", limits=c(-1,1)) +
+    geom_text() +
+    theme_classic() +
+    scale_x_discrete(expand=c(0,0)) +
+    scale_y_discrete(expand=c(0,0), labels= function(x) highlight(x, "Average", "red")) +
+    rotate_x_text(angle = 45) + theme(axis.text.y=element_markdown())
+   }
+  return(ct_corrplots)
+}
+
+```
+
+# Data loading
+
+```{r}
+tcga_deconv <- read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/julien/gemdecan/data/all_deconvolutions/TCGA_EpiDISH_CIBERSORT_BPmetCan_MethylCBS.csv") %>%
+  dplyr::select(-Sample) %>%
+  dplyr::rename(Samples = ...1) %>%
+  rename_with(stringr::str_replace, 
+              pattern = "Neutrophiles$", replacement = "Neutrophils", matches("Neutrophiles")) %>%
+  mutate_at("Samples", str_remove_all, ".01A*") %>%
+  mutate_at("Samples", str_replace_all, "-", ".") %>% 
+  group_by(Samples) %>%
+  summarise_all(mean)
+
+Aran_all_facs <- read_tsv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/facs/Aran_facs.csv") %>%
+  mutate_at("Sample_ID", str_remove_all, ".01A*") %>%
+  mutate_at("Sample_ID", str_replace_all, "-", ".")
+
+HE_all_TCGA <- read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/HE_fractions.csv") %>%
+  dplyr::select(-c(...1)) %>%
+  mutate_at("ParticipantBarcode", str_remove_all, ".01A*") %>%
+  mutate_at("ParticipantBarcode", str_replace_all, "-", ".") %>%
+  distinct(ParticipantBarcode, .keep_all= TRUE) # for the READ samples TCGA.AG.5 & TCGA.AG.3
+
+```
+
+# Figure
+## A) Tumor Purity
+```{r}
+wrapper_tpurity(deconv_data = tcga_deconv,true_estimates = Aran_all_facs, estimate = "ABSOLUTE" , cancer_abreviation = "LUAD")
+```
+
+## B) 3 Celltypes ridge plots
+### Create aggregation dictionaries to compare with Lymphocites, Macrophages and Neutrophils FACs
+
+```{r}
+# Lists of celltypes of each signature ( NO NEED IN THIS CASE)
+## signature dictionary construction (can use . as regexp!)
+## uncoment print of functions to check that you detect what you want.
+## non matching signatures/methods (all 0) are removed.
+signature_dict <- list()
+signature_dict[["BPmetCan"]] <- list(Lymphocytes = c("_B$", "CD4", "CD8", "NK", "Treg", "Lymphocytes"),
+                    Macrophages = c("Mono", "M0", "M1", "M2", "Macrophages"),
+                    Neutrophils = c("Neutrophiles"))
+
+signature_dict[["MethylCBS"]] <- list(Lymphocytes = c("_B", "CD4", "CD8", "NK", "Treg", "Lymphocytes"),
+                                                                         Macrophages = c("Mono", "Macrophages"),
+                                                                         Neutrophils = c())
+
+signature_dict[["CBSX_LM22"]] <- list(Lymphocytes = c("B.cells.naive", "B.cells.memory",  "T.cells.CD8",
+                                                        "T.cells.CD4.naive", "T.cells.CD4.memory.resting",
+                                                        "T.cells.CD4.memory.activated", 
+                                                        "T.cells.regulatory..Tregs.", "NK.cells.resting",
+                                                        "NK.cells.activated"),
+                                        Macrophages = c("Monocytes", "Macrophages.M0", "Macrophages.M1", "Macrophages.M2"),
+                                        Neutrophils = c("Neutrophils")) # skipped , "Plasma.cells" "T.cells.follicular.helper", "T.cells.gamma.delta" in Lymphos, as well as "Dendritic.cells.resting", "Dendritic.cells.activated" for macros
+
+signature_dict[["CBSX_scRNA-Seq_melanoma_Tirosh_sigmatrix_SuppFig_3-b"]] <- list(Lymphocytes = c("T.cells.CD8", "T.cells.CD4",
+                                                                                                   "NK.cells", "B.cells"),
+                                                                                   Macrophages = c("Macrophages"),
+                                                                                   Neutrophils = c())
+
+signature_dict[["CBSX_sigmatrix_HNSCC_Fig2cd"]] <- list(Lymphocytes = c("T.cells.CD8", "T.cells.CD4", "B.cells"),
+                                                          Macrophages = c("Macrophages", "Dendritic.cells"),
+                                                          Neutrophils = c())
+
+signature_dict[["CCLE_TIL10"]] <- list(Lymphocytes = c("T.cells.CD8", "T.cells.CD4", "B.cells", "NK.cells", "Tregs"),
+                    Macrophages = c("Macrophages.M1", "Macrophages.M2", "Monocytes", "Dendritic.cells"),
+                    Neutrophils = c("Neutrophils"))
+
+signature_dict[["Quantiseq"]] <- list(Lymphocytes = c("B.cell", "T.cell.CD4+.(non-regulatory)", "T.cell.CD8+", "T.cell.regulatory(Tregs)", "NK.cell"),
+                    Macrophages = c("Macrophage.M1", "Macrophage.M2", "Myeloid.dendritic.cell", "Monocyte"),
+                    Neutrophils = c("Neutrophil"))
+
+# signature_dict[["MCP"]] <- list(Lymphocytes = c("T.cells", "CD8.T.cells", "Cytotoxic.lymphocytes","B.lineage" ,"NK.cells"),
+#                     Macrophages = c("Myeloid.dendritic.cells", "Monocytic.lineage"),
+#                     Neutrophils = c("Neutrophils")) # Based in enrichment so cant sum celltype estimates
+
+# signature_dict[["XCELL"]] <- list(Lymphocytes = c(".B-cells", "CD4+.", "CD8+.", "CLP", "NK.", "Th1_cells", "Tgd_cells", "Th2_cells", "Tregs"),
+#                     Macrophages = c("aDC", "cDC", "iDC", "pDC", "DC", "Macrophages.", "Monocytes"),
+#                     Neutrophils = c("Neutrophils")) # Not in the paper in theory
+
+```
+
+### Data processing & ridge plot
+
+```{r}
+
+# tcga_deconv_ridge <- tcga_deconv %>%
+#   rename_at(vars(matches("^CBSX")), ~ paste0("CBSX_", .)) %>% 
+#   rename_at(vars(matches("__")), ~ str_replace_all(., "__", "_"))
+tcga_deconv_ridge <- tcga_deconv
+
+wrapper_ridgeplot(deconv_data = tcga_deconv_ridge, true_estimates = HE_all_TCGA, cancer_abreviation = "LUAD")
+```
+
+## Summary Corrplot
+
+```{r}
+corrplots <- wrapper_corrplots(deconv_data = tcga_deconv_ridge, true_estimates = HE_all_TCGA)
+corrplots$Macrophages <- corrplots$Macrophages + rremove("y.text")
+corrplots$Neutrophils <- corrplots$Neutrophils + rremove("y.text")
+summary_corrplot  <- ggarrange(plotlist = corrplots, ncol = 3, common.legend = T, widths = c(0.35, 0.35, 0.25) , legend = "bottom")
+
+ggsave("Fig3_summary_corrplot.pdf", dpi = "print", width = 250, height = 100, units = "mm", scale = 1)
+```
+
+
+# Suplementary figure
+```{r}
+ridgeplots_by_cancer <- list()
+tpurity_by_cancer <- list()
+blank  <- ggplot() + theme_void()
+
+unique_cancers <- dplyr::filter(HE_all_TCGA, ParticipantBarcode %in% tcga_deconv_ridge$Samples) %>% distinct(Study) %>% deframe()
+for (cancer in unique_cancers){
+  ridgeplots_by_cancer[[cancer]] <- wrapper_ridgeplot(deconv_data = tcga_deconv_ridge, true_estimates = HE_all_TCGA, cancer_abreviation = cancer)
+  tpurity_by_cancer[[cancer]] <- tryCatch({ wrapper_tpurity(deconv_data = tcga_deconv, true_estimates = Aran_all_facs, estimate = "ABSOLUTE", cancer_abreviation = cancer) # sometimes there arent enough samples of the tumour type
+        },
+        error = function(cond) {
+          message(paste("not enough FACs samples for ", cancer, "no scatterplot will be generated"))
+          return(list(ccle = blank, bprna = blank))
+        }
+  )
+  tpurity_by_cancer[[cancer]]$extra = blank
+  
+  ridges <- ggarrange(plotlist = ridgeplots_by_cancer[[cancer]], ncol = 3, common.legend = T, legend = "bottom")
+  scater <- ggarrange(plotlist = tpurity_by_cancer[[cancer]], ncol = 3, common.legend = T)
+  blank  <- ggplot() + theme_void()
+  fullplot <- ggarrange(plotlist = list(scater, ridges, blank), nrow = 3, heights = c(0.15, 0.3, 0.45))
+  annotate_figure(fullplot, top = text_grob(cancer, color = "black", size = 40))
+  pdf_name <- paste("Sup.fig3_", cancer, ".pdf", sep = "")
+  ggsave(pdf_name, dpi = "print", width = 210, height = 297, units = "mm", scale = 2.5)
+}
+system("pdfunite Sup.fig3_*.pdf Sup.fig3.pdf")
+```
