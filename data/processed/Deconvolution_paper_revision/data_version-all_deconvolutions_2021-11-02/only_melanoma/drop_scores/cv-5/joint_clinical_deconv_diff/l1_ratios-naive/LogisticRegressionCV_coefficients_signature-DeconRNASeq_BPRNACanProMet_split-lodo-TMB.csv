@@ -1,0 +1,12 @@
+,coef,abs coef,% total,cum % total,coef OR
+TMB,-0.1060742201670713,0.1060742201670713,1.0,1.0,0.8993578951055148
+DeconRNASeq_BPRNACanProMet_B,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_BPRNACanProMet_cancer,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_BPRNACanProMet_CD4,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_BPRNACanProMet_CD8,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_BPRNACanProMet_M0,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_BPRNACanProMet_M1,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_BPRNACanProMet_M2,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_BPRNACanProMet_Mono,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_BPRNACanProMet_Neu,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_BPRNACanProMet_NK,0.0,0.0,0.0,1.0,1.0

@@ -1,0 +1,12 @@
+,coef,abs coef,% total,cum % total,coef OR
+MCP_Fibroblasts,0.11467552874273952,0.11467552874273952,0.5265334342370245,0.5265334342370245,1.121509480937089
+MCP_Monocytic_lineage,-0.10311791282457633,0.10311791282457633,0.47346656576297563,1.0,0.9020206074130318
+MCP_T_cells,0.0,0.0,0.0,1.0,1.0
+MCP_CD8_T_cells,0.0,0.0,0.0,1.0,1.0
+MCP_Cytotoxic_lymphocytes,0.0,0.0,0.0,1.0,1.0
+MCP_B_lineage,0.0,0.0,0.0,1.0,1.0
+MCP_NK_cells,0.0,0.0,0.0,1.0,1.0
+MCP_Myeloid_dendritic_cells,0.0,0.0,0.0,1.0,1.0
+MCP_Neutrophils,0.0,0.0,0.0,1.0,1.0
+MCP_Endothelial_cells,0.0,0.0,0.0,1.0,1.0
+SEX,0.0,0.0,0.0,1.0,1.0

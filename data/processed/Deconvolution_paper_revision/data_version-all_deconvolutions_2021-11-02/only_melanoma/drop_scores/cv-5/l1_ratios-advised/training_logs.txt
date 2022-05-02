@@ -1,0 +1,459 @@
+Training using quanTIseq
+    LODO training using Gide as test set
+        ROC AUC Gide: 0.4625
+        AP Gide: 0.39698458190581193
+        MCC Gide: -0.12649110640673517
+    LODO training using Riaz as test set
+        training failed
+        training failed with cv <= 10
+        ROC AUC Riaz: nan
+        AP Riaz: nan
+        MCC Riaz: nan
+    LODO training using Hugo as test set
+        ROC AUC Hugo: 0.43888888888888894
+        AP Hugo: 0.43412060770613403
+        MCC Hugo: 0.15118578920369088
+    CV training on all datasets
+        training failed
+        training failed with cv <= 10
+        ROC AUC CV all datasets: nan
+        AP CV all datasets: nan
+        MCC CV all datasets: nan
+        training failed with cv <= 10
+        ROC AUC CV all datasets test Cloughesy: nan
+        AP CV all datasets test Cloughesy: nan
+        MCC CV all datasets test Cloughesy: nan
+Training using MCP
+    LODO training using Gide as test set
+        ROC AUC Gide: 0.5974999999999999
+        AP Gide: 0.5312446409496194
+        MCC Gide: 0.11899687563233083
+    LODO training using Riaz as test set
+        ROC AUC Riaz: 0.40151515151515155
+        AP Riaz: 0.525654941463765
+        MCC Riaz: -0.013430382733756338
+    LODO training using Hugo as test set
+        ROC AUC Hugo: 0.4666666666666667
+        AP Hugo: 0.514227207977208
+        MCC Hugo: 0.08574929257125441
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.6384615384615384
+        AP CV all datasets: 0.567478354978355
+        MCC CV all datasets: 0.2802242691589025
+    testing on Cloughesy dataset
+        ROC AUC CV all datasets test Cloughesy: 0.0
+        AP CV all datasets test Cloughesy: 0.8915862578160605
+        MCC CV all datasets test Cloughesy: -0.20672455764868078
+Training using EpiDISH_BPRNACan_
+    LODO training using Gide as test set
+        ROC AUC Gide: 0.775
+        AP Gide: 0.7426929253218968
+        MCC Gide: 0.0
+    LODO training using Riaz as test set
+        ROC AUC Riaz: 0.7954545454545454
+        AP Riaz: 0.8457043912206957
+        MCC Riaz: 0.37080992435478316
+    LODO training using Hugo as test set
+        ROC AUC Hugo: 0.5166666666666666
+        AP Hugo: 0.5297259308608414
+        MCC Hugo: -0.01889822365046136
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.6692307692307693
+        AP CV all datasets: 0.6694685990338164
+        MCC CV all datasets: 0.0
+    testing on Cloughesy dataset
+        ROC AUC CV all datasets test Cloughesy: 0.5
+        AP CV all datasets test Cloughesy: 0.9642857142857143
+        MCC CV all datasets test Cloughesy: 0.0
+Training using DeconRNASeq_BPRNACan_
+    LODO training using Gide as test set
+        training failed
+        training failed with cv <= 10
+        ROC AUC Gide: nan
+        AP Gide: nan
+        MCC Gide: nan
+    LODO training using Riaz as test set
+        training failed
+        training failed with cv <= 10
+        ROC AUC Riaz: nan
+        AP Riaz: nan
+        MCC Riaz: nan
+    LODO training using Hugo as test set
+        ROC AUC Hugo: 0.36666666666666664
+        AP Hugo: 0.44536316340664167
+        MCC Hugo: -0.35906624935876585
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.4230769230769231
+        AP CV all datasets: 0.4590934220578183
+        MCC CV all datasets: 0.07815751585783592
+    testing on Cloughesy dataset
+        ROC AUC CV all datasets test Cloughesy: 0.48148148148148145
+        AP CV all datasets test Cloughesy: 0.9749774550961465
+        MCC CV all datasets test Cloughesy: 0.037037037037037035
+Training using EpiDISH_BPRNACanProMet_
+    LODO training using Gide as test set
+        ROC AUC Gide: 0.7200000000000001
+        AP Gide: 0.6128802027650712
+        MCC Gide: 0.0
+    LODO training using Riaz as test set
+        ROC AUC Riaz: 0.75
+        AP Riaz: 0.8087286286934626
+        MCC Riaz: 0.44411739409784406
+    LODO training using Hugo as test set
+        ROC AUC Hugo: 0.5666666666666667
+        AP Hugo: 0.5563801884390119
+        MCC Hugo: 0.04662524041201569
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5923076923076923
+        AP CV all datasets: 0.6655214350866525
+        MCC CV all datasets: 0.0
+    testing on Cloughesy dataset
+        ROC AUC CV all datasets test Cloughesy: 0.5
+        AP CV all datasets test Cloughesy: 0.9642857142857143
+        MCC CV all datasets test Cloughesy: 0.0
+Training using DeconRNASeq_BPRNACanProMet_
+    LODO training using Gide as test set
+        training failed
+        training failed with cv <= 10
+        ROC AUC Gide: nan
+        AP Gide: nan
+        MCC Gide: nan
+    LODO training using Riaz as test set
+        ROC AUC Riaz: 0.4621212121212121
+        AP Riaz: 0.5942079119710699
+        MCC Riaz: -0.03178208630818641
+    LODO training using Hugo as test set
+        ROC AUC Hugo: 0.4222222222222222
+        AP Hugo: 0.4341586332876379
+        MCC Hugo: -0.22294816068526147
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.39999999999999997
+        AP CV all datasets: 0.5133123017333543
+        MCC CV all datasets: 0.18116432546313532
+    testing on Cloughesy dataset
+        ROC AUC CV all datasets test Cloughesy: 0.7037037037037037
+        AP CV all datasets test Cloughesy: 0.9877988377102707
+        MCC CV all datasets test Cloughesy: 0.0
+Training using EpiDISH_BPRNACan3DProMet_
+    LODO training using Gide as test set
+        ROC AUC Gide: 0.7150000000000001
+        AP Gide: 0.6308876842733373
+        MCC Gide: 0.19764235376052372
+    LODO training using Riaz as test set
+        ROC AUC Riaz: 0.7272727272727273
+        AP Riaz: 0.8095021614329395
+        MCC Riaz: 0.44411739409784406
+    LODO training using Hugo as test set
+        ROC AUC Hugo: 0.6305555555555556
+        AP Hugo: 0.5545845358345358
+        MCC Hugo: -0.07905694150420949
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.676923076923077
+        AP CV all datasets: 0.6894685990338164
+        MCC CV all datasets: 0.0
+    testing on Cloughesy dataset
+        ROC AUC CV all datasets test Cloughesy: 0.5
+        AP CV all datasets test Cloughesy: 0.9642857142857143
+        MCC CV all datasets test Cloughesy: 0.0
+Training using DeconRNASeq_BPRNACan3DProMet_
+    LODO training using Gide as test set
+        training failed
+        training failed with cv <= 10
+        ROC AUC Gide: nan
+        AP Gide: nan
+        MCC Gide: nan
+    LODO training using Riaz as test set
+        ROC AUC Riaz: 0.4393939393939394
+        AP Riaz: 0.6203046368929227
+        MCC Riaz: 0.0657951694959769
+    LODO training using Hugo as test set
+        ROC AUC Hugo: 0.3944444444444445
+        AP Hugo: 0.4065407547538386
+        MCC Hugo: -0.31622776601683794
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.3153846153846153
+        AP CV all datasets: 0.3582624240747811
+        MCC CV all datasets: -0.06153846153846154
+    testing on Cloughesy dataset
+        ROC AUC CV all datasets test Cloughesy: 0.7037037037037037
+        AP CV all datasets test Cloughesy: 0.9877988377102707
+        MCC CV all datasets test Cloughesy: 0.0
+Training using EpiDISH_CBSX_NSCLC_
+    LODO training using Gide as test set
+        ROC AUC Gide: 0.59
+        AP Gide: 0.4412189136135416
+        MCC Gide: -0.12649110640673517
+    LODO training using Riaz as test set
+        ROC AUC Riaz: 0.6363636363636365
+        AP Riaz: 0.6897315432532152
+        MCC Riaz: 0.2041241452319315
+    LODO training using Hugo as test set
+        ROC AUC Hugo: 0.5833333333333334
+        AP Hugo: 0.5198193157368349
+        MCC Hugo: 0.05976143046671969
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.6153846153846153
+        AP CV all datasets: 0.5984343434343434
+        MCC CV all datasets: 0.0
+    testing on Cloughesy dataset
+        ROC AUC CV all datasets test Cloughesy: 0.25925925925925924
+        AP CV all datasets test Cloughesy: 0.955210596440399
+        MCC CV all datasets test Cloughesy: 0.0
+Training using DeconRNASeq_CBSX_NSCLC_
+    LODO training using Gide as test set
+        training failed
+        training failed with cv <= 10
+        ROC AUC Gide: nan
+        AP Gide: nan
+        MCC Gide: nan
+    LODO training using Riaz as test set
+        ROC AUC Riaz: 0.5075757575757576
+        AP Riaz: 0.5741330227743271
+        MCC Riaz: -0.22268088570756164
+    LODO training using Hugo as test set
+        ROC AUC Hugo: 0.3666666666666667
+        AP Hugo: 0.4018645810922699
+        MCC Hugo: 0.0316227766016838
+    CV training on all datasets
+        training failed
+        training failed with cv <= 10
+        ROC AUC CV all datasets: nan
+        AP CV all datasets: nan
+        MCC CV all datasets: nan
+        training failed with cv <= 10
+        ROC AUC CV all datasets test Cloughesy: nan
+        AP CV all datasets test Cloughesy: nan
+        MCC CV all datasets test Cloughesy: nan
+Training using EpiDISH_CBSX_HNSCC_
+    LODO training using Gide as test set
+        ROC AUC Gide: 0.40499999999999997
+        AP Gide: 0.41284992417269084
+        MCC Gide: 0.0074535599249993
+    LODO training using Riaz as test set
+        ROC AUC Riaz: 0.3409090909090909
+        AP Riaz: 0.5001128360896667
+        MCC Riaz: 0.20966480425560383
+    LODO training using Hugo as test set
+        ROC AUC Hugo: 0.5
+        AP Hugo: 0.5092377121788887
+        MCC Hugo: -0.2
+    CV training on all datasets
+        training failed
+        training failed with cv <= 10
+        ROC AUC CV all datasets: nan
+        AP CV all datasets: nan
+        MCC CV all datasets: nan
+        training failed with cv <= 10
+        ROC AUC CV all datasets test Cloughesy: nan
+        AP CV all datasets test Cloughesy: nan
+        MCC CV all datasets test Cloughesy: nan
+Training using DeconRNASeq_CBSX_HNSCC_
+    LODO training using Gide as test set
+        ROC AUC Gide: 0.4825
+        AP Gide: 0.3827230073473653
+        MCC Gide: 0.0
+    LODO training using Riaz as test set
+        training failed
+        training failed with cv <= 10
+        ROC AUC Riaz: nan
+        AP Riaz: nan
+        MCC Riaz: nan
+    LODO training using Hugo as test set
+        training failed
+        training failed with cv <= 10
+        ROC AUC Hugo: nan
+        AP Hugo: nan
+        MCC Hugo: nan
+    CV training on all datasets
+        training failed
+        training failed with cv <= 10
+        ROC AUC CV all datasets: nan
+        AP CV all datasets: nan
+        MCC CV all datasets: nan
+        training failed with cv <= 10
+        ROC AUC CV all datasets test Cloughesy: nan
+        AP CV all datasets test Cloughesy: nan
+        MCC CV all datasets test Cloughesy: nan
+Training using EpiDISH_CBSX_melanoma_
+    LODO training using Gide as test set
+        ROC AUC Gide: 0.43999999999999995
+        AP Gide: 0.3821625216108617
+        MCC Gide: -0.36065576474688615
+    LODO training using Riaz as test set
+        ROC AUC Riaz: 0.5833333333333333
+        AP Riaz: 0.6614358952594247
+        MCC Riaz: -0.0381690510345287
+    LODO training using Hugo as test set
+        ROC AUC Hugo: 0.5888888888888888
+        AP Hugo: 0.6439074448942871
+        MCC Hugo: 0.21926450482675727
+    CV training on all datasets
+        training failed
+        training failed with cv <= 10
+        ROC AUC CV all datasets: nan
+        AP CV all datasets: nan
+        MCC CV all datasets: nan
+        training failed with cv <= 10
+        ROC AUC CV all datasets test Cloughesy: nan
+        AP CV all datasets test Cloughesy: nan
+        MCC CV all datasets test Cloughesy: nan
+Training using DeconRNASeq_CBSX_melanoma_
+    LODO training using Gide as test set
+        ROC AUC Gide: 0.39499999999999996
+        AP Gide: 0.3643559747168552
+        MCC Gide: -0.11078234188139946
+    LODO training using Riaz as test set
+        training failed
+        training failed with cv <= 10
+        ROC AUC Riaz: nan
+        AP Riaz: nan
+        MCC Riaz: nan
+    LODO training using Hugo as test set
+        ROC AUC Hugo: 0.4166666666666667
+        AP Hugo: 0.40562678062678065
+        MCC Hugo: 0.0
+    CV training on all datasets
+        training failed
+        training failed with cv <= 10
+        ROC AUC CV all datasets: nan
+        AP CV all datasets: nan
+        MCC CV all datasets: nan
+        training failed with cv <= 10
+        ROC AUC CV all datasets test Cloughesy: nan
+        AP CV all datasets test Cloughesy: nan
+        MCC CV all datasets test Cloughesy: nan
+Training using EpiDISH_CBSX_LM22_
+    LODO training using Gide as test set
+        ROC AUC Gide: 0.5375
+        AP Gide: 0.427833683625489
+        MCC Gide: 0.0775
+    LODO training using Riaz as test set
+        ROC AUC Riaz: 0.3484848484848485
+        AP Riaz: 0.5429673038806165
+        MCC Riaz: -0.1284457725980754
+    LODO training using Hugo as test set
+        ROC AUC Hugo: 0.41111111111111115
+        AP Hugo: 0.3966290057408478
+        MCC Hugo: -0.2345207879911715
+    CV training on all datasets
+        training failed
+        training failed with cv <= 10
+        ROC AUC CV all datasets: nan
+        AP CV all datasets: nan
+        MCC CV all datasets: nan
+        training failed with cv <= 10
+        ROC AUC CV all datasets test Cloughesy: nan
+        AP CV all datasets test Cloughesy: nan
+        MCC CV all datasets test Cloughesy: nan
+Training using DeconRNASeq_CBSX_LM22_
+    LODO training using Gide as test set
+        ROC AUC Gide: 0.495
+        AP Gide: 0.40402352180874324
+        MCC Gide: -0.18116432546313532
+    LODO training using Riaz as test set
+        ROC AUC Riaz: 0.49242424242424243
+        AP Riaz: 0.5090396871646872
+        MCC Riaz: -0.12336594280495668
+    LODO training using Hugo as test set
+        ROC AUC Hugo: 0.33333333333333337
+        AP Hugo: 0.371578965883381
+        MCC Hugo: -0.25
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.6
+        AP CV all datasets: 0.5826701800614844
+        MCC CV all datasets: 0.2923076923076923
+    testing on Cloughesy dataset
+        ROC AUC CV all datasets test Cloughesy: 0.0
+        AP CV all datasets test Cloughesy: 0.8915862578160605
+        MCC CV all datasets test Cloughesy: -0.17916128329552333
+Training using CIBERSORTx_CBSX_NSCLC_
+    LODO training using Gide as test set
+        ROC AUC Gide: 0.7324999999999999
+        AP Gide: 0.5984544910587914
+        MCC Gide: 0.2673398366037021
+    LODO training using Riaz as test set
+        ROC AUC Riaz: 0.5833333333333334
+        AP Riaz: 0.6267090548340548
+        MCC Riaz: 0.2326210525996177
+    LODO training using Hugo as test set
+        ROC AUC Hugo: 0.6333333333333334
+        AP Hugo: 0.6441477875988746
+        MCC Hugo: 0.0316227766016838
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.6076923076923076
+        AP CV all datasets: 0.5551739028944911
+        MCC CV all datasets: 0.1953363462243731
+    testing on Cloughesy dataset
+        ROC AUC CV all datasets test Cloughesy: 0.8888888888888888
+        AP CV all datasets test Cloughesy: 0.9958810051402642
+        MCC CV all datasets test Cloughesy: 0.14344382763731175
+Training using CIBERSORTx_CBSX_HNSCC_
+    LODO training using Gide as test set
+        training failed
+        training failed with cv <= 10
+        ROC AUC Gide: nan
+        AP Gide: nan
+        MCC Gide: nan
+    LODO training using Riaz as test set
+        ROC AUC Riaz: 0.30303030303030304
+        AP Riaz: 0.46435229424359864
+        MCC Riaz: -0.1284457725980754
+    LODO training using Hugo as test set
+        ROC AUC Hugo: 0.5111111111111111
+        AP Hugo: 0.45792189836307484
+        MCC Hugo: -0.13483997249264842
+    CV training on all datasets
+        training failed
+        training failed with cv <= 10
+        ROC AUC CV all datasets: nan
+        AP CV all datasets: nan
+        MCC CV all datasets: nan
+        training failed with cv <= 10
+        ROC AUC CV all datasets test Cloughesy: nan
+        AP CV all datasets test Cloughesy: nan
+        MCC CV all datasets test Cloughesy: nan
+Training using CIBERSORTx_CBSX_melanoma_
+    LODO training using Gide as test set
+        ROC AUC Gide: 0.475
+        AP Gide: 0.3954805079125731
+        MCC Gide: -0.2369511201352155
+    LODO training using Riaz as test set
+        ROC AUC Riaz: 0.5303030303030303
+        AP Riaz: 0.5939766184251478
+        MCC Riaz: 0.2041241452319315
+    LODO training using Hugo as test set
+        ROC AUC Hugo: 0.49444444444444446
+        AP Hugo: 0.5773454323454323
+        MCC Hugo: 0.0
+    CV training on all datasets
+        training failed
+        training failed with cv <= 10
+        ROC AUC CV all datasets: nan
+        AP CV all datasets: nan
+        MCC CV all datasets: nan
+        training failed with cv <= 10
+        ROC AUC CV all datasets test Cloughesy: nan
+        AP CV all datasets test Cloughesy: nan
+        MCC CV all datasets test Cloughesy: nan
+Training using CIBERSORTx_CBSX_LM22_
+    LODO training using Gide as test set
+        ROC AUC Gide: 0.5275
+        AP Gide: 0.49679902699279543
+        MCC Gide: -0.011359236684941296
+    LODO training using Riaz as test set
+        ROC AUC Riaz: 0.303030303030303
+        AP Riaz: 0.5358547290006773
+        MCC Riaz: 0.0
+    LODO training using Hugo as test set
+        ROC AUC Hugo: 0.5333333333333333
+        AP Hugo: 0.46462632275132276
+        MCC Hugo: -0.11952286093343938
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.676923076923077
+        AP CV all datasets: 0.5907364193777238
+        MCC CV all datasets: 0.18232322463624387
+    testing on Cloughesy dataset
+        ROC AUC CV all datasets test Cloughesy: 0.48148148148148145
+        AP CV all datasets test Cloughesy: 0.9749774550961465
+        MCC CV all datasets test Cloughesy: -0.06666666666666667
+Training took 311.9208700656891s
