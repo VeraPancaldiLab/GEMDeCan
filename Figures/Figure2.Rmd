@@ -266,7 +266,7 @@ wrapper_ridgeplot <- function(deconv_data, true_estimates, cancer_abreviation){
 ################################################################################
 
 ################################################################################
-wrapper_corrplots <- function(deconv_data, true_estimates, cancer_abreviation){
+wrapper_corrplots <- function(deconv_data, true_estimates){
   # build the data
   true_subset_ <- true_estimates %>%  na.exclude() %>%
     arrange(factor(ParticipantBarcode, levels = ParticipantBarcode))
