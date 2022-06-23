@@ -1,0 +1,294 @@
+---
+title: "Figure 2 and figure 2 supplementary material"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: console
+---
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.width = 15, fig.height = 17, echo = FALSE, results = "hide", warning = FALSE, message = FALSE)
+```
+
+# Imports
+
+```{r}
+library(tidyverse)
+library(Hmisc)
+library(ggridges)
+library(ggtext)
+library(glue)
+```
+
+# Functions
+
+```{r}
+################################################################################
+# Customizable corrplot functions (modified from https://www.khstats.com/blog/corr-plots/corr-plots/)
+cors <- function(df, cor.stat) {
+  M <- Hmisc::rcorr(as.matrix(df), type = cor.stat)
+  Mdf <- map(M, ~data.frame(.x))
+  return(Mdf)
+}
+
+formatted_cors <- function(df, cor.stat){
+  cors(df, cor.stat) %>%
+    map(~rownames_to_column(.x, var="measure1")) %>%
+    map(~pivot_longer(.x, -measure1, "measure2")) %>%
+    bind_rows(.id = "id") %>%
+    pivot_wider(names_from = id, values_from = value) %>%
+    dplyr::rename(p = P) %>%
+    mutate(sig_p = ifelse(p < .05, T, F),
+           p_if_sig = ifelse(sig_p, p, NA),
+           r_if_sig = ifelse(sig_p, r, NA)) 
+}
+################################################################################
+
+################################################################################
+# Does the typical deconvolution scatterplot comparing true proportions to certain deconvolution estimates. Called inside scatterplot_wrapper
+scatterplot_truevsestimate <- function(merged_data, x, y, title, color, x_lab = "", y_lab = ""){
+    merged_data %>% dplyr::select(all_of(x),all_of(y)) %>%
+    na.omit() -> to_plot
+  
+    to_plot.cor <- rcorr(data.matrix(to_plot[c(x,y)]), type = "pearson")
+  
+  if (to_plot.cor$P[x,y] == 0){
+    p.val = "< 2.2e-16"
+    } else {
+      p.val = paste("=", signif(to_plot.cor$P[x,y],2))
+    }
+    to_plot.rmse = sqrt(colMeans((to_plot[,y] - to_plot[,x])^2, na.rm = T))
+    
+  
+  stats <- paste("Pearson: R = ", round(to_plot.cor$r[x,y], 2),
+               ", pval ", p.val, "\n",
+               "RMSE = ", round(to_plot.rmse, 2), sep = "")
+  
+  ## plot
+  your_plot <- ggplot(to_plot) +
+    aes_string(x = x, y = y) +
+    geom_point(color = color) +
+    labs(title = title, subtitle = stats, x = x_lab, y = y_lab) +
+    geom_smooth(method=lm) +
+    theme_classic() +
+    theme(
+      plot.title=element_text(family='', face='bold', colour='black', size=25, margin=margin(t=50,b=-40)),
+      plot.subtitle=element_text(family='', face='italic', colour='black', size=18, margin=margin(t=50,b=-40)),
+      text = element_text(size=15)
+  )
+  
+  return(your_plot)
+}
+################################################################################
+
+
+################################################################################
+benchmark_corrplots <- function(deconv_data, true_estimates){
+  # build the data
+  true_subset_ <- true_estimates %>%  na.exclude() %>%
+    arrange(factor(ParticipantBarcode, levels = ParticipantBarcode))
+  
+  Comm_samples <- Reduce(intersect, list(deconv_data$Samples,
+                                         true_subset_$ParticipantBarcode))
+  
+  true_subset <-dplyr::filter(true_subset_, ParticipantBarcode %in% Comm_samples) %>% 
+    arrange(factor(ParticipantBarcode, levels = Comm_samples))
+  
+  deconv_subset <- dplyr::filter(deconv_data, Samples %in% Comm_samples) %>% 
+    arrange(factor(Samples, levels = Comm_samples))
+  
+  deconv_subset_summary <- ridgeplot_parse(deconv_data = deconv_subset, signatures_dictionary = signature_dict)
+  identical(true_subset$ParticipantBarcode, deconv_subset_summary$Samples) %>% stopifnot()
+  
+  to_corr <- bind_cols(true_subset, deconv_subset_summary) %>% dplyr::select(-c(Samples))
+  ct_corrplots <- list()
+  
+    for (st in unique(celltypes)){
+      deconv_ct_names <- dplyr::filter(to_corr, Study == st) %>%
+        # segregate by ct
+        dplyr::select(matches(ct)) %>%
+        formatted_cors(cor.stat = "pearson") %>%
+        # reduce to corrs just to ground truth
+        dplyr::filter(measure1 == all_of(ct), measure2 != all_of(ct)) %>%
+        # rename ground truth as cancer type
+        dplyr::mutate(measure1 = st)
+      #add to the rest of cancer type correlations
+      store_corrs <- add_row(store_corrs , deconv_ct_names)
+    }
+    
+    # Plot
+    store_corrs <- dplyr::mutate(store_corrs, measure2=stringr::str_remove_all(measure2, paste(substring_remove, collapse = "|"))) 
+    
+    order <- store_corrs %>% 
+      drop_na(r) %>% # Epidish_CBSX_LM22 dont work for UVM in Neutrophils and mean dont work with NANs
+      group_by(measure2) %>%
+      dplyr::summarize(r = mean(r)) %>% 
+      arrange(desc(r)) %>% 
+      mutate(measure1 = "Average",
+             p = NA,
+             sig_p = TRUE,
+             p_if_sig = NA,
+             r_if_sig = r ) %>%
+      dplyr::relocate(measure1, .before = measure2)
+    
+    ## Function to highlight the "average" row
+    highlight = function(x, pat, color="black", family="") {
+  ifelse(grepl(pat, x), glue("<b style='font-family:{family}; color:{color}'>{x}</b>"), x)
+}
+    
+    ct_corrplots[[ct]] <- add_row(store_corrs, order) %>% dplyr::mutate(measure2 = factor(measure2, levels = order$measure2)) %>% dplyr::arrange(factor(measure2, levels = order$measure2)) %>%
+    ggplot(aes(measure2, measure1, fill=r, label=round(r_if_sig,2))) +
+    geom_tile() +
+      labs(x = NULL, y = NULL, fill = "Spearman's\nCorrelation", title= ct, 
+         subtitle="Only significant correlation coefficients shown (95% I.C.)") +
+    scale_fill_gradient2(mid="#FBFEF9",low="#0C6291",high="#A63446", limits=c(-1,1)) +
+    geom_text() +
+    theme_classic() +
+    scale_x_discrete(expand=c(0,0)) +
+    scale_y_discrete(expand=c(0,0), labels= function(x) highlight(x, "Average", "red")) +
+    rotate_x_text(angle = 45) + theme(axis.text.y=element_markdown())
+   
+  return(ct_corrplots)
+}
+
+```
+
+# Data loading
+
+```{r}
+deconv <- read_tsv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Miguel/Projects/CRCT/21 - Epigenomics and network modelling of heterogeneity in immuno-oncology/Ting Xie/2021/CIBERSORTx/final_example_signatures/all_deconvolutions/all_deconvolutions_Melanoma_GSE72056_no_malighant.txt")
+
+
+
+ground_truth <- read.table("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/facs/Facs_Melanoma_GSE72056.txt") %>% as_tibble(rownames = "Samples")
+
+```
+
+# Figure
+## B) 3 Celltypes ridge plots
+### Create aggregation dictionaries to compare with Lymphocites, Macrophages and Neutrophils FACs
+
+```{r}
+# Lists of celltypes of each signature
+## signature dictionary construction (can use . as regexp!)
+## uncoment print of functions to check that you detect what you want.
+## non matching signatures/methods (all 0) are removed.
+signature_dict <- list()
+signature_dict[["BPRNACan"]] <- list(B = c("B"),
+                                     CAFs = c(""),
+                                     CD4 = c("CD4"),
+                                     CD8 = c("CD8"),
+                                     Endothelial = c(""),
+                                     Macrophages = c("M0", "M1", "M2"),
+                                     NK = c("NK"),
+                                     Th = c(""),
+                                     Treg = c(""),
+                                     Cancer = c("cancer"),
+                                     Other = c("Mono", "Neu"))
+
+signature_dict[["BPRNACanProMet"]] <- signature_dict[["BPRNACan"]]
+signature_dict[["BPRNACan3DProMet"]] <- signature_dict[["BPRNACan"]]
+
+
+signature_dict[["CBSX_Fig2ab-NSCLC_PBMCs_scRNAseq_sigmatrix"]] <- list(B = c("B.cells"),
+                                     CAFs = c(""),
+                                     CD4 = c("T.cells.CD4"),
+                                     CD8 = c("T.cells.CD8"),
+                                     Endothelial = c(""),
+                                     Macrophages = c(""),
+                                     NK = c("NK.cells"),
+                                     Th = c(""),
+                                     Treg = c(""),
+                                     Cancer = c(""),
+                                     Other = c("Monocytes","NKT.cells"))
+
+
+signature_dict[["CBSX_LM22"]] <- list(B = c("B.cells.naive", "B.cells.memory", "Plasma.cells"),
+                                     CAFs = c(""),
+                                     CD4 = c("T.cells.CD4.naive", "T.cells.CD4.memory.resting", "T.cells.CD4.memory.activated"),
+                                     CD8 = c("T.cells.CD8"),
+                                     Endothelial = c(""),
+                                     Macrophages = c("Macrophages.M0", "Macrophages.M1", "Macrophages.M2"),
+                                     NK = c("NK.cells.resting", "NK.cells.activated"),
+                                     Th = c("T.cells.follicular.helper", "T.cells.gamma.delta"),
+                                     Treg = c("T.cells.regulatory..Tregs."),
+                                     Cancer = c(""),
+                                     Other = c("Monocytes", "Dendritic.cells.resting", "Dendritic.cells.activated", "Mast.cells.resting", "Mast.cells.activated", "Eosinophils", "Neutrophils"))
+
+signature_dict[["CBSX_scRNA-Seq_melanoma_Tirosh_sigmatrix_SuppFig_3-b"]] <- list(B = c("B.cells"),
+                                     CAFs = c("CAF"),
+                                     CD4 = c("T.cells.CD4"),
+                                     CD8 = c("T.cells.CD8"),
+                                     Endothelial = c("Endothelial.cells"),
+                                     Macrophages = c("Macrophages"),
+                                     NK = c("NK.cells"),
+                                     Th = c(""),
+                                     Treg = c(""),
+                                     Cancer = c("Malignant"),
+                                     Other = c(""))
+
+
+signature_dict[["CBSX_sigmatrix_HNSCC_Fig2cd"]] <- list(B = c("B.cells"),
+                                     CAFs = c("CAFs"),
+                                     CD4 = c("T.cells.CD4"),
+                                     CD8 = c("T.cells.CD8"),
+                                     Endothelial = c("Endothelial.cells"),
+                                     Macrophages = c("Macrophages"),
+                                     NK = c(""),
+                                     Th = c(""),
+                                     Treg = c(""),
+                                     Cancer = c("Malignant.cells"),
+                                     Other = c("Dendritic.cells", "Mast.cells", "Myocytes"))
+
+
+signature_dict[["Quantiseq"]] <- list(B = c("B.cell"),
+                                     CAFs = c(""),
+                                     CD4 = c("T.cell.CD4+.(non-regulatory)"),
+                                     CD8 = c("T.cell.CD8+"),
+                                     Endothelial = c(""),
+                                     Macrophages = c("Macrophage.M1", "Macrophage.M2"),
+                                     NK = c("NK.cell"),
+                                     Th = c(""),
+                                     Treg = c("T.cell.regulatory(Tregs)"),
+                                     Cancer = c(""),
+                                     Other = c("Monocyte", "Neutrophil", "Myeloid.dendritic.cell", "uncharacterized.cell"))
+
+
+# signature_dict[["CCLE_TIL10"]] <- list(B = c("B"),
+#                                      CAFs = c(""),
+#                                      CD4 = c(""),
+#                                      CD8 = c(""),
+#                                      Endothelial = c(""),
+#                                      Macrophages = c(""),
+#                                      NK = c(""),
+#                                      Th = c(""),
+#                                      Treg = c(""),
+#                                      Cancer = c(""),
+#                                      Other = c(""))
+
+
+# signature_dict[[""]] <- list(B = c(""),
+#                                      CAFs = c(""),
+#                                      CD4 = c(""),
+#                                      CD8 = c(""),
+#                                      Endothelial = c(""),
+#                                      Macrophages = c(""),
+#                                      NK = c(""),
+#                                      Th = c(""),
+#                                      Treg = c(""),
+#                                      Cancer = c(""),
+#                                      Other = c(""))
+
+```
+## Summary Corrplot
+
+```{r}
+corrplots <- benchmark_corrplots(deconv_data = deconv, true_estimates = ground_truth)
+corrplots$Macrophages <- corrplots$Macrophages + rremove("y.text")
+corrplots$Neutrophils <- corrplots$Neutrophils + rremove("y.text")
+summary_corrplot  <- ggarrange(plotlist = corrplots, ncol = 3, common.legend = T, widths = c(0.35, 0.35, 0.25) , legend = "bottom")
+
+ggsave("Fig2_summary_corrplot.pdf", dpi = "print", width = 250, height = 100, units = "mm", scale = 2.5)
+```
