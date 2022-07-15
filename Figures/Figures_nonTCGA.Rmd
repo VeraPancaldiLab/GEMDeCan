@@ -151,7 +151,7 @@ ridgeplot_parse <- function(deconv_data, signatures_dictionary, key){
 ################################################################################
 
 ################################################################################
-benchmark_corrplots <- function(deconv_data, true_estimates, key, title){
+benchmark_corrplots <- function(deconv_data, true_estimates, dict, key, title){
   # build the data
   true_subset_ <- true_estimates %>%  na.exclude() %>%
     arrange(factor(get(key), levels = get(key)))
@@ -165,7 +165,7 @@ benchmark_corrplots <- function(deconv_data, true_estimates, key, title){
   deconv_subset <- dplyr::filter(deconv_data, get(key) %in% common) %>% 
     arrange(factor(get(key), levels = common))
   
-  deconv_subset_summary <- ridgeplot_parse(deconv_data = deconv_subset, signatures_dictionary = signature_dict, key = key)
+  deconv_subset_summary <- ridgeplot_parse(deconv_data = deconv_subset, signatures_dictionary = dict, key = key)
   identical(true_subset[[key]], deconv_subset_summary[[key]]) %>% stopifnot()
   
   to_corr <- inner_join(true_subset, deconv_subset_summary) %>% dplyr::select(-any_of(key))
@@ -240,11 +240,11 @@ benchmark_corrplots <- function(deconv_data, true_estimates, key, title){
 # GSE72056
 ## Data loading
 ```{r}
-deconv <- read_tsv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Miguel/Projects/CRCT/21 - Epigenomics and network modelling of heterogeneity in immuno-oncology/Ting Xie/2021/CIBERSORTx/final_example_signatures/all_deconvolutions/all_deconvolutions_Melanoma_GSE72056_no_malighant.txt") %>% dplyr::rename_with(~str_replace(.,"__", "_CBSX_"))  %>% dplyr::rename_with(~str_replace(.,"__", "_")) #! fix naming of deconv results
+deconv_GSE72056 <- read_tsv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Miguel/Projects/CRCT/21 - Epigenomics and network modelling of heterogeneity in immuno-oncology/Ting Xie/2021/CIBERSORTx/final_example_signatures/all_deconvolutions/all_deconvolutions_Melanoma_GSE72056_no_malighant.txt") %>% dplyr::rename_with(~str_replace(.,"__", "_CBSX_"))  %>% dplyr::rename_with(~str_replace(.,"__", "_")) #! fix naming of deconv results
 
 
 
-ground_truth <- read.table("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/facs/Facs_Melanoma_GSE72056.txt") %>% as_tibble(rownames = "Samples")
+truth_GSE72056 <- read.table("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/facs/Facs_Melanoma_GSE72056.txt") %>% as_tibble(rownames = "Samples")
 
 ```
 
@@ -255,8 +255,8 @@ ground_truth <- read.table("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemde
 ## signature dictionary construction (can use . as regexp!)
 ## uncoment print of functions to check that you detect what you want.
 ## non matching signatures/methods (all 0) are removed.
-signature_dict <- list()
-signature_dict[["BPRNACan"]] <- list(B = c("B"),
+dict_GSE72056 <- list()
+dict_GSE72056[["BPRNACan"]] <- list(B = c("B"),
                                      CAFs = c(),
                                      CD4 = c("CD4"),
                                      CD8 = c("CD8"),
@@ -268,11 +268,11 @@ signature_dict[["BPRNACan"]] <- list(B = c("B"),
                                      Cancer = c("cancer"),
                                      Other = c("Mono", "Neu"))
 
-signature_dict[["BPRNACanProMet"]] <- signature_dict[["BPRNACan"]]
-signature_dict[["BPRNACan3DProMet"]] <- signature_dict[["BPRNACan"]]
+dict_GSE72056[["BPRNACanProMet"]] <- dict_GSE72056[["BPRNACan"]]
+dict_GSE72056[["BPRNACan3DProMet"]] <- dict_GSE72056[["BPRNACan"]]
 
 
-signature_dict[["CBSX_Fig2ab-NSCLC_PBMCs_scRNAseq_sigmatrix"]] <- list(B = c("B.cells"),
+dict_GSE72056[["CBSX_Fig2ab-NSCLC_PBMCs_scRNAseq_sigmatrix"]] <- list(B = c("B.cells"),
                                      CAFs = c(),
                                      CD4 = c("T.cells.CD4"),
                                      CD8 = c("T.cells.CD8"),
@@ -285,7 +285,7 @@ signature_dict[["CBSX_Fig2ab-NSCLC_PBMCs_scRNAseq_sigmatrix"]] <- list(B = c("B.
                                      Other = c("Monocytes","NKT.cells"))
 
 
-signature_dict[["CBSX_LM22"]] <- list(B = c("B.cells.naive", "B.cells.memory", "Plasma.cells"),
+dict_GSE72056[["CBSX_LM22"]] <- list(B = c("B.cells.naive", "B.cells.memory", "Plasma.cells"),
                                      CAFs = c(),
                                      CD4 = c("T.cells.CD4.naive", "T.cells.CD4.memory.resting", "T.cells.CD4.memory.activated"),
                                      CD8 = c("T.cells.CD8"),
@@ -297,7 +297,7 @@ signature_dict[["CBSX_LM22"]] <- list(B = c("B.cells.naive", "B.cells.memory", "
                                      Cancer = c(),
                                      Other = c("Monocytes", "Dendritic.cells.resting", "Dendritic.cells.activated", "Mast.cells.resting", "Mast.cells.activated", "Eosinophils", "Neutrophils"))
 
-signature_dict[["CBSX_scRNA-Seq_melanoma_Tirosh_sigmatrix_SuppFig_3-b"]] <- list(B = c("B.cells"),
+dict_GSE72056[["CBSX_scRNA-Seq_melanoma_Tirosh_sigmatrix_SuppFig_3-b"]] <- list(B = c("B.cells"),
                                      CAFs = c("CAF"),
                                      CD4 = c("T.cells.CD4"),
                                      CD8 = c("T.cells.CD8"),
@@ -310,7 +310,7 @@ signature_dict[["CBSX_scRNA-Seq_melanoma_Tirosh_sigmatrix_SuppFig_3-b"]] <- list
                                      Other = c())
 
 
-signature_dict[["CBSX_sigmatrix_HNSCC_Fig2cd"]] <- list(B = c("B.cells"),
+dict_GSE72056[["CBSX_sigmatrix_HNSCC_Fig2cd"]] <- list(B = c("B.cells"),
                                      CAFs = c("CAFs"),
                                      CD4 = c("T.cells.CD4"),
                                      CD8 = c("T.cells.CD8"),
@@ -323,7 +323,7 @@ signature_dict[["CBSX_sigmatrix_HNSCC_Fig2cd"]] <- list(B = c("B.cells"),
                                      Other = c("Dendritic.cells", "Mast.cells", "Myocytes"))
 
 
-signature_dict[["Quantiseq"]] <- list(B = c("B.cell"),
+dict_GSE72056[["Quantiseq"]] <- list(B = c("B.cell"),
                                      CAFs = c(),
                                      CD4 = c("T.cell.CD4+.(non-regulatory)"),
                                      CD8 = c("T.cell.CD8+"),
@@ -336,7 +336,7 @@ signature_dict[["Quantiseq"]] <- list(B = c("B.cell"),
                                      Other = c("Monocyte", "Neutrophil", "Myeloid.dendritic.cell", "uncharacterized.cell"))
 
 
-# signature_dict[["CCLE_TIL10"]] <- list(B = c(),
+# dict_GSE72056[["CCLE_TIL10"]] <- list(B = c(),
 #                                      CAFs = c(),
 #                                      CD4 = c(),
 #                                      CD8 = c(),
@@ -349,7 +349,7 @@ signature_dict[["Quantiseq"]] <- list(B = c("B.cell"),
 #                                      Other = c())
 
 
-# signature_dict[[""]] <- list(B = c(),
+# dict_GSE72056[[""]] <- list(B = c(),
 #                                      CAFs = c(),
 #                                      CD4 = c(),
 #                                      CD8 = c(),
@@ -365,7 +365,75 @@ signature_dict[["Quantiseq"]] <- list(B = c("B.cell"),
 ## Corrplot
 
 ```{r}
-benchmark_corrplots(deconv_data = deconv, true_estimates = ground_truth,  key = "Samples", title = "GSE72056")
+benchmark_corrplots(deconv_data = deconv_GSE72056, true_estimates = truth_GSE72056, dict = dict_GSE72056, key = "Samples", title = "GSE72056")
+# corrplots$Macrophages <- corrplots$Macrophages + rremove("y.text")
+# corrplots$Neutrophils <- corrplots$Neutrophils + rremove("y.text")
+# summary_corrplot  <- ggarrange(plotlist = corrplots, ncol = 3, common.legend = T, widths = c(0.35, 0.35, 0.25) , legend = "bottom")
+# 
+# ggsave("Fig2_summary_corrplot.pdf", dpi = "print", width = 250, height = 100, units = "mm", scale = 2.5)
+```
+
+
+# Thomas RNAseq #! Change name!
+## Data loading
+```{r}
+deconv_Thomas <- read_tsv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Miguel/Projects/CRCT/21 - Epigenomics and network modelling of heterogeneity in immuno-oncology/Ting Xie/2021/CIBERSORTx/final_example_signatures/all_deconvolutions/all_deconvolutions_Thomas_RNAseq_part.txt") %>%
+  dplyr::rename_with(~str_replace(.,"__", "_CBSX_")) %>%
+  dplyr::rename_with(~str_replace(.,"__", "_"))#! fix naming of deconv results
+ 
+
+
+
+load( "/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/meyloma_ludo/meyloma.RData")
+truth_Thomas <- as_tibble(FACS_Thomas_mean, rownames = "Samples") %>%  mutate(Samples = as.numeric(Samples))
+
+```
+
+## Signature Dictionary construction 
+
+```{r}
+# Lists of celltypes of each signature
+## signature dictionary construction (can use . as regexp!)
+## uncoment print of functions to check that you detect what you want.
+## non matching signatures/methods (all 0) are removed.
+dict_Thomas <- list()
+dict_Thomas[["BPRNACan"]] <- list(CD4 = c("CD4"),
+                                     CD8 = c("CD8"),
+                                     NK = c("NK"))
+
+dict_Thomas[["BPRNACanProMet"]] <- dict_Thomas[["BPRNACan"]]
+dict_Thomas[["BPRNACan3DProMet"]] <- dict_Thomas[["BPRNACan"]]
+
+
+dict_Thomas[["CBSX_Fig2ab-NSCLC_PBMCs_scRNAseq_sigmatrix"]] <- list(CD4 = c("T.cells.CD4"),
+                                     CD8 = c("T.cells.CD8"),
+                                     NK = c("NK.cells"), #"NKT.cells"?
+                                     )
+
+
+dict_Thomas[["CBSX_LM22"]] <- list(CD4 = c("T.cells.CD4.naive", "T.cells.CD4.memory.resting", "T.cells.CD4.memory.activated"), # "T.cells.follicular.helper", "T.cells.gamma.delta", "T.cells.regulatory..Tregs."?
+                                     CD8 = c("T.cells.CD8"),
+                                     NK = c("NK.cells.resting", "NK.cells.activated"))
+
+dict_Thomas[["CBSX_scRNA-Seq_melanoma_Tirosh_sigmatrix_SuppFig_3-b"]] <- list(CD4 = c("T.cells.CD4"),
+                                     CD8 = c("T.cells.CD8"),
+                                     NK = c("NK.cells"))
+
+
+dict_Thomas[["CBSX_sigmatrix_HNSCC_Fig2cd"]] <- list(CD4 = c("T.cells.CD4"),
+                                     CD8 = c("T.cells.CD8"),
+                                     NK = c())
+
+
+dict_Thomas[["Quantiseq"]] <- list(CD4 = c("T.cell.CD4+.(non-regulatory)"), # "T.cell.regulatory(Tregs)"
+                                   CD8 = c("T.cell.CD8+"),
+                                   NK = c("NK.cell"))
+
+```
+## Corrplot
+
+```{r}
+benchmark_corrplots(deconv_data = deconv_Thomas, true_estimates = truth_Thomas, dict = dict_Thomas,  key = "Samples", title = "Thomas")
 # corrplots$Macrophages <- corrplots$Macrophages + rremove("y.text")
 # corrplots$Neutrophils <- corrplots$Neutrophils + rremove("y.text")
 # summary_corrplot  <- ggarrange(plotlist = corrplots, ncol = 3, common.legend = T, widths = c(0.35, 0.35, 0.25) , legend = "bottom")
