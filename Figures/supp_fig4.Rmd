@@ -143,7 +143,7 @@ scatterplot_wrapper <- function(true_df,
 # General Data loading
 
 ```{r}
-read_tsv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/julien/gemdecan/data/all_deconvolutions/all_deconvolutions_all_TCGA.txt") %>%
+read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/data/deconvolution_for_gemdecan/all_deconvolutions_all_TCGA.txt") %>%
   mutate_at("Samples", str_remove_all, ".01A*") %>%
   mutate_at("Samples", str_replace_all, "-", ".") %>% 
   group_by(Samples) %>%

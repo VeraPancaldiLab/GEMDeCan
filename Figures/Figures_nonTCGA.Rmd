@@ -240,7 +240,7 @@ benchmark_corrplots <- function(deconv_data, true_estimates, dict, key, title){
 # GSE72056
 ## Data loading
 ```{r}
-deconv_GSE72056 <- read_tsv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Miguel/Projects/CRCT/21 - Epigenomics and network modelling of heterogeneity in immuno-oncology/Ting Xie/2021/CIBERSORTx/final_example_signatures/all_deconvolutions/all_deconvolutions_Melanoma_GSE72056_no_malighant.txt") %>% dplyr::rename_with(~str_replace(.,"__", "_CBSX_"))  %>% dplyr::rename_with(~str_replace(.,"__", "_")) #! fix naming of deconv results
+deconv_GSE72056 <- read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Data/deconvolution_for_gemdecan/all_deconvolutions_Melanoma_GSE72056_no_malighant.txt") %>% dplyr::rename_with(~str_replace(.,"__", "_CBSX_"))  %>% dplyr::rename_with(~str_replace(.,"__", "_")) #! fix naming of deconv results
 
 
 
@@ -377,7 +377,7 @@ benchmark_corrplots(deconv_data = deconv_GSE72056, true_estimates = truth_GSE720
 # Thomas RNAseq #! Change name!
 ## Data loading
 ```{r}
-deconv_Thomas <- read_tsv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Miguel/Projects/CRCT/21 - Epigenomics and network modelling of heterogeneity in immuno-oncology/Ting Xie/2021/CIBERSORTx/final_example_signatures/all_deconvolutions/all_deconvolutions_Thomas_RNAseq_part.txt") %>%
+deconv_Thomas <- read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Data/deconvolution_for_gemdecan/all_deconvolutions_Thomas_RNAseq_part.txt") %>%
   dplyr::rename_with(~str_replace(.,"__", "_CBSX_")) %>%
   dplyr::rename_with(~str_replace(.,"__", "_"))#! fix naming of deconv results
  
