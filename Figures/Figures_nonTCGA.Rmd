@@ -240,7 +240,7 @@ benchmark_corrplots <- function(deconv_data, true_estimates, dict, key, title){
 # GSE72056
 ## Data loading
 ```{r}
-deconv_GSE72056 <- read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Data/deconvolution_for_gemdecan/all_deconvolutions_Melanoma_GSE72056_no_malighant.txt") %>% dplyr::rename_with(~str_replace(.,"__", "_CBSX_"))  %>% dplyr::rename_with(~str_replace(.,"__", "_")) #! fix naming of deconv results
+deconv_GSE72056 <- read_tsv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Data/deconvolution_for_gemdecan/final_example_signatures/all_deconvolutions/all_deconvolutions_Melanoma_GSE72056_not_metastatic.txt") %>% dplyr::rename_with(~str_replace(.,"__", "_CBSX_"))  %>% dplyr::rename_with(~str_replace(.,"__", "_")) #! fix naming of deconv results
 
 
 
@@ -255,6 +255,8 @@ truth_GSE72056 <- read.table("/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gem
 ## signature dictionary construction (can use . as regexp!)
 ## uncoment print of functions to check that you detect what you want.
 ## non matching signatures/methods (all 0) are removed.
+## validated by jacobo 05/09/2022 
+
 dict_GSE72056 <- list()
 dict_GSE72056[["BPRNACan"]] <- list(B = c("B"),
                                      CAFs = c(),
@@ -336,18 +338,42 @@ dict_GSE72056[["Quantiseq"]] <- list(B = c("B.cell"),
                                      Other = c("Monocyte", "Neutrophil", "Myeloid.dendritic.cell", "uncharacterized.cell"))
 
 
-# dict_GSE72056[["CCLE_TIL10"]] <- list(B = c(),
-#                                      CAFs = c(),
-#                                      CD4 = c(),
-#                                      CD8 = c(),
-#                                      Endothelial = c(),
-#                                      Macrophages = c(),
-#                                      NK = c(),
-#                                      Th = c(),
-#                                      Treg = c(),
-#                                      Cancer = c(),
-#                                      Other = c())
+dict_GSE72056[["TIL10"]] <- list(B = c("B.cells"),
+                                     CAFs = c(),
+                                     CD4 = c("T.cells.CD4"),
+                                     CD8 = c("T.cells.CD8"),
+                                     Endothelial = c(),
+                                     Macrophages = c("Macrophages.M1", "Macrophages.M2"),
+                                     NK = c("NK.cells"),
+                                     Th = c(),
+                                     Treg = c("Tregs"),
+                                     Cancer = c(),
+                                     Other = c("Monocytes", "Neutrophils", "Dendritic.cells"))
 
+dict_GSE72056[["CCLE_TIL10"]] <- list(B = c("B.cells"),
+                                     CAFs = c(),
+                                     CD4 = c("T.cells.CD4"),
+                                     CD8 = c("T.cells.CD8"),
+                                     Endothelial = c(),
+                                     Macrophages = c("Macrophages.M1", "Macrophages.M2"),
+                                     NK = c("NK.cells"),
+                                     Th = c(),
+                                     Treg = c("Tregs"),
+                                     Cancer = c("Cancer.cells"), #the only diff respect Til10
+                                     Other = c("Monocytes", "Neutrophils", "Dendritic.cells"))
+
+
+dict_GSE72056[["CD226"]] <- list(B = c("B"),
+                                     CAFs = c(),
+                                     CD4 = c("CD4"),
+                                     CD8 = c("CD8"),
+                                     Endothelial = c(),
+                                     Macrophages = c("M1", "M2"),
+                                     NK = c("NK"),
+                                     Th = c(),
+                                     Treg = c(),
+                                     Cancer = c(),
+                                     Other = c("Mono", "Neu"))
 
 # dict_GSE72056[[""]] <- list(B = c(),
 #                                      CAFs = c(),
