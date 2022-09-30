@@ -1,0 +1,13 @@
+,coef,abs coef,% total,cum % total,coef OR
+TMB,-0.07664414864957328,0.07664414864957328,0.9340196805474527,0.9340196805474527,0.9262193913910031
+quanTIseq_Macrophage_M2,0.005414238604804701,0.005414238604804701,0.06598031945254738,1.0,1.0054289220826296
+quanTIseq_B_cell,0.0,0.0,0.0,1.0,1.0
+quanTIseq_Macrophage_M1,0.0,0.0,0.0,1.0,1.0
+quanTIseq_Monocyte,0.0,0.0,0.0,1.0,1.0
+quanTIseq_Neutrophil,0.0,0.0,0.0,1.0,1.0
+quanTIseq_NK_cell,0.0,0.0,0.0,1.0,1.0
+quanTIseq_T_cell_CD4+_(non-regulatory),0.0,0.0,0.0,1.0,1.0
+quanTIseq_T_cell_CD8+,0.0,0.0,0.0,1.0,1.0
+quanTIseq_T_cell_regulatory_(Tregs),0.0,0.0,0.0,1.0,1.0
+quanTIseq_Myeloid_dendritic_cell,0.0,0.0,0.0,1.0,1.0
+quanTIseq_uncharacterized_cell,0.0,0.0,0.0,1.0,1.0

@@ -1,0 +1,94 @@
+
+
+# Load required libraries
+suppressPackageStartupMessages({
+  library(dplyr) # rename
+  library(tidyr) # pivot_longer
+  library(readr) # read_tsv read_csv write_tsv
+  library(stringr) # str_c
+  library(magrittr) # %<>%
+  library(EpiDISH) # epidish
+  library(MCPcounter) # MCPcounter.estimate
+  library(immunedeconv) # deconvolute
+  library(DeconRNASeq) # DeconRNASeq
+  library(purrr) # reduce
+})
+
+computeQuantiseq <- function(TPM_matrix) {
+  quantiseq <- as_tibble(deconvolute(TPM_matrix, "quantiseq")) %>%
+    pivot_longer(-cell_type) %>%
+    pivot_wider(names_from = cell_type, values_from = value) %>%
+    dplyr::rename(sample = name)
+
+  colnames(quantiseq)[-1] <- str_c("Quantiseq_", colnames(quantiseq)[-1])
+  colnames(quantiseq) <- sapply(colnames(quantiseq), . %>%
+    {
+      str_replace_all(., " ", "_")
+    })
+  quantiseq
+}
+
+computeMCP <- function(TPM_matrix) {
+  genes <- read.table("scripts/deconvolution/signatures/MCPcounter/MCPcounter-genes.txt", sep = "\t", stringsAsFactors = FALSE, header = TRUE, colClasses = "character", check.names = FALSE)
+  mcp <- MCPcounter.estimate(TPM_matrix, genes = genes, featuresType = "HUGO_symbols", probesets = NULL)
+  mcp <- as_tibble(MCPcounter.estimate(TPM_matrix, genes = genes, featuresType = "HUGO_symbols", probesets = NULL), rownames = "cell_type") %>%
+    pivot_longer(-cell_type) %>%
+    pivot_wider(names_from = cell_type, values_from = value) %>%
+    dplyr::rename(sample = name)
+
+  colnames(mcp)[-1] <- str_c("MCP_", colnames(mcp)[-1])
+  colnames(mcp) <- sapply(colnames(mcp), . %>%
+    {
+      str_replace_all(., " ", "_")
+    })
+  mcp
+}
+methods_with_variable_signatures <- function(TPM_matrix, signature_files) {
+  TPM_df <- as.data.frame(TPM_matrix)
+  all_methods_and_signatures <- lapply(signature_files, function(signature_file) {
+    signature <- as.matrix(read.table(signature_file, header = TRUE, row.names = 1, sep = "\t"))
+
+    signature_name <- basename(signature_file)
+    signature_name <- str_split(signature_name, "\\.")[[1]][1]
+
+    epi <- epidish(TPM_matrix, signature, method = "RPC", maxit = 200)
+    epi <- as_tibble(epi$estF, rownames = "sample")
+    colnames(epi)[-1] <- str_c("Epidish", signature_name, colnames(epi)[-1], sep = "_")
+    colnames(epi) <- sapply(colnames(epi), . %>%
+      {
+        str_replace_all(., " ", "_")
+      })
+
+    decon <- DeconRNASeq(TPM_df, as.data.frame(signature))
+    decon <- bind_cols(colnames(TPM_df), as_tibble(decon$out.all)) %>% dplyr::rename(sample = ...1)
+    colnames(decon)[-1] <- str_c("DeconRNASeq", signature_name, colnames(decon)[-1], sep = "_")
+    colnames(decon) <- sapply(colnames(decon), . %>%
+      {
+        str_replace_all(., " ", "_")
+      })
+
+    inner_join(epi, decon, by = "sample")
+  })
+  reduce(all_methods_and_signatures, inner_join, "sample")
+}
+
+deconvolutions <- function(TPM_matrix) {
+  signature_files <- list.files("scripts/deconvolution/signatures", full.names = T)
+  signature_files <- setdiff(signature_files, signature_files[dir.exists(signature_files)])
+
+  all_deconvolutions_table <- lapply(c("Quantiseq", "MCP", "xCell", "rest"), function(method) {
+    if (method == "Quantiseq") {
+      computeQuantiseq(TPM_matrix)
+    } else if (method == "MCP") {
+      computeMCP(TPM_matrix)
+    } else if (method == "rest") {
+      methods_with_variable_signatures(TPM_matrix, signature_files)
+    }
+  })
+
+
+  all_deconvolutions_table %<>% discard(is.null) %>% reduce(inner_join, "sample")
+  all_deconvolutions_table_m <- as.matrix(all_deconvolutions_table[, -1])
+  rownames(all_deconvolutions_table_m) <- all_deconvolutions_table %>% pull(1)
+  all_deconvolutions_table_m
+}

@@ -1,0 +1,55 @@
+# It's mandatory to have the references and the mixtures in the same INPUT_FOLDER
+# The inputs folder can be obtained from
+# /mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Miguel/deconvolutions_pipeline/inputs
+INPUT_FOLDER: inputs
+OUTPUT_FOLDER: final_example_signatures
+
+# Use your own CBSX credentials here
+# https://cibersortx.stanford.edu
+# credentials.txt example
+# MAIL: registered_mail@mail.com
+# TOKEN: c1eac845d51b866b792043a2c964fbe6
+# Our team credentials file can be obtained from
+# /mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Miguel/deconvolutions_pipeline/credentials.txt>
+CREDENTIALS_FILE: credentials.txt
+
+# All mixtures files have to finish with .txt and don't add the .txt here
+# It's mandatory to have the references and the mixtures in the same INPUT_FOLDER
+# Input mixtures can be obtanined from:
+# /mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Miguel/deconvolutions_pipeline/inputs
+MIXTURES:
+  - Melanoma_GSE72056_not_metastatic
+  # - Melanoma_GSE93722
+  - Silico_1700
+  - MultipleMyeloma
+  - all_TCGA
+  - GSE107011
+
+
+# All references files have to finish with .txt and don't add the .txt here
+# It's mandatory to have the references and the mixtures in the same INPUT_FOLDER
+# Input mixtures can be obtained from:
+# /mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Miguel/deconvolutions_pipeline/inputs
+CBSx_SIGNATURES:
+  - LM22
+  - Fig2ab-NSCLC_PBMCs_scRNAseq_sigmatrix
+  - scRNA-Seq_melanoma_Tirosh_sigmatrix_SuppFig_3-b
+  - sigmatrix_HNSCC_Fig2cd
+  - TIL10
+  - CCLE_TIL10
+  - CD226
+
+channels:
+  - conda-forge
+dependencies:
+  - r=3.4.1
+  - r-ggplot2=2.2.1
+  - r-gridextra
+  - r-reshape2
+  - r-readr
+  - r-argparse
+  - r-viridis
+  - r-stringdist
+  - r-dplyr
+  - r-immunedeconv
+  - icu=58.2

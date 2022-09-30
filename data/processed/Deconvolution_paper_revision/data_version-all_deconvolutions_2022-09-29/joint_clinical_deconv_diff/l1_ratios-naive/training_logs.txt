@@ -1,0 +1,1138 @@
+Training using quanTIseq
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.5714285714285714
+        AP SEX: 0.3940332196952008
+        MCC SEX: 0.2526124011407279
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.5714285714285714
+        AP SEX deconv only: 0.3940332196952008
+        MCC SEX deconv only: 0.2526124011407279
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.5267857142857142
+        AP AAGE: 0.3639878682212778
+        MCC AAGE: 0.17857142857142858
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.5714285714285714
+        AP AAGE deconv only: 0.3940332196952008
+        MCC AAGE deconv only: 0.2526124011407279
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.5714285714285715
+        AP TMB: 0.5327380952380952
+        MCC TMB: 0.05143444998736397
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.5
+        AP TMB deconv only: 0.5102564102564102
+        MCC TMB deconv only: -0.2672612419124244
+Training using MCP
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.45535714285714285
+        AP SEX: 0.29910342925048805
+        MCC SEX: -0.11952286093343938
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.45535714285714285
+        AP SEX deconv only: 0.29910342925048805
+        MCC SEX deconv only: -0.11952286093343938
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.4107142857142857
+        AP AAGE: 0.27916384502518954
+        MCC AAGE: -0.11952286093343938
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.45535714285714285
+        AP AAGE deconv only: 0.29910342925048805
+        MCC AAGE deconv only: -0.11952286093343938
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.6904761904761905
+        AP TMB: 0.750534188034188
+        MCC TMB: 0.4147575310031266
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.738095238095238
+        AP TMB deconv only: 0.7132936507936508
+        MCC TMB deconv only: 0.23809523809523808
+Training using XCELL
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.5267857142857142
+        AP SEX: 0.4309063090118991
+        MCC SEX: 0.13122266479195596
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.5267857142857142
+        AP SEX deconv only: 0.4309063090118991
+        MCC SEX deconv only: 0.13122266479195596
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.5267857142857142
+        AP AAGE: 0.4309063090118991
+        MCC AAGE: 0.13122266479195596
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.5267857142857142
+        AP AAGE deconv only: 0.4309063090118991
+        MCC AAGE deconv only: 0.13122266479195596
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.5952380952380952
+        AP TMB: 0.6305916305916306
+        MCC TMB: 0.09759000729485333
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.6190476190476191
+        AP TMB deconv only: 0.6472582972582972
+        MCC TMB deconv only: 0.09759000729485333
+Training using EpiDISH_BPRNACan_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.4955357142857143
+        AP SEX: 0.42731232844014794
+        MCC SEX: 0.3223291856101521
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.4955357142857143
+        AP SEX deconv only: 0.42731232844014794
+        MCC SEX deconv only: 0.3223291856101521
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.4955357142857143
+        AP AAGE: 0.42731232844014794
+        MCC AAGE: 0.3223291856101521
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.4955357142857143
+        AP AAGE deconv only: 0.42731232844014794
+        MCC AAGE deconv only: 0.3223291856101521
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.5476190476190477
+        AP TMB: 0.5285714285714286
+        MCC TMB: 0.21957751641341997
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.5952380952380952
+        AP TMB deconv only: 0.5425925925925926
+        MCC TMB deconv only: 0.21957751641341997
+Training using DeconRNASeq_BPRNACan_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.7053571428571428
+        AP SEX: 0.5620181405895692
+        MCC SEX: 0.0
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.7053571428571428
+        AP SEX deconv only: 0.5620181405895692
+        MCC SEX deconv only: 0.0
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.7053571428571428
+        AP AAGE: 0.5620181405895692
+        MCC AAGE: 0.0
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.7053571428571428
+        AP AAGE deconv only: 0.5620181405895692
+        MCC AAGE deconv only: 0.0
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.40476190476190477
+        AP TMB: 0.44464794464794466
+        MCC TMB: -0.23809523809523808
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.14285714285714285
+        AP TMB deconv only: 0.3448704073704074
+        MCC TMB deconv only: -0.6172133998483676
+Training using EpiDISH_BPRNACanProMet_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.5089285714285714
+        AP SEX: 0.4039374840845429
+        MCC SEX: 0.3223291856101521
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.6517857142857143
+        AP SEX deconv only: 0.5402296951169131
+        MCC SEX deconv only: 0.13122266479195596
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.5089285714285714
+        AP AAGE: 0.4039374840845429
+        MCC AAGE: 0.3223291856101521
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.6517857142857143
+        AP AAGE deconv only: 0.5402296951169131
+        MCC AAGE deconv only: 0.13122266479195596
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.4761904761904762
+        AP TMB: 0.4777167277167277
+        MCC TMB: -0.39477101697586137
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.4285714285714286
+        AP TMB deconv only: 0.46564361564361556
+        MCC TMB deconv only: -0.2672612419124244
+Training using DeconRNASeq_BPRNACanProMet_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.5267857142857143
+        AP SEX: 0.3664225498811965
+        MCC SEX: 0.0
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.5267857142857143
+        AP SEX deconv only: 0.3664225498811965
+        MCC SEX deconv only: 0.0
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.5267857142857143
+        AP AAGE: 0.3664225498811965
+        MCC AAGE: 0.0
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.5267857142857143
+        AP AAGE deconv only: 0.3664225498811965
+        MCC AAGE deconv only: 0.0
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.14285714285714285
+        AP TMB: 0.3541958041958042
+        MCC TMB: -0.2828894749305018
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.30952380952380953
+        AP TMB deconv only: 0.4172910422910423
+        MCC TMB deconv only: -0.39477101697586137
+Training using EpiDISH_BPRNACan3DProMet_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.5089285714285714
+        AP SEX: 0.450860344137655
+        MCC SEX: 0.3223291856101521
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.5089285714285714
+        AP SEX deconv only: 0.450860344137655
+        MCC SEX deconv only: 0.3223291856101521
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.5089285714285714
+        AP AAGE: 0.4391704050041069
+        MCC AAGE: 0.3223291856101521
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.5089285714285714
+        AP AAGE deconv only: 0.450860344137655
+        MCC AAGE deconv only: 0.3223291856101521
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.4285714285714286
+        AP TMB: 0.46564361564361556
+        MCC TMB: -0.2672612419124244
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.4523809523809524
+        AP TMB deconv only: 0.4658119658119658
+        MCC TMB deconv only: -0.2672612419124244
+Training using DeconRNASeq_BPRNACan3DProMet_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.5267857142857143
+        AP SEX: 0.4337424848481903
+        MCC SEX: 0.0
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.5267857142857143
+        AP SEX deconv only: 0.4337424848481903
+        MCC SEX deconv only: 0.0
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.5267857142857143
+        AP AAGE: 0.4337424848481903
+        MCC AAGE: 0.0
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.5267857142857143
+        AP AAGE deconv only: 0.4337424848481903
+        MCC AAGE deconv only: 0.0
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.23809523809523808
+        AP TMB: 0.39586247086247084
+        MCC TMB: -0.09759000729485333
+    LODO training using deconvolution data only
+        training failed
+        training failed with cv <= 10
+        ROC AUC TMB deconv only: nan
+        AP TMB deconv only: nan
+        MCC TMB deconv only: nan
+Training using EpiDISH_CBSX_NSCLC_
+    LODO training using SEX as clinical variable
+        training failed
+        training failed with cv <= 10
+        ROC AUC SEX: nan
+        AP SEX: nan
+        MCC SEX: nan
+    LODO training using deconvolution data only
+        training failed
+        training failed with cv <= 10
+        ROC AUC SEX deconv only: nan
+        AP SEX deconv only: nan
+        MCC SEX deconv only: nan
+    LODO training using AAGE as clinical variable
+        training failed
+        training failed with cv <= 10
+        ROC AUC AAGE: nan
+        AP AAGE: nan
+        MCC AAGE: nan
+    LODO training using deconvolution data only
+        training failed
+        training failed with cv <= 10
+        ROC AUC AAGE deconv only: nan
+        AP AAGE deconv only: nan
+        MCC AAGE deconv only: nan
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.5476190476190477
+        AP TMB: 0.6359427609427609
+        MCC TMB: -0.07142857142857142
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.5952380952380952
+        AP TMB deconv only: 0.5813492063492063
+        MCC TMB deconv only: -0.05143444998736397
+Training using DeconRNASeq_CBSX_NSCLC_
+    LODO training using SEX as clinical variable
+        training failed
+        training failed with cv <= 10
+        ROC AUC SEX: nan
+        AP SEX: nan
+        MCC SEX: nan
+    LODO training using deconvolution data only
+        training failed
+        training failed with cv <= 10
+        ROC AUC SEX deconv only: nan
+        AP SEX deconv only: nan
+        MCC SEX deconv only: nan
+    LODO training using AAGE as clinical variable
+        training failed
+        training failed with cv <= 10
+        ROC AUC AAGE: nan
+        AP AAGE: nan
+        MCC AAGE: nan
+    LODO training using deconvolution data only
+        training failed
+        training failed with cv <= 10
+        ROC AUC AAGE deconv only: nan
+        AP AAGE deconv only: nan
+        MCC AAGE deconv only: nan
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.3333333333333333
+        AP TMB: 0.5403069153069153
+        MCC TMB: -0.38095238095238093
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.3333333333333333
+        AP TMB deconv only: 0.46391802641802643
+        MCC TMB deconv only: 0.03289758474798845
+Training using EpiDISH_CBSX_HNSCC_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.42857142857142855
+        AP SEX: 0.27412592567391325
+        MCC SEX: 0.0
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.42857142857142855
+        AP SEX deconv only: 0.27412592567391325
+        MCC SEX deconv only: 0.0
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.42857142857142855
+        AP AAGE: 0.27412592567391325
+        MCC AAGE: 0.0
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.42857142857142855
+        AP AAGE deconv only: 0.27412592567391325
+        MCC AAGE deconv only: 0.0
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.3571428571428572
+        AP TMB: 0.4249028749028749
+        MCC TMB: -0.2828894749305018
+    LODO training using deconvolution data only
+        training failed
+        training failed with cv <= 10
+        ROC AUC TMB deconv only: nan
+        AP TMB deconv only: nan
+        MCC TMB deconv only: nan
+Training using DeconRNASeq_CBSX_HNSCC_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.5624999999999999
+        AP SEX: 0.44604236343366777
+        MCC SEX: 0.0
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.5357142857142857
+        AP SEX deconv only: 0.3936614110527154
+        MCC SEX deconv only: 0.0
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.5357142857142857
+        AP AAGE: 0.3936614110527154
+        MCC AAGE: 0.0
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.5357142857142857
+        AP AAGE deconv only: 0.3936614110527154
+        MCC AAGE deconv only: 0.0
+    LODO training using TMB as clinical variable
+        training failed
+        training failed with cv <= 10
+        ROC AUC TMB: nan
+        AP TMB: nan
+        MCC TMB: nan
+    LODO training using deconvolution data only
+        training failed
+        training failed with cv <= 10
+        ROC AUC TMB deconv only: nan
+        AP TMB deconv only: nan
+        MCC TMB deconv only: nan
+Training using EpiDISH_CBSX_melanoma_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.5714285714285714
+        AP SEX: 0.3479755538579068
+        MCC SEX: 0.0
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.5714285714285714
+        AP SEX deconv only: 0.3479755538579068
+        MCC SEX deconv only: 0.0
+    LODO training using AAGE as clinical variable
+        training failed
+        training failed with cv <= 10
+        ROC AUC AAGE: nan
+        AP AAGE: nan
+        MCC AAGE: nan
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.5714285714285714
+        AP AAGE deconv only: 0.3479755538579068
+        MCC AAGE deconv only: 0.0
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.6666666666666666
+        AP TMB: 0.607936507936508
+        MCC TMB: 0.38095238095238093
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.7619047619047619
+        AP TMB deconv only: 0.6607142857142857
+        MCC TMB deconv only: 0.2253744679276044
+Training using DeconRNASeq_CBSX_melanoma_
+    LODO training using SEX as clinical variable
+        training failed
+        training failed with cv <= 10
+        ROC AUC SEX: nan
+        AP SEX: nan
+        MCC SEX: nan
+    LODO training using deconvolution data only
+        training failed
+        training failed with cv <= 10
+        ROC AUC SEX deconv only: nan
+        AP SEX deconv only: nan
+        MCC SEX deconv only: nan
+    LODO training using AAGE as clinical variable
+        training failed
+        training failed with cv <= 10
+        ROC AUC AAGE: nan
+        AP AAGE: nan
+        MCC AAGE: nan
+    LODO training using deconvolution data only
+        training failed
+        training failed with cv <= 10
+        ROC AUC AAGE deconv only: nan
+        AP AAGE deconv only: nan
+        MCC AAGE deconv only: nan
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.5714285714285714
+        AP TMB: 0.5563492063492064
+        MCC TMB: 0.14085904245475275
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.5952380952380952
+        AP TMB deconv only: 0.5787037037037037
+        MCC TMB deconv only: -0.03289758474798845
+Training using EpiDISH_CBSX_LM22_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.45535714285714285
+        AP SEX: 0.30052020808323326
+        MCC SEX: -0.39295262399668784
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.49107142857142855
+        AP SEX deconv only: 0.31155514837513953
+        MCC SEX deconv only: -0.30348848933344197
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.5178571428571429
+        AP AAGE: 0.3195784374355803
+        MCC AAGE: -0.20412414523193148
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.49107142857142855
+        AP AAGE deconv only: 0.31155514837513953
+        MCC AAGE deconv only: -0.30348848933344197
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.5476190476190476
+        AP TMB: 0.6256965256965257
+        MCC TMB: 0.21957751641341997
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.5
+        AP TMB deconv only: 0.5831649831649832
+        MCC TMB deconv only: 0.21957751641341997
+Training using DeconRNASeq_CBSX_LM22_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.6607142857142857
+        AP SEX: 0.48957492087744187
+        MCC SEX: 0.05050762722761054
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.6607142857142857
+        AP SEX deconv only: 0.48957492087744187
+        MCC SEX deconv only: 0.05050762722761054
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.6428571428571428
+        AP AAGE: 0.48797493356316884
+        MCC AAGE: 0.11213565339313257
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.6607142857142857
+        AP AAGE deconv only: 0.48957492087744187
+        MCC AAGE deconv only: 0.05050762722761054
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.5714285714285714
+        AP TMB: 0.7267547267547267
+        MCC TMB: -0.2253744679276044
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.6428571428571429
+        AP TMB deconv only: 0.7554945054945055
+        MCC TMB deconv only: -0.05143444998736397
+Training using CIBERSORTx_CBSX_NSCLC_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.48214285714285715
+        AP SEX: 0.4182984198464074
+        MCC SEX: -0.026785714285714284
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.5357142857142858
+        AP SEX deconv only: 0.40782150180646415
+        MCC SEX deconv only: 0.03742405942825599
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.5357142857142856
+        AP AAGE: 0.47699443413729126
+        MCC AAGE: 0.05050762722761054
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.5357142857142858
+        AP AAGE deconv only: 0.40782150180646415
+        MCC AAGE deconv only: 0.03742405942825599
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.6428571428571429
+        AP TMB: 0.7554945054945055
+        MCC TMB: 0.09759000729485333
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.7142857142857143
+        AP TMB deconv only: 0.7569444444444444
+        MCC TMB deconv only: 0.4147575310031266
+Training using CIBERSORTx_CBSX_HNSCC_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.5714285714285714
+        AP SEX: 0.37130325814536336
+        MCC SEX: 0.0
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.5714285714285714
+        AP SEX deconv only: 0.37130325814536336
+        MCC SEX deconv only: 0.0
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.5714285714285714
+        AP AAGE: 0.37130325814536336
+        MCC AAGE: 0.0
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.5714285714285714
+        AP AAGE deconv only: 0.37130325814536336
+        MCC AAGE deconv only: 0.0
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.40476190476190477
+        AP TMB: 0.49081196581196584
+        MCC TMB: 0.05143444998736397
+    LODO training using deconvolution data only
+        training failed
+        training failed with cv <= 10
+        ROC AUC TMB deconv only: nan
+        AP TMB deconv only: nan
+        MCC TMB deconv only: nan
+Training using CIBERSORTx_CBSX_melanoma_
+    LODO training using SEX as clinical variable
+        training failed
+        training failed with cv <= 10
+        ROC AUC SEX: nan
+        AP SEX: nan
+        MCC SEX: nan
+    LODO training using deconvolution data only
+        training failed
+        training failed with cv <= 10
+        ROC AUC SEX deconv only: nan
+        AP SEX deconv only: nan
+        MCC SEX deconv only: nan
+    LODO training using AAGE as clinical variable
+        training failed
+        training failed with cv <= 10
+        ROC AUC AAGE: nan
+        AP AAGE: nan
+        MCC AAGE: nan
+    LODO training using deconvolution data only
+        training failed
+        training failed with cv <= 10
+        ROC AUC AAGE deconv only: nan
+        AP AAGE deconv only: nan
+        MCC AAGE deconv only: nan
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.6666666666666667
+        AP TMB: 0.6180555555555556
+        MCC TMB: 0.21957751641341997
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.7380952380952381
+        AP TMB deconv only: 0.675
+        MCC TMB deconv only: 0.2253744679276044
+Training using CIBERSORTx_CBSX_LM22_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.5892857142857143
+        AP SEX: 0.44886681945505474
+        MCC SEX: -0.11952286093343938
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.5267857142857143
+        AP SEX deconv only: 0.32493676957962675
+        MCC SEX deconv only: -0.17776428228421592
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.5267857142857143
+        AP AAGE: 0.32493676957962675
+        MCC AAGE: -0.11952286093343938
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.5267857142857143
+        AP AAGE deconv only: 0.32493676957962675
+        MCC AAGE deconv only: -0.17776428228421592
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.6190476190476191
+        AP TMB: 0.5814814814814815
+        MCC TMB: 0.09759000729485333
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.7142857142857142
+        AP TMB deconv only: 0.6208333333333332
+        MCC TMB deconv only: 0.0
+Training using quanTIseq
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.5714285714285714
+        AP SEX: 0.3940332196952008
+        MCC SEX: 0.2526124011407279
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.5714285714285714
+        AP SEX deconv only: 0.3940332196952008
+        MCC SEX deconv only: 0.2526124011407279
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.5267857142857142
+        AP AAGE: 0.3639878682212778
+        MCC AAGE: 0.17857142857142858
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.5714285714285714
+        AP AAGE deconv only: 0.3940332196952008
+        MCC AAGE deconv only: 0.2526124011407279
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.5714285714285715
+        AP TMB: 0.5327380952380952
+        MCC TMB: 0.05143444998736397
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.5
+        AP TMB deconv only: 0.5102564102564102
+        MCC TMB deconv only: -0.2672612419124244
+Training using MCP
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.45535714285714285
+        AP SEX: 0.29910342925048805
+        MCC SEX: -0.11952286093343938
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.45535714285714285
+        AP SEX deconv only: 0.29910342925048805
+        MCC SEX deconv only: -0.11952286093343938
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.4107142857142857
+        AP AAGE: 0.27916384502518954
+        MCC AAGE: -0.11952286093343938
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.45535714285714285
+        AP AAGE deconv only: 0.29910342925048805
+        MCC AAGE deconv only: -0.11952286093343938
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.6904761904761905
+        AP TMB: 0.750534188034188
+        MCC TMB: 0.4147575310031266
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.738095238095238
+        AP TMB deconv only: 0.7132936507936508
+        MCC TMB deconv only: 0.23809523809523808
+Training using XCELL
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.5267857142857142
+        AP SEX: 0.4309063090118991
+        MCC SEX: 0.13122266479195596
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.5267857142857142
+        AP SEX deconv only: 0.4309063090118991
+        MCC SEX deconv only: 0.13122266479195596
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.5267857142857142
+        AP AAGE: 0.4309063090118991
+        MCC AAGE: 0.13122266479195596
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.5267857142857142
+        AP AAGE deconv only: 0.4309063090118991
+        MCC AAGE deconv only: 0.13122266479195596
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.5952380952380952
+        AP TMB: 0.6305916305916306
+        MCC TMB: 0.09759000729485333
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.6190476190476191
+        AP TMB deconv only: 0.6472582972582972
+        MCC TMB deconv only: 0.09759000729485333
+Training using EpiDISH_BPRNACan_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.4955357142857143
+        AP SEX: 0.42731232844014794
+        MCC SEX: 0.3223291856101521
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.4955357142857143
+        AP SEX deconv only: 0.42731232844014794
+        MCC SEX deconv only: 0.3223291856101521
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.4955357142857143
+        AP AAGE: 0.42731232844014794
+        MCC AAGE: 0.3223291856101521
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.4955357142857143
+        AP AAGE deconv only: 0.42731232844014794
+        MCC AAGE deconv only: 0.3223291856101521
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.5476190476190477
+        AP TMB: 0.5285714285714286
+        MCC TMB: 0.21957751641341997
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.5952380952380952
+        AP TMB deconv only: 0.5425925925925926
+        MCC TMB deconv only: 0.21957751641341997
+Training using DeconRNASeq_BPRNACan_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.7053571428571428
+        AP SEX: 0.5620181405895692
+        MCC SEX: 0.0
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.7053571428571428
+        AP SEX deconv only: 0.5620181405895692
+        MCC SEX deconv only: 0.0
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.7053571428571428
+        AP AAGE: 0.5620181405895692
+        MCC AAGE: 0.0
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.7053571428571428
+        AP AAGE deconv only: 0.5620181405895692
+        MCC AAGE deconv only: 0.0
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.40476190476190477
+        AP TMB: 0.44464794464794466
+        MCC TMB: -0.23809523809523808
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.14285714285714285
+        AP TMB deconv only: 0.3448704073704074
+        MCC TMB deconv only: -0.6172133998483676
+Training using EpiDISH_BPRNACanProMet_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.5089285714285714
+        AP SEX: 0.4039374840845429
+        MCC SEX: 0.3223291856101521
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.6517857142857143
+        AP SEX deconv only: 0.5402296951169131
+        MCC SEX deconv only: 0.13122266479195596
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.5089285714285714
+        AP AAGE: 0.4039374840845429
+        MCC AAGE: 0.3223291856101521
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.6517857142857143
+        AP AAGE deconv only: 0.5402296951169131
+        MCC AAGE deconv only: 0.13122266479195596
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.4761904761904762
+        AP TMB: 0.4777167277167277
+        MCC TMB: -0.39477101697586137
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.4285714285714286
+        AP TMB deconv only: 0.46564361564361556
+        MCC TMB deconv only: -0.2672612419124244
+Training using DeconRNASeq_BPRNACanProMet_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.5267857142857143
+        AP SEX: 0.3664225498811965
+        MCC SEX: 0.0
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.5267857142857143
+        AP SEX deconv only: 0.3664225498811965
+        MCC SEX deconv only: 0.0
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.5267857142857143
+        AP AAGE: 0.3664225498811965
+        MCC AAGE: 0.0
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.5267857142857143
+        AP AAGE deconv only: 0.3664225498811965
+        MCC AAGE deconv only: 0.0
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.14285714285714285
+        AP TMB: 0.3541958041958042
+        MCC TMB: -0.2828894749305018
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.30952380952380953
+        AP TMB deconv only: 0.4172910422910423
+        MCC TMB deconv only: -0.39477101697586137
+Training using EpiDISH_BPRNACan3DProMet_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.5089285714285714
+        AP SEX: 0.450860344137655
+        MCC SEX: 0.3223291856101521
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.5089285714285714
+        AP SEX deconv only: 0.450860344137655
+        MCC SEX deconv only: 0.3223291856101521
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.5089285714285714
+        AP AAGE: 0.4391704050041069
+        MCC AAGE: 0.3223291856101521
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.5089285714285714
+        AP AAGE deconv only: 0.450860344137655
+        MCC AAGE deconv only: 0.3223291856101521
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.4285714285714286
+        AP TMB: 0.46564361564361556
+        MCC TMB: -0.2672612419124244
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.4523809523809524
+        AP TMB deconv only: 0.4658119658119658
+        MCC TMB deconv only: -0.2672612419124244
+Training using DeconRNASeq_BPRNACan3DProMet_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.5267857142857143
+        AP SEX: 0.4337424848481903
+        MCC SEX: 0.0
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.5267857142857143
+        AP SEX deconv only: 0.4337424848481903
+        MCC SEX deconv only: 0.0
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.5267857142857143
+        AP AAGE: 0.4337424848481903
+        MCC AAGE: 0.0
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.5267857142857143
+        AP AAGE deconv only: 0.4337424848481903
+        MCC AAGE deconv only: 0.0
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.23809523809523808
+        AP TMB: 0.39586247086247084
+        MCC TMB: -0.09759000729485333
+    LODO training using deconvolution data only
+        training failed
+        training failed with cv <= 10
+        ROC AUC TMB deconv only: nan
+        AP TMB deconv only: nan
+        MCC TMB deconv only: nan
+Training using EpiDISH_CBSX_NSCLC_
+    LODO training using SEX as clinical variable
+        training failed
+        training failed with cv <= 10
+        ROC AUC SEX: nan
+        AP SEX: nan
+        MCC SEX: nan
+    LODO training using deconvolution data only
+        training failed
+        training failed with cv <= 10
+        ROC AUC SEX deconv only: nan
+        AP SEX deconv only: nan
+        MCC SEX deconv only: nan
+    LODO training using AAGE as clinical variable
+        training failed
+        training failed with cv <= 10
+        ROC AUC AAGE: nan
+        AP AAGE: nan
+        MCC AAGE: nan
+    LODO training using deconvolution data only
+        training failed
+        training failed with cv <= 10
+        ROC AUC AAGE deconv only: nan
+        AP AAGE deconv only: nan
+        MCC AAGE deconv only: nan
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.5476190476190477
+        AP TMB: 0.6359427609427609
+        MCC TMB: -0.07142857142857142
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.5952380952380952
+        AP TMB deconv only: 0.5813492063492063
+        MCC TMB deconv only: -0.05143444998736397
+Training using DeconRNASeq_CBSX_NSCLC_
+    LODO training using SEX as clinical variable
+        training failed
+        training failed with cv <= 10
+        ROC AUC SEX: nan
+        AP SEX: nan
+        MCC SEX: nan
+    LODO training using deconvolution data only
+        training failed
+        training failed with cv <= 10
+        ROC AUC SEX deconv only: nan
+        AP SEX deconv only: nan
+        MCC SEX deconv only: nan
+    LODO training using AAGE as clinical variable
+        training failed
+        training failed with cv <= 10
+        ROC AUC AAGE: nan
+        AP AAGE: nan
+        MCC AAGE: nan
+    LODO training using deconvolution data only
+        training failed
+        training failed with cv <= 10
+        ROC AUC AAGE deconv only: nan
+        AP AAGE deconv only: nan
+        MCC AAGE deconv only: nan
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.3333333333333333
+        AP TMB: 0.5403069153069153
+        MCC TMB: -0.38095238095238093
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.3333333333333333
+        AP TMB deconv only: 0.46391802641802643
+        MCC TMB deconv only: 0.03289758474798845
+Training using EpiDISH_CBSX_HNSCC_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.42857142857142855
+        AP SEX: 0.27412592567391325
+        MCC SEX: 0.0
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.42857142857142855
+        AP SEX deconv only: 0.27412592567391325
+        MCC SEX deconv only: 0.0
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.42857142857142855
+        AP AAGE: 0.27412592567391325
+        MCC AAGE: 0.0
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.42857142857142855
+        AP AAGE deconv only: 0.27412592567391325
+        MCC AAGE deconv only: 0.0
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.3571428571428572
+        AP TMB: 0.4249028749028749
+        MCC TMB: -0.2828894749305018
+    LODO training using deconvolution data only
+        training failed
+        training failed with cv <= 10
+        ROC AUC TMB deconv only: nan
+        AP TMB deconv only: nan
+        MCC TMB deconv only: nan
+Training using DeconRNASeq_CBSX_HNSCC_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.5624999999999999
+        AP SEX: 0.44604236343366777
+        MCC SEX: 0.0
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.5357142857142857
+        AP SEX deconv only: 0.3936614110527154
+        MCC SEX deconv only: 0.0
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.5357142857142857
+        AP AAGE: 0.3936614110527154
+        MCC AAGE: 0.0
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.5357142857142857
+        AP AAGE deconv only: 0.3936614110527154
+        MCC AAGE deconv only: 0.0
+    LODO training using TMB as clinical variable
+        training failed
+        training failed with cv <= 10
+        ROC AUC TMB: nan
+        AP TMB: nan
+        MCC TMB: nan
+    LODO training using deconvolution data only
+        training failed
+        training failed with cv <= 10
+        ROC AUC TMB deconv only: nan
+        AP TMB deconv only: nan
+        MCC TMB deconv only: nan
+Training using EpiDISH_CBSX_melanoma_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.5714285714285714
+        AP SEX: 0.3479755538579068
+        MCC SEX: 0.0
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.5714285714285714
+        AP SEX deconv only: 0.3479755538579068
+        MCC SEX deconv only: 0.0
+    LODO training using AAGE as clinical variable
+        training failed
+        training failed with cv <= 10
+        ROC AUC AAGE: nan
+        AP AAGE: nan
+        MCC AAGE: nan
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.5714285714285714
+        AP AAGE deconv only: 0.3479755538579068
+        MCC AAGE deconv only: 0.0
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.6666666666666666
+        AP TMB: 0.607936507936508
+        MCC TMB: 0.38095238095238093
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.7619047619047619
+        AP TMB deconv only: 0.6607142857142857
+        MCC TMB deconv only: 0.2253744679276044
+Training using DeconRNASeq_CBSX_melanoma_
+    LODO training using SEX as clinical variable
+        training failed
+        training failed with cv <= 10
+        ROC AUC SEX: nan
+        AP SEX: nan
+        MCC SEX: nan
+    LODO training using deconvolution data only
+        training failed
+        training failed with cv <= 10
+        ROC AUC SEX deconv only: nan
+        AP SEX deconv only: nan
+        MCC SEX deconv only: nan
+    LODO training using AAGE as clinical variable
+        training failed
+        training failed with cv <= 10
+        ROC AUC AAGE: nan
+        AP AAGE: nan
+        MCC AAGE: nan
+    LODO training using deconvolution data only
+        training failed
+        training failed with cv <= 10
+        ROC AUC AAGE deconv only: nan
+        AP AAGE deconv only: nan
+        MCC AAGE deconv only: nan
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.5714285714285714
+        AP TMB: 0.5563492063492064
+        MCC TMB: 0.14085904245475275
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.5952380952380952
+        AP TMB deconv only: 0.5787037037037037
+        MCC TMB deconv only: -0.03289758474798845
+Training using EpiDISH_CBSX_LM22_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.45535714285714285
+        AP SEX: 0.30052020808323326
+        MCC SEX: -0.39295262399668784
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.49107142857142855
+        AP SEX deconv only: 0.31155514837513953
+        MCC SEX deconv only: -0.30348848933344197
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.5178571428571429
+        AP AAGE: 0.3195784374355803
+        MCC AAGE: -0.20412414523193148
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.49107142857142855
+        AP AAGE deconv only: 0.31155514837513953
+        MCC AAGE deconv only: -0.30348848933344197
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.5476190476190476
+        AP TMB: 0.6256965256965257
+        MCC TMB: 0.21957751641341997
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.5
+        AP TMB deconv only: 0.5831649831649832
+        MCC TMB deconv only: 0.21957751641341997
+Training using DeconRNASeq_CBSX_LM22_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.6607142857142857
+        AP SEX: 0.48957492087744187
+        MCC SEX: 0.05050762722761054
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.6607142857142857
+        AP SEX deconv only: 0.48957492087744187
+        MCC SEX deconv only: 0.05050762722761054
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.6428571428571428
+        AP AAGE: 0.48797493356316884
+        MCC AAGE: 0.11213565339313257
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.6607142857142857
+        AP AAGE deconv only: 0.48957492087744187
+        MCC AAGE deconv only: 0.05050762722761054
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.5714285714285714
+        AP TMB: 0.7267547267547267
+        MCC TMB: -0.2253744679276044
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.6428571428571429
+        AP TMB deconv only: 0.7554945054945055
+        MCC TMB deconv only: -0.05143444998736397
+Training using CIBERSORTx_CBSX_NSCLC_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.48214285714285715
+        AP SEX: 0.4182984198464074
+        MCC SEX: -0.026785714285714284
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.5357142857142858
+        AP SEX deconv only: 0.40782150180646415
+        MCC SEX deconv only: 0.03742405942825599
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.5357142857142856
+        AP AAGE: 0.47699443413729126
+        MCC AAGE: 0.05050762722761054
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.5357142857142858
+        AP AAGE deconv only: 0.40782150180646415
+        MCC AAGE deconv only: 0.03742405942825599
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.6428571428571429
+        AP TMB: 0.7554945054945055
+        MCC TMB: 0.09759000729485333
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.7142857142857143
+        AP TMB deconv only: 0.7569444444444444
+        MCC TMB deconv only: 0.4147575310031266
+Training using CIBERSORTx_CBSX_HNSCC_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.5714285714285714
+        AP SEX: 0.37130325814536336
+        MCC SEX: 0.0
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.5714285714285714
+        AP SEX deconv only: 0.37130325814536336
+        MCC SEX deconv only: 0.0
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.5714285714285714
+        AP AAGE: 0.37130325814536336
+        MCC AAGE: 0.0
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.5714285714285714
+        AP AAGE deconv only: 0.37130325814536336
+        MCC AAGE deconv only: 0.0
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.40476190476190477
+        AP TMB: 0.49081196581196584
+        MCC TMB: 0.05143444998736397
+    LODO training using deconvolution data only
+        training failed
+        training failed with cv <= 10
+        ROC AUC TMB deconv only: nan
+        AP TMB deconv only: nan
+        MCC TMB deconv only: nan
+Training using CIBERSORTx_CBSX_melanoma_
+    LODO training using SEX as clinical variable
+        training failed
+        training failed with cv <= 10
+        ROC AUC SEX: nan
+        AP SEX: nan
+        MCC SEX: nan
+    LODO training using deconvolution data only
+        training failed
+        training failed with cv <= 10
+        ROC AUC SEX deconv only: nan
+        AP SEX deconv only: nan
+        MCC SEX deconv only: nan
+    LODO training using AAGE as clinical variable
+        training failed
+        training failed with cv <= 10
+        ROC AUC AAGE: nan
+        AP AAGE: nan
+        MCC AAGE: nan
+    LODO training using deconvolution data only
+        training failed
+        training failed with cv <= 10
+        ROC AUC AAGE deconv only: nan
+        AP AAGE deconv only: nan
+        MCC AAGE deconv only: nan
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.6666666666666667
+        AP TMB: 0.6180555555555556
+        MCC TMB: 0.21957751641341997
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.7380952380952381
+        AP TMB deconv only: 0.675
+        MCC TMB deconv only: 0.2253744679276044
+Training using CIBERSORTx_CBSX_LM22_
+    LODO training using SEX as clinical variable
+        ROC AUC SEX: 0.5892857142857143
+        AP SEX: 0.44886681945505474
+        MCC SEX: -0.11952286093343938
+    LODO training using deconvolution data only
+        ROC AUC SEX deconv only: 0.5267857142857143
+        AP SEX deconv only: 0.32493676957962675
+        MCC SEX deconv only: -0.17776428228421592
+    LODO training using AAGE as clinical variable
+        ROC AUC AAGE: 0.5267857142857143
+        AP AAGE: 0.32493676957962675
+        MCC AAGE: -0.11952286093343938
+    LODO training using deconvolution data only
+        ROC AUC AAGE deconv only: 0.5267857142857143
+        AP AAGE deconv only: 0.32493676957962675
+        MCC AAGE deconv only: -0.17776428228421592
+    LODO training using TMB as clinical variable
+        ROC AUC TMB: 0.6190476190476191
+        AP TMB: 0.5814814814814815
+        MCC TMB: 0.09759000729485333
+    LODO training using deconvolution data only
+        ROC AUC TMB deconv only: 0.7142857142857142
+        AP TMB deconv only: 0.6208333333333332
+        MCC TMB deconv only: 0.0

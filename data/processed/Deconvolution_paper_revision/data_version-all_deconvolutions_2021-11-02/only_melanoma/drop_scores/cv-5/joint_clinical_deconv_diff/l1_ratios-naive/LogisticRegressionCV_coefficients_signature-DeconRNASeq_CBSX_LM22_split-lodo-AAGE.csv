@@ -1,0 +1,24 @@
+,coef,abs coef,% total,cum % total,coef OR
+DeconRNASeq_CBSX_LM22_T.cells.follicular.helper,-0.17941273463619886,0.17941273463619886,0.744706680840518,0.744706680840518,0.8357608807382972
+DeconRNASeq_CBSX_LM22_T.cells.gamma.delta,0.03157070615767805,0.03157070615767805,0.13104374024591725,0.8757504210864353,1.0320743470273672
+DeconRNASeq_CBSX_LM22_Eosinophils,-0.02416038223847439,0.02416038223847439,0.10028495525212439,0.9760353763385596,0.9761291434259528
+DeconRNASeq_CBSX_LM22_Mast.cells.resting,0.005773492807629509,0.005773492807629509,0.02396462366144038,1.0,1.005790191538429
+DeconRNASeq_CBSX_LM22_B.cells.naive,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_LM22_Macrophages.M0,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_LM22_Neutrophils,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_LM22_Mast.cells.activated,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_LM22_Dendritic.cells.activated,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_LM22_Dendritic.cells.resting,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_LM22_Macrophages.M2,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_LM22_Macrophages.M1,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_LM22_NK.cells.activated,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_LM22_Monocytes,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_LM22_B.cells.memory,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_LM22_NK.cells.resting,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_LM22_T.cells.regulatory..Tregs.,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.activated,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_LM22_T.cells.CD4.memory.resting,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_LM22_T.cells.CD4.naive,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_LM22_T.cells.CD8,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_LM22_Plasma.cells,0.0,0.0,0.0,1.0,1.0
+AAGE,0.0,0.0,0.0,1.0,1.0

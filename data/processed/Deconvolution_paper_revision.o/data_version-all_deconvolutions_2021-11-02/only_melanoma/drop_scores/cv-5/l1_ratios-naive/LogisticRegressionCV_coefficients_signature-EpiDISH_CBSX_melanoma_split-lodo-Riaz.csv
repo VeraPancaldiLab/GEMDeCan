@@ -1,0 +1,9 @@
+,coef,abs coef,% total,cum % total,coef OR
+EpiDISH_CBSX_melanoma_CAF,0.11591146526069836,0.11591146526069836,0.6314292741978782,0.6314292741978782,1.1228964523875942
+EpiDISH_CBSX_melanoma_B.cells,-0.06765852428079676,0.06765852428079676,0.3685707258021218,1.0,0.9345795553205848
+EpiDISH_CBSX_melanoma_Malignant,0.0,0.0,0.0,1.0,1.0
+EpiDISH_CBSX_melanoma_Endothelial.cells,0.0,0.0,0.0,1.0,1.0
+EpiDISH_CBSX_melanoma_T.cells.CD8,0.0,0.0,0.0,1.0,1.0
+EpiDISH_CBSX_melanoma_NK.cells,0.0,0.0,0.0,1.0,1.0
+EpiDISH_CBSX_melanoma_Macrophages,0.0,0.0,0.0,1.0,1.0
+EpiDISH_CBSX_melanoma_T.cells.CD4,0.0,0.0,0.0,1.0,1.0

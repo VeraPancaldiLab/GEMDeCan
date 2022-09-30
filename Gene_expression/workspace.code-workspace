@@ -1,0 +1,22 @@
+{
+	"folders": [
+		{
+			"path": "../mosna"
+		},
+		{
+			"path": "../IMMUcan"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "../CellDetectionWorkflow"
+		},
+		{
+			"path": "../AFClustering"
+		},
+		{
+			"path": "../PNETS-NETS"
+		}
+	]
+}

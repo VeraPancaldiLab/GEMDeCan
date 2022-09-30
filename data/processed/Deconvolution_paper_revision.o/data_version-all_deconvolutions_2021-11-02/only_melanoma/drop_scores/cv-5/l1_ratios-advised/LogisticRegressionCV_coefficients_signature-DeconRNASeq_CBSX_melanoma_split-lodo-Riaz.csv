@@ -1,0 +1,9 @@
+,coef,abs coef,% total,cum % total,coef OR
+DeconRNASeq_CBSX_melanoma_CAF,0.04263427538465564,0.04263427538465564,0.6275158640936239,0.6275158640936239,1.0435561708727572
+DeconRNASeq_CBSX_melanoma_B.cells,-0.025307075303324267,0.025307075303324267,0.3724841359063761,1.0,0.975010464420097
+DeconRNASeq_CBSX_melanoma_Malignant,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_melanoma_Endothelial.cells,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_melanoma_T.cells.CD8,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_melanoma_NK.cells,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_melanoma_Macrophages,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_melanoma_T.cells.CD4,0.0,0.0,0.0,1.0,1.0

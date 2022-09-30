@@ -1,0 +1,9 @@
+,coef,abs coef,% total,cum % total,coef OR
+CIBERSORTx_CBSX_melanoma_B_cells,-0.04831715975776417,0.04831715975776417,1.0,1.0,0.9528315393294233
+CIBERSORTx_CBSX_melanoma_Malignant,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_melanoma_Endothelial_cells,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_melanoma_CAF,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_melanoma_T_cells_CD8,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_melanoma_NK_cells,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_melanoma_Macrophages,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_melanoma_T_cells_CD4,0.0,0.0,0.0,1.0,1.0

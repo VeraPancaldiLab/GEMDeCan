@@ -1,0 +1,8 @@
+,coef,abs coef,% total,cum % total,coef OR
+TMB,-0.048094590366120266,0.048094590366120266,1.0,1.0,0.9530436340674938
+DeconRNASeq_CBSX_NSCLC_T.cells.CD8,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_NSCLC_Monocytes,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_NSCLC_T.cells.CD4,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_NSCLC_NKT.cells,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_NSCLC_B.cells,0.0,0.0,0.0,1.0,1.0
+DeconRNASeq_CBSX_NSCLC_NK.cells,0.0,0.0,0.0,1.0,1.0

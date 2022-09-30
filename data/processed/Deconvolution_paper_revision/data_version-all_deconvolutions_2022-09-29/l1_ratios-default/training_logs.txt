@@ -1,0 +1,693 @@
+Training using quanTIseq
+    LODO training using Gide as test set
+        ROC AUC Gide: 0.52
+        AP Gide: 0.43986823545867915
+        MCC Gide: 0.0
+    LODO training using Riaz as test set
+        ROC AUC Riaz: 0.6136363636363635
+        AP Riaz: 0.7133617270765609
+        MCC Riaz: 0.44411739409784406
+    LODO training using Hugo as test set
+        ROC AUC Hugo: 0.4666666666666666
+        AP Hugo: 0.49933935889818243
+        MCC Hugo: 0.05976143046671969
+    LODO training using IP as test set
+        ROC AUC IP: 0.6323529411764706
+        AP IP: 0.2922619047619048
+        MCC IP: 0.3067859955389482
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.4385026737967914
+        AP CV all datasets: 0.49599316993325737
+        MCC CV all datasets: -0.08388269992021519
+    testing on Cloughesy dataset
+        ROC AUC CV all datasets test Cloughesy: 0.5555555555555556
+        AP CV all datasets test Cloughesy: 0.9797614057134303
+        MCC CV all datasets test Cloughesy: 0.0
+Training using MCP
+    LODO training using Gide as test set
+        ROC AUC Gide: 0.5425
+        AP Gide: 0.469262749955793
+        MCC Gide: 0.19764235376052372
+    LODO training using Riaz as test set
+        ROC AUC Riaz: 0.6363636363636364
+        AP Riaz: 0.7241982146393913
+        MCC Riaz: 0.0
+    LODO training using Hugo as test set
+        ROC AUC Hugo: 0.39444444444444443
+        AP Hugo: 0.4584413680001915
+        MCC Hugo: -0.11952286093343938
+    LODO training using IP as test set
+        ROC AUC IP: 0.7058823529411764
+        AP IP: 0.33317307692307696
+        MCC IP: 0.07352941176470588
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.6951871657754011
+        AP CV all datasets: 0.5768166130395233
+        MCC CV all datasets: 0.1899901489143371
+    testing on Cloughesy dataset
+        ROC AUC CV all datasets test Cloughesy: 0.0
+        AP CV all datasets test Cloughesy: 0.8915862578160605
+        MCC CV all datasets test Cloughesy: -0.07856742013183861
+Training using XCELL
+    LODO training using Gide as test set
+        ROC AUC Gide: 0.61
+        AP Gide: 0.5057699634468591
+        MCC Gide: 0.16853296812356272
+    LODO training using Riaz as test set
+        ROC AUC Riaz: 0.5984848484848485
+        AP Riaz: 0.6613383083777822
+        MCC Riaz: 0.2954684201426394
+    LODO training using Hugo as test set
+        ROC AUC Hugo: 0.33333333333333337
+        AP Hugo: 0.4748577307768484
+        MCC Hugo: -0.18898223650461363
+    LODO training using IP as test set
+        ROC AUC IP: 0.36764705882352944
+        AP IP: 0.19772086466165412
+        MCC IP: -0.19802950859533489
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5935828877005347
+        AP CV all datasets: 0.6164824488935161
+        MCC CV all datasets: 0.34479141358380555
+    testing on Cloughesy dataset
+Training using quanTIseq
+    LODO training using IP as test set
+        ROC AUC IP: 0.6323529411764706
+        AP IP: 0.2922619047619048
+        MCC IP: 0.3067859955389482
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.4385026737967914
+        AP CV all datasets: 0.49599316993325737
+        MCC CV all datasets: -0.08388269992021519
+    testing on Cloughesy dataset
+        ROC AUC CV all datasets test Cloughesy: 0.5555555555555556
+        AP CV all datasets test Cloughesy: 0.9797614057134303
+        MCC CV all datasets test Cloughesy: 0.0
+Training using MCP
+    LODO training using IP as test set
+        ROC AUC IP: 0.7058823529411764
+        AP IP: 0.33317307692307696
+        MCC IP: 0.07352941176470588
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.6951871657754011
+        AP CV all datasets: 0.5768166130395233
+        MCC CV all datasets: 0.1899901489143371
+    testing on Cloughesy dataset
+        ROC AUC CV all datasets test Cloughesy: 0.0
+        AP CV all datasets test Cloughesy: 0.8915862578160605
+        MCC CV all datasets test Cloughesy: -0.07856742013183861
+Training using XCELL
+    LODO training using IP as test set
+        ROC AUC IP: 0.36764705882352944
+        AP IP: 0.19772086466165412
+        MCC IP: -0.19802950859533489
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5935828877005347
+        AP CV all datasets: 0.6164824488935161
+        MCC CV all datasets: 0.34479141358380555
+    testing on Cloughesy dataset
+Training using quanTIseq
+    LODO training using IP as test set
+        ROC AUC IP: 0.6323529411764706
+        AP IP: 0.2922619047619048
+        MCC IP: 0.3067859955389482
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.4385026737967914
+        AP CV all datasets: 0.49599316993325737
+        MCC CV all datasets: -0.08388269992021519
+Training using MCP
+    LODO training using IP as test set
+        ROC AUC IP: 0.7058823529411764
+        AP IP: 0.33317307692307696
+        MCC IP: 0.07352941176470588
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.6951871657754011
+        AP CV all datasets: 0.5768166130395233
+        MCC CV all datasets: 0.1899901489143371
+Training using XCELL
+    LODO training using IP as test set
+        ROC AUC IP: 0.36764705882352944
+        AP IP: 0.19772086466165412
+        MCC IP: -0.19802950859533489
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5935828877005347
+        AP CV all datasets: 0.6164824488935161
+        MCC CV all datasets: 0.34479141358380555
+Training using EpiDISH_BPRNACan_
+    LODO training using IP as test set
+        ROC AUC IP: 0.29411764705882354
+        AP IP: 0.16296811740890688
+        MCC IP: -0.10846522890932808
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.6363636363636365
+        AP CV all datasets: 0.5931659907944493
+        MCC CV all datasets: 0.38869157943029664
+Training using DeconRNASeq_BPRNACan_
+    LODO training using IP as test set
+        ROC AUC IP: 0.29411764705882354
+        AP IP: 0.1649934012066365
+        MCC IP: -0.10846522890932808
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.4117647058823529
+        AP CV all datasets: 0.39044826687847284
+        MCC CV all datasets: -0.15480678800427466
+Training using EpiDISH_BPRNACanProMet_
+    LODO training using IP as test set
+        ROC AUC IP: 0.36764705882352944
+        AP IP: 0.17933612440191388
+        MCC IP: -0.10846522890932808
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.44385026737967914
+        AP CV all datasets: 0.43882574664981455
+        MCC CV all datasets: -0.06364909472854591
+Training using DeconRNASeq_BPRNACanProMet_
+    LODO training using IP as test set
+        ROC AUC IP: 0.6176470588235294
+        AP IP: 0.27142857142857146
+        MCC IP: -0.10846522890932808
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5668449197860962
+        AP CV all datasets: 0.5488574623144
+        MCC CV all datasets: 0.22927937978192153
+Training using EpiDISH_BPRNACan3DProMet_
+    LODO training using IP as test set
+        ROC AUC IP: 0.3382352941176471
+        AP IP: 0.1755482456140351
+        MCC IP: 0.0
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.6096256684491979
+        AP CV all datasets: 0.5762505962474759
+        MCC CV all datasets: 0.29854071701326607
+Training using DeconRNASeq_BPRNACan3DProMet_
+    LODO training using IP as test set
+        ROC AUC IP: 0.7647058823529411
+        AP IP: 0.4096590909090909
+        MCC IP: 0.0
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.4224598930481283
+        AP CV all datasets: 0.4230370288789995
+        MCC CV all datasets: -0.24186655996847442
+Training using EpiDISH_CBSX_NSCLC_
+    LODO training using IP as test set
+        ROC AUC IP: 0.27941176470588236
+        AP IP: 0.16114316540013135
+        MCC IP: 0.0
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5775401069518716
+        AP CV all datasets: 0.48963261733315205
+        MCC CV all datasets: -0.11941628680530643
+Training using DeconRNASeq_CBSX_NSCLC_
+    LODO training using IP as test set
+        training failed
+        training failed with cv <= 10
+        ROC AUC IP: nan
+        AP IP: nan
+        MCC IP: nan
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.4278074866310161
+        AP CV all datasets: 0.38457299736683964
+        MCC CV all datasets: 0.0
+Training using EpiDISH_CBSX_HNSCC_
+    LODO training using IP as test set
+        ROC AUC IP: 0.5882352941176471
+        AP IP: 0.3373949579831933
+        MCC IP: 0.038348249442368525
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5989304812834224
+        AP CV all datasets: 0.5704414930699515
+        MCC CV all datasets: 0.11456837051138262
+Training using DeconRNASeq_CBSX_HNSCC_
+    LODO training using IP as test set
+        training failed
+        training failed with cv <= 10
+        ROC AUC IP: nan
+        AP IP: nan
+        MCC IP: nan
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5454545454545454
+        AP CV all datasets: 0.5335584088339261
+        MCC CV all datasets: 0.34479141358380555
+Training using EpiDISH_CBSX_melanoma_
+    LODO training using IP as test set
+        ROC AUC IP: 0.3088235294117647
+        AP IP: 0.20625
+        MCC IP: -0.38235294117647056
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5561497326203209
+        AP CV all datasets: 0.5246074258845156
+        MCC CV all datasets: 0.11456837051138262
+Training using DeconRNASeq_CBSX_melanoma_
+    LODO training using IP as test set
+        training failed
+        training failed with cv <= 10
+        ROC AUC IP: nan
+        AP IP: nan
+        MCC IP: nan
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5187165775401069
+        AP CV all datasets: 0.4666876851928676
+        MCC CV all datasets: 0.0
+Training using EpiDISH_CBSX_LM22_
+    LODO training using IP as test set
+        ROC AUC IP: 0.6323529411764706
+        AP IP: 0.3005952380952381
+        MCC IP: 0.01355815361366601
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5882352941176471
+        AP CV all datasets: 0.504029140533503
+        MCC CV all datasets: -0.18411706394066682
+Training using DeconRNASeq_CBSX_LM22_
+    LODO training using IP as test set
+        ROC AUC IP: 0.838235294117647
+        AP IP: 0.475
+        MCC IP: 0.38052119532359524
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5614973262032086
+        AP CV all datasets: 0.46082695366582843
+        MCC CV all datasets: -0.06364909472854591
+Training using CIBERSORTx_CBSX_NSCLC_
+    LODO training using IP as test set
+        ROC AUC IP: 0.5147058823529411
+        AP IP: 0.22056277056277057
+        MCC IP: -0.15737789507292674
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.6631016042780749
+        AP CV all datasets: 0.5789879312606585
+        MCC CV all datasets: 0.1387491870188641
+Training using CIBERSORTx_CBSX_HNSCC_
+    LODO training using IP as test set
+        ROC AUC IP: 0.5
+        AP IP: 0.19047619047619047
+        MCC IP: 0.0
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5614973262032086
+        AP CV all datasets: 0.5957618139436321
+        MCC CV all datasets: 0.23924685418842448
+Training using CIBERSORTx_CBSX_melanoma_
+    LODO training using IP as test set
+        ROC AUC IP: 0.3235294117647059
+        AP IP: 0.17110177404295052
+        MCC IP: -0.23008949665421113
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5454545454545454
+        AP CV all datasets: 0.5314685128799961
+        MCC CV all datasets: 0.34479141358380555
+Training using CIBERSORTx_CBSX_LM22_
+    LODO training using IP as test set
+        ROC AUC IP: 0.6911764705882353
+        AP IP: 0.6243589743589744
+        MCC IP: 0.0700140042014005
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5347593582887701
+        AP CV all datasets: 0.4966413216413217
+        MCC CV all datasets: 0.07269833993085317
+Training using quanTIseq
+    LODO training using IP as test set
+        ROC AUC IP: 0.6323529411764706
+        AP IP: 0.2922619047619048
+        MCC IP: 0.3067859955389482
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.4385026737967914
+        AP CV all datasets: 0.49599316993325737
+        MCC CV all datasets: -0.08388269992021519
+Training using MCP
+    LODO training using IP as test set
+        ROC AUC IP: 0.7058823529411764
+        AP IP: 0.33317307692307696
+        MCC IP: 0.07352941176470588
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.6951871657754011
+        AP CV all datasets: 0.5768166130395233
+        MCC CV all datasets: 0.1899901489143371
+Training using XCELL
+    LODO training using IP as test set
+        ROC AUC IP: 0.36764705882352944
+        AP IP: 0.19772086466165412
+        MCC IP: -0.19802950859533489
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5935828877005347
+        AP CV all datasets: 0.6164824488935161
+        MCC CV all datasets: 0.34479141358380555
+Training using EpiDISH_BPRNACan_
+    LODO training using IP as test set
+        ROC AUC IP: 0.29411764705882354
+        AP IP: 0.16296811740890688
+        MCC IP: -0.10846522890932808
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.6363636363636365
+        AP CV all datasets: 0.5931659907944493
+        MCC CV all datasets: 0.38869157943029664
+Training using DeconRNASeq_BPRNACan_
+    LODO training using IP as test set
+        ROC AUC IP: 0.29411764705882354
+        AP IP: 0.1649934012066365
+        MCC IP: -0.10846522890932808
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.4117647058823529
+        AP CV all datasets: 0.39044826687847284
+        MCC CV all datasets: -0.15480678800427466
+Training using EpiDISH_BPRNACanProMet_
+    LODO training using IP as test set
+        ROC AUC IP: 0.36764705882352944
+        AP IP: 0.17933612440191388
+        MCC IP: -0.10846522890932808
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.44385026737967914
+        AP CV all datasets: 0.43882574664981455
+        MCC CV all datasets: -0.06364909472854591
+Training using DeconRNASeq_BPRNACanProMet_
+    LODO training using IP as test set
+        ROC AUC IP: 0.6176470588235294
+        AP IP: 0.27142857142857146
+        MCC IP: -0.10846522890932808
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5668449197860962
+        AP CV all datasets: 0.5488574623144
+        MCC CV all datasets: 0.22927937978192153
+Training using EpiDISH_BPRNACan3DProMet_
+    LODO training using IP as test set
+        ROC AUC IP: 0.3382352941176471
+        AP IP: 0.1755482456140351
+        MCC IP: 0.0
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.6096256684491979
+        AP CV all datasets: 0.5762505962474759
+        MCC CV all datasets: 0.29854071701326607
+Training using DeconRNASeq_BPRNACan3DProMet_
+    LODO training using IP as test set
+        ROC AUC IP: 0.7647058823529411
+        AP IP: 0.4096590909090909
+        MCC IP: 0.0
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.4224598930481283
+        AP CV all datasets: 0.4230370288789995
+        MCC CV all datasets: -0.24186655996847442
+Training using EpiDISH_CBSX_NSCLC_
+    LODO training using IP as test set
+        ROC AUC IP: 0.27941176470588236
+        AP IP: 0.16114316540013135
+        MCC IP: 0.0
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5775401069518716
+        AP CV all datasets: 0.48963261733315205
+        MCC CV all datasets: -0.11941628680530643
+Training using DeconRNASeq_CBSX_NSCLC_
+    LODO training using IP as test set
+        training failed
+        training failed with cv <= 10
+        ROC AUC IP: nan
+        AP IP: nan
+        MCC IP: nan
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.4278074866310161
+        AP CV all datasets: 0.38457299736683964
+        MCC CV all datasets: 0.0
+Training using EpiDISH_CBSX_HNSCC_
+    LODO training using IP as test set
+        ROC AUC IP: 0.5882352941176471
+        AP IP: 0.3373949579831933
+        MCC IP: 0.038348249442368525
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5989304812834224
+        AP CV all datasets: 0.5704414930699515
+        MCC CV all datasets: 0.11456837051138262
+Training using DeconRNASeq_CBSX_HNSCC_
+    LODO training using IP as test set
+        training failed
+        training failed with cv <= 10
+        ROC AUC IP: nan
+        AP IP: nan
+        MCC IP: nan
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5454545454545454
+        AP CV all datasets: 0.5335584088339261
+        MCC CV all datasets: 0.34479141358380555
+Training using EpiDISH_CBSX_melanoma_
+    LODO training using IP as test set
+        ROC AUC IP: 0.3088235294117647
+        AP IP: 0.20625
+        MCC IP: -0.38235294117647056
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5561497326203209
+        AP CV all datasets: 0.5246074258845156
+        MCC CV all datasets: 0.11456837051138262
+Training using DeconRNASeq_CBSX_melanoma_
+    LODO training using IP as test set
+        training failed
+        training failed with cv <= 10
+        ROC AUC IP: nan
+        AP IP: nan
+        MCC IP: nan
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5187165775401069
+        AP CV all datasets: 0.4666876851928676
+        MCC CV all datasets: 0.0
+Training using EpiDISH_CBSX_LM22_
+    LODO training using IP as test set
+        ROC AUC IP: 0.6323529411764706
+        AP IP: 0.3005952380952381
+        MCC IP: 0.01355815361366601
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5882352941176471
+        AP CV all datasets: 0.504029140533503
+        MCC CV all datasets: -0.18411706394066682
+Training using DeconRNASeq_CBSX_LM22_
+    LODO training using IP as test set
+        ROC AUC IP: 0.838235294117647
+        AP IP: 0.475
+        MCC IP: 0.38052119532359524
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5614973262032086
+        AP CV all datasets: 0.46082695366582843
+        MCC CV all datasets: -0.06364909472854591
+Training using CIBERSORTx_CBSX_NSCLC_
+    LODO training using IP as test set
+        ROC AUC IP: 0.5147058823529411
+        AP IP: 0.22056277056277057
+        MCC IP: -0.15737789507292674
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.6631016042780749
+        AP CV all datasets: 0.5789879312606585
+        MCC CV all datasets: 0.1387491870188641
+Training using CIBERSORTx_CBSX_HNSCC_
+    LODO training using IP as test set
+        ROC AUC IP: 0.5
+        AP IP: 0.19047619047619047
+        MCC IP: 0.0
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5614973262032086
+        AP CV all datasets: 0.5957618139436321
+        MCC CV all datasets: 0.23924685418842448
+Training using CIBERSORTx_CBSX_melanoma_
+    LODO training using IP as test set
+        ROC AUC IP: 0.3235294117647059
+        AP IP: 0.17110177404295052
+        MCC IP: -0.23008949665421113
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5454545454545454
+        AP CV all datasets: 0.5314685128799961
+        MCC CV all datasets: 0.34479141358380555
+Training using CIBERSORTx_CBSX_LM22_
+    LODO training using IP as test set
+        ROC AUC IP: 0.6911764705882353
+        AP IP: 0.6243589743589744
+        MCC IP: 0.0700140042014005
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5347593582887701
+        AP CV all datasets: 0.4966413216413217
+        MCC CV all datasets: 0.07269833993085317
+Training using quanTIseq
+    LODO training using IP as test set
+        ROC AUC IP: 0.6323529411764706
+        AP IP: 0.2922619047619048
+        MCC IP: 0.3067859955389482
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.4385026737967914
+        AP CV all datasets: 0.49599316993325737
+        MCC CV all datasets: -0.08388269992021519
+Training using MCP
+    LODO training using IP as test set
+        ROC AUC IP: 0.7058823529411764
+        AP IP: 0.33317307692307696
+        MCC IP: 0.07352941176470588
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.6951871657754011
+        AP CV all datasets: 0.5768166130395233
+        MCC CV all datasets: 0.1899901489143371
+Training using XCELL
+    LODO training using IP as test set
+        ROC AUC IP: 0.36764705882352944
+        AP IP: 0.19772086466165412
+        MCC IP: -0.19802950859533489
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5935828877005347
+        AP CV all datasets: 0.6164824488935161
+        MCC CV all datasets: 0.34479141358380555
+Training using EpiDISH_BPRNACan_
+    LODO training using IP as test set
+        ROC AUC IP: 0.29411764705882354
+        AP IP: 0.16296811740890688
+        MCC IP: -0.10846522890932808
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.6363636363636365
+        AP CV all datasets: 0.5931659907944493
+        MCC CV all datasets: 0.38869157943029664
+Training using DeconRNASeq_BPRNACan_
+    LODO training using IP as test set
+        ROC AUC IP: 0.29411764705882354
+        AP IP: 0.1649934012066365
+        MCC IP: -0.10846522890932808
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.4117647058823529
+        AP CV all datasets: 0.39044826687847284
+        MCC CV all datasets: -0.15480678800427466
+Training using EpiDISH_BPRNACanProMet_
+    LODO training using IP as test set
+        ROC AUC IP: 0.36764705882352944
+        AP IP: 0.17933612440191388
+        MCC IP: -0.10846522890932808
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.44385026737967914
+        AP CV all datasets: 0.43882574664981455
+        MCC CV all datasets: -0.06364909472854591
+Training using DeconRNASeq_BPRNACanProMet_
+    LODO training using IP as test set
+        ROC AUC IP: 0.6176470588235294
+        AP IP: 0.27142857142857146
+        MCC IP: -0.10846522890932808
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5668449197860962
+        AP CV all datasets: 0.5488574623144
+        MCC CV all datasets: 0.22927937978192153
+Training using EpiDISH_BPRNACan3DProMet_
+    LODO training using IP as test set
+        ROC AUC IP: 0.3382352941176471
+        AP IP: 0.1755482456140351
+        MCC IP: 0.0
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.6096256684491979
+        AP CV all datasets: 0.5762505962474759
+        MCC CV all datasets: 0.29854071701326607
+Training using DeconRNASeq_BPRNACan3DProMet_
+    LODO training using IP as test set
+        ROC AUC IP: 0.7647058823529411
+        AP IP: 0.4096590909090909
+        MCC IP: 0.0
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.4224598930481283
+        AP CV all datasets: 0.4230370288789995
+        MCC CV all datasets: -0.24186655996847442
+Training using EpiDISH_CBSX_NSCLC_
+    LODO training using IP as test set
+        ROC AUC IP: 0.27941176470588236
+        AP IP: 0.16114316540013135
+        MCC IP: 0.0
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5775401069518716
+        AP CV all datasets: 0.48963261733315205
+        MCC CV all datasets: -0.11941628680530643
+Training using DeconRNASeq_CBSX_NSCLC_
+    LODO training using IP as test set
+        training failed
+        training failed with cv <= 10
+        ROC AUC IP: nan
+        AP IP: nan
+        MCC IP: nan
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.4278074866310161
+        AP CV all datasets: 0.38457299736683964
+        MCC CV all datasets: 0.0
+Training using EpiDISH_CBSX_HNSCC_
+    LODO training using IP as test set
+        ROC AUC IP: 0.5882352941176471
+        AP IP: 0.3373949579831933
+        MCC IP: 0.038348249442368525
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5989304812834224
+        AP CV all datasets: 0.5704414930699515
+        MCC CV all datasets: 0.11456837051138262
+Training using DeconRNASeq_CBSX_HNSCC_
+    LODO training using IP as test set
+        training failed
+        training failed with cv <= 10
+        ROC AUC IP: nan
+        AP IP: nan
+        MCC IP: nan
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5454545454545454
+        AP CV all datasets: 0.5335584088339261
+        MCC CV all datasets: 0.34479141358380555
+Training using EpiDISH_CBSX_melanoma_
+    LODO training using IP as test set
+        ROC AUC IP: 0.3088235294117647
+        AP IP: 0.20625
+        MCC IP: -0.38235294117647056
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5561497326203209
+        AP CV all datasets: 0.5246074258845156
+        MCC CV all datasets: 0.11456837051138262
+Training using DeconRNASeq_CBSX_melanoma_
+    LODO training using IP as test set
+        training failed
+        training failed with cv <= 10
+        ROC AUC IP: nan
+        AP IP: nan
+        MCC IP: nan
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5187165775401069
+        AP CV all datasets: 0.4666876851928676
+        MCC CV all datasets: 0.0
+Training using EpiDISH_CBSX_LM22_
+    LODO training using IP as test set
+        ROC AUC IP: 0.6323529411764706
+        AP IP: 0.3005952380952381
+        MCC IP: 0.01355815361366601
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5882352941176471
+        AP CV all datasets: 0.504029140533503
+        MCC CV all datasets: -0.18411706394066682
+Training using DeconRNASeq_CBSX_LM22_
+    LODO training using IP as test set
+        ROC AUC IP: 0.838235294117647
+        AP IP: 0.475
+        MCC IP: 0.38052119532359524
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5614973262032086
+        AP CV all datasets: 0.46082695366582843
+        MCC CV all datasets: -0.06364909472854591
+Training using CIBERSORTx_CBSX_NSCLC_
+    LODO training using IP as test set
+        ROC AUC IP: 0.5147058823529411
+        AP IP: 0.22056277056277057
+        MCC IP: -0.15737789507292674
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.6631016042780749
+        AP CV all datasets: 0.5789879312606585
+        MCC CV all datasets: 0.1387491870188641
+Training using CIBERSORTx_CBSX_HNSCC_
+    LODO training using IP as test set
+        ROC AUC IP: 0.5
+        AP IP: 0.19047619047619047
+        MCC IP: 0.0
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5614973262032086
+        AP CV all datasets: 0.5957618139436321
+        MCC CV all datasets: 0.23924685418842448
+Training using CIBERSORTx_CBSX_melanoma_
+    LODO training using IP as test set
+        ROC AUC IP: 0.3235294117647059
+        AP IP: 0.17110177404295052
+        MCC IP: -0.23008949665421113
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5454545454545454
+        AP CV all datasets: 0.5314685128799961
+        MCC CV all datasets: 0.34479141358380555
+Training using CIBERSORTx_CBSX_LM22_
+    LODO training using IP as test set
+        ROC AUC IP: 0.6911764705882353
+        AP IP: 0.6243589743589744
+        MCC IP: 0.0700140042014005
+    CV training on all datasets
+        ROC AUC CV all datasets: 0.5347593582887701
+        AP CV all datasets: 0.4966413216413217
+        MCC CV all datasets: 0.07269833993085317

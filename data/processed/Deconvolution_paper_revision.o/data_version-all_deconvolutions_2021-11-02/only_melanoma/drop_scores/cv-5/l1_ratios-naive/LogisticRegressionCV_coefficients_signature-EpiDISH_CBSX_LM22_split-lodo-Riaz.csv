@@ -1,0 +1,23 @@
+,coef,abs coef,% total,cum % total,coef OR
+EpiDISH_CBSX_LM22_Dendritic.cells.resting,0.12389992927109485,0.12389992927109485,0.8789338044084932,0.8789338044084932,1.1319025950137318
+EpiDISH_CBSX_LM22_Mast.cells.resting,0.017066237520586676,0.017066237520586676,0.12106619559150672,1.0,1.0172126977408336
+EpiDISH_CBSX_LM22_B.cells.naive,0.0,0.0,0.0,1.0,1.0
+EpiDISH_CBSX_LM22_B.cells.memory,0.0,0.0,0.0,1.0,1.0
+EpiDISH_CBSX_LM22_Eosinophils,0.0,0.0,0.0,1.0,1.0
+EpiDISH_CBSX_LM22_Mast.cells.activated,0.0,0.0,0.0,1.0,1.0
+EpiDISH_CBSX_LM22_Dendritic.cells.activated,0.0,0.0,0.0,1.0,1.0
+EpiDISH_CBSX_LM22_Macrophages.M2,0.0,0.0,0.0,1.0,1.0
+EpiDISH_CBSX_LM22_Macrophages.M1,0.0,0.0,0.0,1.0,1.0
+EpiDISH_CBSX_LM22_Macrophages.M0,0.0,0.0,0.0,1.0,1.0
+EpiDISH_CBSX_LM22_Monocytes,0.0,0.0,0.0,1.0,1.0
+EpiDISH_CBSX_LM22_NK.cells.activated,0.0,0.0,0.0,1.0,1.0
+EpiDISH_CBSX_LM22_NK.cells.resting,0.0,0.0,0.0,1.0,1.0
+EpiDISH_CBSX_LM22_T.cells.gamma.delta,0.0,0.0,0.0,1.0,1.0
+EpiDISH_CBSX_LM22_T.cells.regulatory..Tregs.,0.0,0.0,0.0,1.0,1.0
+EpiDISH_CBSX_LM22_T.cells.follicular.helper,0.0,0.0,0.0,1.0,1.0
+EpiDISH_CBSX_LM22_T.cells.CD4.memory.activated,0.0,0.0,0.0,1.0,1.0
+EpiDISH_CBSX_LM22_T.cells.CD4.memory.resting,0.0,0.0,0.0,1.0,1.0
+EpiDISH_CBSX_LM22_T.cells.CD4.naive,0.0,0.0,0.0,1.0,1.0
+EpiDISH_CBSX_LM22_T.cells.CD8,0.0,0.0,0.0,1.0,1.0
+EpiDISH_CBSX_LM22_Plasma.cells,0.0,0.0,0.0,1.0,1.0
+EpiDISH_CBSX_LM22_Neutrophils,0.0,0.0,0.0,1.0,1.0

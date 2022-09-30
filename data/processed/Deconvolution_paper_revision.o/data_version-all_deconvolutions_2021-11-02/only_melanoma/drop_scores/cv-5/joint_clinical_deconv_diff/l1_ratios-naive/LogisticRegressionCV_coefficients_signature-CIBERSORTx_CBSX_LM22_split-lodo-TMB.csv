@@ -1,0 +1,24 @@
+,coef,abs coef,% total,cum % total,coef OR
+CIBERSORTx_CBSX_LM22_Plasma_cells,0.10947883532411326,0.10947883532411326,1.0,1.0,1.1156964573313541
+CIBERSORTx_CBSX_LM22_B_cells_naive,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_LM22_Monocytes,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_LM22_Neutrophils,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_LM22_Eosinophils,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_LM22_Mast_cells_activated,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_LM22_Mast_cells_resting,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_LM22_Dendritic_cells_activated,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_LM22_Dendritic_cells_resting,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_LM22_Macrophages_M2,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_LM22_Macrophages_M1,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_LM22_Macrophages_M0,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_LM22_NK_cells_activated,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_LM22_B_cells_memory,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_LM22_NK_cells_resting,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_LM22_T_cells_gamma_delta,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_LM22_T_cells_regulatory_(Tregs),0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_LM22_T_cells_follicular_helper,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_LM22_T_cells_CD4_memory_activated,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_LM22_T_cells_CD4_memory_resting,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_LM22_T_cells_CD4_naive,0.0,0.0,0.0,1.0,1.0
+CIBERSORTx_CBSX_LM22_T_cells_CD8,0.0,0.0,0.0,1.0,1.0
+TMB,0.0,0.0,0.0,1.0,1.0

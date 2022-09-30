@@ -1,5 +1,4 @@
 Figures/*.pdf
 Figures/Fig2_summary_corrplot.pdf
-data/*
 Gene_expression/data/*
-Gene_expression/scripts/GDCdata
+Gene_expression/scripts/GDCdata/*
