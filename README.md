@@ -13,5 +13,5 @@ https://figshare.com/account/home#/projects/134069
 ## Citation 
 To cite the pipeline, refer to our paper on [BiorXiv](https://www.biorxiv.org/content/10.1101/2021.04.09.439207v2) :  
 **GEM-DeCan: Improved tumor immune microenvironment profiling through novel gene expression and DNA methylation signatures predicts immunotherapy response**  
-Ting Xie, Julien Pernet, Nina Verstraete, Miguel Madrid-Mencía, Mei-Shiue Kuo, Alexis Hucteau, Alexis Coullomb, Jacobo Solórzano, Olivier Delfour, Francisco Cruzalegui, Vera Pancaldi  
+Ting Xie, Jacobo Solorzano, Miguel Madrid-Mencía, Abdelmounim Essabbar, Julien Pernet, Mei-Shiue Kuo, Alexis Hucteau, Alexis Coullomb, Nina Verstraete, Olivier Delfour, Francisco Cruzalegui,  Vera Pancaldi 
 bioRxiv 2021.04.09.439207; doi: https://doi.org/10.1101/2021.04.09.439207
