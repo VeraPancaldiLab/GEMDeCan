@@ -48,8 +48,13 @@ plot_figure <- function(longer_merge, title) {
 }
 
 prepare_table <- function(correlations, pvalues) {
-  correlations %<>% select(...1, order(.[9, -1], decreasing = T))
-  pvalues %<>% dplyr::select(colnames(correlations))
+  order <- pivot_longer(correlations, -`...1`) %>%
+    dplyr::filter(`...1` == "Mean") %>%
+    dplyr::arrange(desc(value)) %>%
+    .$name
+    
+    correlations %<>% dplyr::select(...1, all_of(order))
+    pvalues %<>% dplyr::select(...1, all_of(order))
 
 
   longer_correlations <- correlations %>%
