@@ -21,6 +21,7 @@ library(ggridges)
 library(ggtext)
 library(reshape2)
 library(glue)
+library(ggpubr)
 ```
 
 # Functions
@@ -37,7 +38,7 @@ cors <- function(df, cor.stat) {
 formatted_cors <- function(df, cor.stat){
   cors(df, cor.stat) %>%
     map(~rownames_to_column(.x, var="measure1")) %>%
-    map(~pivot_longer(.x, -measure1, "measure2")) %>%
+    map(~pivot_longer(.x, -measure1, names_to = "measure2")) %>%
     bind_rows(.id = "id") %>%
     pivot_wider(names_from = id, values_from = value) %>%
     dplyr::rename(p = P) %>%
@@ -398,10 +399,8 @@ dict_GSE72056[["CCLE_TIL10"]] <- list(B = c("B.cells"),
 ```
 ## Corrplot
 ```{r}
-corr <- benchmark_corr(deconv_data = deconv_GSE72056, true_estimates = truth_GSE72056, dict = dict_GSE72056, key = "Samples")
-p <- plot_corrplots(store_corrs = corr, key = "Samples", title = "GSE72056")
-p
-
+corr <- benchmark_corrplots(deconv_data = deconv_GSE72056, true_estimates = truth_GSE72056, dict = dict_GSE72056, key = "Samples", title = "GSE72056")
+corr
 ```
 
 
