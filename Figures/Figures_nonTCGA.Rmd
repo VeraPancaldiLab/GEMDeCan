@@ -406,10 +406,10 @@ corr
 
 
 
-# Thomas RNAseq #! Change name!
+# Nakamura2018 RNAseq #! Change name!
 ## Data loading
 ```{r}
-deconv_Thomas <- read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Data/deconvolution_for_gemdecan/all_deconvolutions_Thomas_RNAseq_part.txt") %>%
+deconv_Nakamura2018 <- read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Data/deconvolution_for_gemdecan/all_deconvolutions_Thomas_RNAseq_part.txt") %>%
   dplyr::rename_with(~str_replace(.,"__", "_CBSX_")) %>%
   dplyr::rename_with(~str_replace(.,"__", "_"))#! fix naming of deconv results
  
@@ -417,7 +417,7 @@ deconv_Thomas <- read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Data/deconvolution_fo
 
 
 load( "/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/meyloma_ludo/meyloma.RData")
-truth_Thomas <- as_tibble(FACS_Thomas_mean, rownames = "Samples") %>%  mutate(Samples = as.numeric(Samples))
+truth_Nakamura2018 <- as_tibble(FACS_Nakamura2018_mean, rownames = "Samples") %>%  mutate(Samples = as.numeric(Samples))
 
 ```
 
@@ -428,36 +428,36 @@ truth_Thomas <- as_tibble(FACS_Thomas_mean, rownames = "Samples") %>%  mutate(Sa
 ## signature dictionary construction (can use . as regexp!)
 ## uncoment print of functions to check that you detect what you want.
 ## non matching signatures/methods (all 0) are removed.
-dict_Thomas <- list()
-dict_Thomas[["BPRNACan"]] <- list(CD4 = c("CD4"),
+dict_Nakamura2018 <- list()
+dict_Nakamura2018[["BPRNACan"]] <- list(CD4 = c("CD4"),
                                      CD8 = c("CD8"),
                                      NK = c("NK"))
 
-dict_Thomas[["BPRNACanProMet"]] <- dict_Thomas[["BPRNACan"]]
-dict_Thomas[["BPRNACan3DProMet"]] <- dict_Thomas[["BPRNACan"]]
+dict_Nakamura2018[["BPRNACanProMet"]] <- dict_Nakamura2018[["BPRNACan"]]
+dict_Nakamura2018[["BPRNACan3DProMet"]] <- dict_Nakamura2018[["BPRNACan"]]
 
 
-dict_Thomas[["CBSX_Fig2ab-NSCLC_PBMCs_scRNAseq_sigmatrix"]] <- list(CD4 = c("T.cells.CD4"),
+dict_Nakamura2018[["CBSX_Fig2ab-NSCLC_PBMCs_scRNAseq_sigmatrix"]] <- list(CD4 = c("T.cells.CD4"),
                                      CD8 = c("T.cells.CD8"),
                                      NK = c("NK.cells") #"NKT.cells"?
                                      )
 
 
-dict_Thomas[["CBSX_LM22"]] <- list(CD4 = c("T.cells.CD4.naive", "T.cells.CD4.memory.resting", "T.cells.CD4.memory.activated"), # "T.cells.follicular.helper", "T.cells.gamma.delta", "T.cells.regulatory..Tregs."?
+dict_Nakamura2018[["CBSX_LM22"]] <- list(CD4 = c("T.cells.CD4.naive", "T.cells.CD4.memory.resting", "T.cells.CD4.memory.activated"), # "T.cells.follicular.helper", "T.cells.gamma.delta", "T.cells.regulatory..Tregs."?
                                      CD8 = c("T.cells.CD8"),
                                      NK = c("NK.cells.resting", "NK.cells.activated"))
 
-dict_Thomas[["CBSX_scRNA-Seq_melanoma_Tirosh_sigmatrix_SuppFig_3-b"]] <- list(CD4 = c("T.cells.CD4"),
+dict_Nakamura2018[["CBSX_scRNA-Seq_melanoma_Tirosh_sigmatrix_SuppFig_3-b"]] <- list(CD4 = c("T.cells.CD4"),
                                      CD8 = c("T.cells.CD8"),
                                      NK = c("NK.cells"))
 
 
-dict_Thomas[["CBSX_sigmatrix_HNSCC_Fig2cd"]] <- list(CD4 = c("T.cells.CD4"),
+dict_Nakamura2018[["CBSX_sigmatrix_HNSCC_Fig2cd"]] <- list(CD4 = c("T.cells.CD4"),
                                      CD8 = c("T.cells.CD8"),
                                      NK = NULL)
 
 
-dict_Thomas[["Quantiseq"]] <- list(CD4 = c("T.cell.CD4+.(non-regulatory)"), # "T.cell.regulatory(Tregs)"
+dict_Nakamura2018[["Quantiseq"]] <- list(CD4 = c("T.cell.CD4+.(non-regulatory)"), # "T.cell.regulatory(Tregs)"
                                    CD8 = c("T.cell.CD8+"),
                                    NK = c("NK.cell"))
 
@@ -466,6 +466,6 @@ dict_Thomas[["Quantiseq"]] <- list(CD4 = c("T.cell.CD4+.(non-regulatory)"), # "T
 
 ```{r}
 
-corr <- benchmark_corrplots(deconv_data = deconv_Thomas, true_estimates = truth_Thomas, dict = dict_Thomas, key = "Samples", title = "test")
+corr <- benchmark_corrplots(deconv_data = deconv_Nakamura2018, true_estimates = truth_Nakamura2018, dict = dict_Nakamura2018, key = "Samples", title = "test")
 corr
 ```
