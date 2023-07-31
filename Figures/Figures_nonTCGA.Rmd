@@ -406,115 +406,6 @@ corr
 
 
 
-## Test without function
-```{r}
-
-
-deconv_data = deconv_GSE72056
-true_estimates = truth_GSE72056
-dict = dict_GSE72056
-key = "Samples"
-title = "GSE72056"
-
-# build the data
-true_subset_ <- true_estimates %>%  na.exclude() %>%
-  arrange(factor(get(key), levels = get(key)))
-
-common <- Reduce(intersect, list(deconv_data[[key]],
-                 true_subset_[[key]]))
-
-true_subset <- dplyr::filter(true_subset_, get(key) %in% common) %>% 
-  arrange(factor(get(key), levels = common))
-
-deconv_subset <- dplyr::filter(deconv_data, get(key) %in% common) %>% 
-  arrange(factor(get(key), levels = common))
-
-deconv_subset_summary <- ridgeplot_parse(deconv_data = deconv_subset, signatures_dictionary = dict, key = key)
-identical(true_subset[[key]], deconv_subset_summary[[key]]) %>% stopifnot()
-
-to_corr <- inner_join(true_subset, deconv_subset_summary) %>% dplyr::select(-any_of(key))
-ct_corrplots <- list()
-store_corrs <- tibble(measure1 = character(),
-                        measure2 = character(),
-                        r = numeric(),
-                        n = numeric(),
-                        p = numeric(),
-                        sig_p = logical(),
-                        p_if_sig = numeric(),
-                        r_if_sig = numeric())
-
-for (ct in unique(dplyr::select(true_estimates, -any_of(key)) %>% names())){
-    
-    substring_remove <- c(paste0("_",ct,"$"),
-    "_Tirosh_sigmatrix_SuppFig_3.b",
-    "_scRNA.Seq",
-    "Fig2ab.",
-    "_PBMCs_scRNAseq_sigmatrix",
-    "sigmatrix_",
-    "_Fig2cd")
-    
-    deconv_ct_names <- to_corr %>%
-      # segregate by ct
-      dplyr::select(matches(paste0(ct, "$"))) %>%
-      formatted_cors(cor.stat = "pearson") %>%
-      # reduce to corrs just to ground truth
-      dplyr::filter(measure1 == all_of(ct), measure2 != all_of(ct)) %>%
-      # rename ground truth as cancer type
-      dplyr::mutate(measure2 = str_remove_all(measure2,  paste(substring_remove, collapse = "|")))
-    #add to the rest of cancer type correlations
-    store_corrs <- add_row(store_corrs , deconv_ct_names)
-  }
-  
-  # Plot
-  
-  order <- store_corrs %>% 
-    drop_na(r) %>% 
-    group_by(measure2) %>%
-    dplyr::summarize(r = mean(r)) %>% 
-    arrange(desc(r)) %>% 
-    mutate(measure1 = "Average",
-           p = NA,
-           sig_p = TRUE,
-           p_if_sig = NA,
-           r_if_sig = r ) %>%
-    dplyr::relocate(measure1, .before = measure2)
-  
-
-  corr_df <- add_row(store_corrs, order) %>% dplyr::mutate(measure2 = factor(measure2, levels = order$measure2)) %>% dplyr::arrange(factor(measure2, levels = order$measure2))
-  write.csv( corr_df, paste0('Spearmans_Correlation_',title,'.csv') )
-  corr_df %>% ggplot(aes(measure1, measure2, fill=r, label=round(r_if_sig,2))) +
-              geom_tile() +
-              labs(x = NULL, y = NULL, fill = "Spearman's\nCorrelation", title= title, subtitle="Only significant correlation coefficients shown (95% I.C.)") +
-              scale_fill_gradient2(mid="#FBFEF9",low="#0C6291",high="#A63446", limits=c(-1,1)) +
-              geom_text() + theme_classic() + rotate_x_text(angle = 45) + theme(axis.text.x=element_markdown()) + theme(axis.text.y=element_markdown()) +
-              scale_x_discrete(expand=c(0,0), labels= function(x) highlight(x, "Average", "red")) +
-              scale_y_discrete(expand=c(0,0), labels= function(x) highlight(x, "Average", "red")) 
-  # order columns by number of NA (push empty columns to the right)
-corr_matrix <- corr_df %>%
-    dcast(measure2~measure1, value.var = "r") 
-corr_matrix_sorted <- corr_matrix[order(rowSums(is.na(corr_matrix))), ]
-corr_matrix_sorted2 <- corr_matrix_sorted[,order(colSums(is.na(corr_matrix_sorted))) ]
-
-melt(data = corr_matrix_sorted2) %>% ggplot(aes(measure2, variable, fill=value, label=round(value,2))) +
-            geom_tile() + 
-            labs(x = NULL, y = NULL, fill = "Spearman's\nCorrelation", title= title, subtitle="Only significant correlation coefficients shown (95% I.C.)") +
-            scale_fill_gradient2(mid="#FBFEF9",low="#0C6291",high="#A63446", limits=c(-1,1), na.value = 'white') +
-            geom_text() + theme_classic() + rotate_x_text(angle = 45) + theme(axis.text.x=element_markdown()) + theme(axis.text.y=element_markdown()) +
-            scale_x_discrete(expand=c(0,0), labels= function(x) highlight(x, "Average", "red")) +
-            scale_y_discrete(expand=c(0,0), labels= function(x) highlight(x, "Average", "red")) 
-
-corr_matrix_sorted2 
-
-
-```
-
-
-
-
-
-
-
-
 # Thomas RNAseq #! Change name!
 ## Data loading
 ```{r}
@@ -548,7 +439,7 @@ dict_Thomas[["BPRNACan3DProMet"]] <- dict_Thomas[["BPRNACan"]]
 
 dict_Thomas[["CBSX_Fig2ab-NSCLC_PBMCs_scRNAseq_sigmatrix"]] <- list(CD4 = c("T.cells.CD4"),
                                      CD8 = c("T.cells.CD8"),
-                                     NK = c("NK.cells"), #"NKT.cells"?
+                                     NK = c("NK.cells") #"NKT.cells"?
                                      )
 
 
@@ -563,7 +454,7 @@ dict_Thomas[["CBSX_scRNA-Seq_melanoma_Tirosh_sigmatrix_SuppFig_3-b"]] <- list(CD
 
 dict_Thomas[["CBSX_sigmatrix_HNSCC_Fig2cd"]] <- list(CD4 = c("T.cells.CD4"),
                                      CD8 = c("T.cells.CD8"),
-                                     NK = c())
+                                     NK = NULL)
 
 
 dict_Thomas[["Quantiseq"]] <- list(CD4 = c("T.cell.CD4+.(non-regulatory)"), # "T.cell.regulatory(Tregs)"
@@ -575,12 +466,6 @@ dict_Thomas[["Quantiseq"]] <- list(CD4 = c("T.cell.CD4+.(non-regulatory)"), # "T
 
 ```{r}
 
-corr <- benchmark_corr(deconv_data = deconv_Thomas, true_estimates = truth_Thomas, dict = dict_GSE72056, key = "Samples")
-p <- plot_corrplots(store_corrs = corr, key = "Samples", title = "Thomas")
-p
-# corrplots$Macrophages <- corrplots$Macrophages + rremove("y.text")
-# corrplots$Neutrophils <- corrplots$Neutrophils + rremove("y.text")
-# summary_corrplot  <- ggarrange(plotlist = corrplots, ncol = 3, common.legend = T, widths = c(0.35, 0.35, 0.25) , legend = "bottom")
-# 
-# ggsave("Fig2_summary_corrplot.pdf", dpi = "print", width = 250, height = 100, units = "mm", scale = 2.5)
+corr <- benchmark_corrplots(deconv_data = deconv_Thomas, true_estimates = truth_Thomas, dict = dict_Thomas, key = "Samples", title = "test")
+corr
 ```
