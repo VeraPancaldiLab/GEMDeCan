@@ -417,7 +417,7 @@ deconv_Nakamura2018 <- read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Data/deconvolut
 
 
 load( "/mnt/SERVER-CRCT-STORAGE/CRCT21/Private/Julien/gemdecan/data/meyloma_ludo/meyloma.RData")
-truth_Nakamura2018 <- as_tibble(FACS_Nakamura2018_mean, rownames = "Samples") %>%  mutate(Samples = as.numeric(Samples))
+truth_Nakamura2018 <- as_tibble(FACS_Thomas_mean, rownames = "Samples") %>%  mutate(Samples = as.numeric(Samples))
 
 ```
 
@@ -466,6 +466,6 @@ dict_Nakamura2018[["Quantiseq"]] <- list(CD4 = c("T.cell.CD4+.(non-regulatory)")
 
 ```{r}
 
-corr <- benchmark_corrplots(deconv_data = deconv_Nakamura2018, true_estimates = truth_Nakamura2018, dict = dict_Nakamura2018, key = "Samples", title = "test")
+corr <- benchmark_corrplots(deconv_data = deconv_Nakamura2018, true_estimates = truth_Nakamura2018, dict = dict_Nakamura2018, key = "Samples", title = "Nakamura et al. 2018")
 corr
 ```
