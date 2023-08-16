@@ -4883,22 +4883,19 @@ melt_lymph_Pvalue <- melt(lymph_p)
 
 merge_lymph <- cbind(melt_lymph, melt_lymph_Pvalue[, 3]) # %>% .[,-3]
 colnames(merge_lymph)[4] <- "value.1"
-melt_merge_lymph <- merge_lymph %>%
-  mutate(text = case_when(
-    is.na(value.1) & is.na(value) ~ paste("NA"),
-    is.na(value.1) & (value == 0) ~ paste(value, "\n"),
-    value.1 >= 0.05 ~ paste(value),
-    value.1 >= 0.01 & value.1 < 0.05 ~ paste(value, "\n*"),
-    value.1 >= 0.001 & value.1 < 0.01 ~ paste(value, "\n**"),
-    value.1 < 0.001 ~ paste(value, "\n***")
-  ))
 
+melt_merge_lymph <- merge_lymph %>%
+  mutate(variable = str_replace(variable, "Avg_Met_", "Average BPmetCan & "))
+    
 melt_merge_lymph$new_Var2 <- lymph$X
 melt_merge_lymph$new_Var2 <- factor(melt_merge_lymph$new_Var2, levels = unique(melt_merge_lymph$new_Var2))
 
 lymph_order <- dplyr::filter(melt_merge_lymph, X == "Mean") %>%
   dplyr::arrange(value)
-    
+
+highlight = function(x, pat, color="black", family="") {
+  ifelse(grepl(pat, x), glue("<b style='font-family:{family}; color:{color}'>{x}</b>"), x)
+}    
     
 lymph_figure <- dplyr::mutate(melt_merge_lymph, variable = factor(variable, levels = lymph_order$variable)) %>% dplyr::arrange(factor(variable, levels = lymph_order$variable)) %>%
     ggplot( aes(new_Var2, variable, fill = value, label=round(value,2))) +
