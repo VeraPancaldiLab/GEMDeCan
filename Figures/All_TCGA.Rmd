@@ -4901,26 +4901,16 @@ lymph_order <- dplyr::filter(melt_merge_lymph, X == "Mean") %>%
     
     
 lymph_figure <- dplyr::mutate(melt_merge_lymph, variable = factor(variable, levels = lymph_order$variable)) %>% dplyr::arrange(factor(variable, levels = lymph_order$variable)) %>%
-    ggplot( aes(new_Var2, variable)) +
-  geom_tile(aes(fill = value), colour = "grey", size = 1) +
-  scale_fill_gradient2(low = "#5C5DAF", mid = "white", high = "#EA2E2D") +
-  geom_text(aes(label = text), col = "black", size = 4) +
-  theme_minimal() +
-  theme(
-    axis.title.x = element_blank(),
-    axis.ticks.x = element_blank(),
-    axis.title.y = element_blank(),
-    legend.title = element_text(size = 14),
-    legend.text = element_text(size = 14),
-    axis.text.x = element_text(
-      angle = 90, hjust = 0.5, vjust = 0.5,
-      size = 14, colour = "black", face="bold"
-    ),
-    axis.text.y = element_text(size = 14, colour = "black", face="bold")
-  ) +
-  labs(fill = paste0("Correlation")) +
-  ggtitle("Lymphocytes") +
-  theme(plot.title = element_text(hjust = 0.5, size = 16))
+    ggplot( aes(new_Var2, variable, fill = value, label=round(value,2))) +
+    geom_tile() +
+      labs(x = NULL, y = NULL, fill = "Spearman's\nCorrelation", title= "Lymphocytes") +
+    scale_fill_gradient2(mid="#FBFEF9",low="#0C6291",high="#A63446", limits=c(-1,1)) +
+    geom_text() +
+    theme_classic() +
+    scale_x_discrete(expand=c(0,0), labels= function(x) highlight(x, "Average", "red")) +
+    scale_y_discrete(expand=c(0,0), labels= function(x) highlight(x, "Average", "red")) +
+    rotate_x_text(angle = 45) + theme(axis.text.x=element_markdown()) + theme(axis.text.y=element_markdown())
+  
 
 lymph_figure
 ```
