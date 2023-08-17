@@ -4893,8 +4893,6 @@ melt_merge_lymph$new_Var2 <- factor(melt_merge_lymph$new_Var2, levels = unique(m
 lymph_order <- dplyr::filter(melt_merge_lymph, X == "Mean") %>%
   dplyr::arrange(value)
 
-highlight = function(x, pat, color="black", family="") {
-  ifelse(grepl(pat, x), glue("<b style='font-family:{family}; color:{color}'>{x}</b>"), x)
 }    
     
 lymph_figure <- dplyr::mutate(melt_merge_lymph, variable = factor(variable, levels = lymph_order$variable)) %>% dplyr::arrange(factor(variable, levels = lymph_order$variable)) %>%
@@ -4904,9 +4902,9 @@ lymph_figure <- dplyr::mutate(melt_merge_lymph, variable = factor(variable, leve
     scale_fill_gradient2(mid="#FBFEF9",low="#0C6291",high="#A63446", limits=c(-1,1)) +
     geom_text() +
     theme_classic() +
-    scale_x_discrete(expand=c(0,0), labels= function(x) highlight(x, "Average", "red")) +
-    scale_y_discrete(expand=c(0,0), labels= function(x) highlight(x, "Average", "red")) +
-    rotate_x_text(angle = 45) + theme(axis.text.x=element_markdown()) + theme(axis.text.y=element_markdown())
+    scale_x_discrete(expand=c(0,0)) +
+    scale_y_discrete(expand=c(0,0)) +
+    rotate_x_text(angle = 45)
   
 
 lymph_figure
