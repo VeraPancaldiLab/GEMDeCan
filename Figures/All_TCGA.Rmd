@@ -4885,7 +4885,8 @@ merge_lymph <- cbind(melt_lymph, melt_lymph_Pvalue[, 3]) # %>% .[,-3]
 colnames(merge_lymph)[4] <- "value.1"
 
 melt_merge_lymph <- merge_lymph %>%
-  mutate(variable = str_replace(variable, "Avg_Met_", "Average BPmetCan & "))
+  mutate(variable = str_replace(variable, "Avg_Met_", "Average BPmetCan & "),
+         variable = str_replace(variable, "BPRNACan3D$", "BPRNACan3DProMet"))
     
 melt_merge_lymph$new_Var2 <- lymph$X
 melt_merge_lymph$new_Var2 <- factor(melt_merge_lymph$new_Var2, levels = unique(melt_merge_lymph$new_Var2))
@@ -4893,7 +4894,6 @@ melt_merge_lymph$new_Var2 <- factor(melt_merge_lymph$new_Var2, levels = unique(m
 lymph_order <- dplyr::filter(melt_merge_lymph, X == "Mean") %>%
   dplyr::arrange(value)
 
-}    
     
 lymph_figure <- dplyr::mutate(melt_merge_lymph, variable = factor(variable, levels = lymph_order$variable)) %>% dplyr::arrange(factor(variable, levels = lymph_order$variable)) %>%
     ggplot( aes(new_Var2, variable, fill = value, label=round(value,2))) +
