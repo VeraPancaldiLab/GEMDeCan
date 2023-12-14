@@ -104,7 +104,8 @@ scatterplot_truevsestimate <- function(merged_data, x, y, title, color, x_lab = 
 # - celltype: name of the celltype to sumarize "Lymphocites", "Macrophages" or "Neutrophils"
 
 ridgeplot_parse <- function(deconv_data, signatures_dictionary, key){
-  
+    
+  # Create a tibble to store equivalences
     results <- tibble(Samples = deconv_data[[key]])
     
     names_table <- deconv_data %>%
@@ -113,6 +114,7 @@ ridgeplot_parse <- function(deconv_data, signatures_dictionary, key){
       str_split_fixed("_", 2) %>%
       as_tibble(.name_repair = "unique")
     
+    # Iterate throughout methods and their signatures, saving with standard notation
     for (method in unique(names_table[,1,drop=T])){
       
       if (method %in% c("Epidish",
@@ -124,8 +126,9 @@ ridgeplot_parse <- function(deconv_data, signatures_dictionary, key){
           
           for (celltype in names(signatures_dictionary[[signature]])){
             if (length(signatures_dictionary[[signature]][[celltype]]) > 0){
-              name_of_summary <- paste(to_match, celltype, sep = "_")
-              columns_to_summarize <- paste(to_match, signatures_dictionary[[signature]][[celltype]], sep = ".")
+              name_of_summary <- paste(to_match, celltype, sep = "_") # New name
+              columns_to_summarize <- paste(to_match, signatures_dictionary[[signature]][[celltype]], sep = ".") # Columns to sum of the deconv to have the new name
+                                            
               
               print(paste0("Truth: ", name_of_summary))
               deconv_data %>% dplyr::select(matches(columns_to_summarize)) %>% colnames() %>% paste0("Est: ",.) %>% print()
@@ -148,6 +151,7 @@ ridgeplot_parse <- function(deconv_data, signatures_dictionary, key){
       }
     }
     }
+    # remove empty signatures
     results %>% dplyr::select(-Samples) %>% dplyr::select(which(!colSums(., na.rm=TRUE) %in% 0)) %>% bind_cols(Samples = results$Samples,.)
 }
 ################################################################################
@@ -158,9 +162,11 @@ ridgeplot_parse <- function(deconv_data, signatures_dictionary, key){
 
 ```{r}
 benchmark_corrplots <- function(deconv_data, true_estimates, dict, key, title){
-  # build the data
+  # build the data to parse all the estimations to ground truth
   true_subset_ <- true_estimates %>%  na.exclude() %>%
-    arrange(factor(get(key), levels = get(key)))
+    arrange(factor(get(key), levels = get(key))) %>%
+    dplyr:::rename_with(~str_replace(.,"_", ".")) %>%
+    dplyr:::rename_with(~str_replace(.," ", "."))
   
   common <- Reduce(intersect, list(deconv_data[[key]],
                    true_subset_[[key]]))
@@ -171,9 +177,11 @@ benchmark_corrplots <- function(deconv_data, true_estimates, dict, key, title){
   deconv_subset <- dplyr::filter(deconv_data, get(key) %in% common) %>% 
     arrange(factor(get(key), levels = common))
   
+  # summarize those predictions constituting each ground truth celltype and standardize naming
   deconv_subset_summary <- ridgeplot_parse(deconv_data = deconv_subset, signatures_dictionary = dict, key = key)
   identical(true_subset[[key]], deconv_subset_summary[[key]]) %>% stopifnot()
   
+  # Correlate predictions to ground truth
   to_corr <- inner_join(true_subset, deconv_subset_summary) %>% dplyr::select(-any_of(key))
   ct_corrplots <- list()
   store_corrs <- tibble(measure1 = character(),
@@ -185,7 +193,7 @@ benchmark_corrplots <- function(deconv_data, true_estimates, dict, key, title){
                           p_if_sig = numeric(),
                           r_if_sig = numeric())
   
-    for (ct in unique(dplyr::select(true_estimates, -any_of(key)) %>% names())){
+    for (ct in unique(dplyr::select(true_subset, -any_of(key)) %>% names())){
       
       substring_remove <- c(paste0("_",ct,"$"),
       "_Tirosh_sigmatrix_SuppFig_3.b",
@@ -199,7 +207,7 @@ benchmark_corrplots <- function(deconv_data, true_estimates, dict, key, title){
         # segregate by ct
         dplyr::select(matches(paste0(ct, "$"))) %>%
         formatted_cors(cor.stat = "pearson") %>%
-        # reduce to corrs just to ground truth
+        # reduce to just to ground truth on one side, deconv on the other
         dplyr::filter(measure1 == all_of(ct), measure2 != all_of(ct)) %>%
         # rename ground truth as cancer type
         dplyr::mutate(measure2 = str_remove_all(measure2,  paste(substring_remove, collapse = "|")))
@@ -469,3 +477,161 @@ dict_Nakamura2018[["Quantiseq"]] <- list(CD4 = c("T.cell.CD4+.(non-regulatory)")
 corr <- benchmark_corrplots(deconv_data = deconv_Nakamura2018, true_estimates = truth_Nakamura2018, dict = dict_Nakamura2018, key = "Samples", title = "Nakamura et al. 2018")
 corr
 ```
+
+# Vanderbilt
+## Data loading
+```{r}
+deconv_Vanderbilt <- read_tsv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Data/deconvolution_for_gemdecan/Vanderbilt_08122023/all_deconvolutions_TPM_Counts_Van.txt") %>%
+  dplyr::rename_with(~str_replace(.,"__", "_CBSX_")) %>%
+  dplyr::rename_with(~str_replace_all(.,"\\.", "_")) %>%
+  dplyr::rename_with(~str_replace_all(.,"__", "_"))#! fix naming of deconv results
+ 
+
+
+
+
+truth_Vanderbilt <- read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Data/deconvolution_for_gemdecan/Vanderbilt_08122023/Cell_proportions.csv") %>%
+  rename(Samples = "...1")
+
+```
+
+## Signature Dictionary construction 
+
+```{r}
+# Lists of celltypes of each signature
+## signature dictionary construction (can use . as regexp!)
+## uncoment print of functions to check that you detect what you want.
+## non matching signatures/methods (all 0) are removed.
+dict_Vanderbilt <- list()
+dict_Vanderbilt[["BPRNACan"]] <- list(`B cells` = c("B"),
+                                      CD4 = c("CD4"),
+                                      CD8 = c("CD8"),
+                                      `Endothelial cells` = c(),
+                                      Cancer = c("cancer"),
+                                      Fibroblasts = c(),
+                                      `M1 Macrophages` = c("M1"),
+                                      `M2 macrophages` = c("M2"),
+                                      `Mast cells` = c(),
+                                      `Mural cells` = c(),
+                                      NK = c("NK"),
+                                      `Plasma B cells` = c(),
+                                      `T cells proliferative` = c(),
+                                      `T helper cells` = c(),
+                                      `T reg. cells` = c()) # Missing Monocytes, M0 and Neutrophils
+
+dict_Vanderbilt[["BPRNACanProMet"]] <- dict_Vanderbilt[["BPRNACan"]]
+dict_Vanderbilt[["BPRNACan3DProMet"]] <- dict_Vanderbilt[["BPRNACan"]]
+
+dict_Vanderbilt[["CBSX_Fig2ab-NSCLC_PBMCs_scRNAseq_sigmatrix"]] <- list(`B cells` = c("B_cells"),
+                                      CD4 = c("T.cells.CD4"),
+                                      CD8 = c("T.cells.CD8"),
+                                      `Endothelial cells` = c(),
+                                      Cancer = c(),
+                                      Fibroblasts = c(),
+                                      `M1 Macrophages` = c(),
+                                      `M2 macrophages` = c(),
+                                      `Mast cells` = c(),
+                                      `Mural cells` = c(),
+                                      NK = c("NK"), # NKT.cells?
+                                      `Plasma B cells` = c(),
+                                      `T cells proliferative` = c(),
+                                      `T helper cells` = c(),
+                                      `T reg. cells` = c()) # Missing Monocytes and NKT.cells
+
+dict_Vanderbilt[["CBSX_LM22"]] <- list(`B cells` = c("B.cells.memory", "B.cells.naive"),
+                                      CD4 = c("T.cells.CD4.memory.activated", "T.cells.CD4.memory.resting", "T.cells.CD4.naive"),
+                                      CD8 = c("T.cells.CD8", "T.cells.gamma.delta"),
+                                      `Endothelial cells` = c(),
+                                      Cancer = c(),
+                                      Fibroblasts = c(),
+                                      `M1 Macrophages` = c("Macrophages.M1"),
+                                      `M2 macrophages` = c("Macrophages.M2"),
+                                      `Mast cells` = c("Mast.cells.activated", "Mast.cells.resting"),
+                                      `Mural cells` = c(),
+                                      NK = c("NK.cells.activated", "NK.cells.resting"), 
+                                      `Plasma B cells` = c("Plasma.cells"),
+                                      `T cells proliferative` = c(),
+                                      `T helper cells` = c("T.cells.follicular.helper"),
+                                      `T reg. cells` = c("T.cells.regulatory..Tregs.")) # Missing Dendritic.cells.activated, Dendritic.cells.resting, Eosinophils, Macrophages.M0, , Monocytes, Neutrophils
+
+
+
+dict_Vanderbilt[["CBSX_scRNA-Seq_melanoma_Tirosh_sigmatrix_SuppFig_3-b"]] <- list(`B cells` = c("B.cells"),
+                                      CD4 = c("T.cells.CD4"),
+                                      CD8 = c("T.cells.CD8"),
+                                      `Endothelial cells` = c("Endothelial.cells"),
+                                      Cancer = c("Malignant"),
+                                      Fibroblasts = c("CAF"),
+                                      `M1 Macrophages` = c(),
+                                      `M2 macrophages` = c(),
+                                      `Mast cells` = c(),
+                                      `Mural cells` = c(),
+                                      NK = c("NK.cells"), 
+                                      `Plasma B cells` = c(),
+                                      `T cells proliferative` = c(),
+                                      `T helper cells` = c(),
+                                      `T reg. cells` = c()) # Missing Macrophages
+
+list(`B cells` = c(),
+                                      CD4 = c(),
+                                      CD8 = c(),
+                                      `Endothelial cells` = c(),
+                                      Cancer = c(),
+                                      Fibroblasts = c(),
+                                      `M1 Macrophages` = c(),
+                                      `M2 macrophages` = c(),
+                                      `Mast cells` = c(),
+                                      `Mural cells` = c(),
+                                      NK = c(), 
+                                      `Plasma B cells` = c(),
+                                      `T cells proliferative` = c(),
+                                      `T helper cells` = c(),
+                                      `T reg. cells` = c())
+
+
+dict_Vanderbilt[["CBSX_sigmatrix_HNSCC_Fig2cd"]] <- list(`B cells` = c("B.cells"),
+                                      CD4 = c("T.cells.CD4"),
+                                      CD8 = c("T.cells.CD8"),
+                                      `Endothelial cells` = c(),
+                                      Cancer = c("Malignant.cells"),
+                                      Fibroblasts = c("CAFs"),
+                                      `M1 Macrophages` = c(),
+                                      `M2 macrophages` = c(),
+                                      `Mast cells` = c("Mast.cells"),
+                                      `Mural cells` = c(),
+                                      NK = c(), 
+                                      `Plasma B cells` = c(),
+                                      `T cells proliferative` = c(),
+                                      `T helper cells` = c(),
+                                      `T reg. cells` = c()) # Missing Dendritic.cells Macrophages
+
+dict_Vanderbilt[["Quantiseq"]] <- list(`B cells` = c("B_cell"),
+                                      CD4 = c("T_cell_CD4+_(non-regulatory)"),
+                                      CD8 = c("T_cell_CD8+"),
+                                      `Endothelial cells` = c(),
+                                      Cancer = c(),
+                                      Fibroblasts = c(),
+                                      `M1 Macrophages` = c("Macrophage_M1"),
+                                      `M2 macrophages` = c("Macrophage_M2"),
+                                      `Mast cells` = c(),
+                                      `Mural cells` = c(),
+                                      NK = c("NK_cell"), 
+                                      `Plasma B cells` = c(),
+                                      `T cells proliferative` = c(),
+                                      `T helper cells` = c(),
+                                      `T reg. cells` = c("T_cell_regulatory_(Tregs)")) # Missing Monocyte Myeloid_dendritic_cell Neutrophil uncharacterized_cell
+
+
+dict_Vanderbilt[["Quantiseq"]] <- list(CD4 = c("T.cell.CD4+.(non-regulatory)"), # "T.cell.regulatory(Tregs)"
+                                   CD8 = c("T.cell.CD8+"),
+                                   NK = c("NK.cell"))
+
+```
+## Corrplot
+
+```{r}
+corr <- benchmark_corrplots(deconv_data = deconv_Vanderbilt, true_estimates = truth_Vanderbilt, dict = dict_Vanderbilt, key = "Samples", title = "Vanderbilt scRNAseq")
+corr
+
+```
+
