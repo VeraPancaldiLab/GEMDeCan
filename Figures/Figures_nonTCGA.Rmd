@@ -165,8 +165,8 @@ benchmark_corrplots <- function(deconv_data, true_estimates, dict, key, title){
   # build the data to parse all the estimations to ground truth
   true_subset_ <- true_estimates %>%  na.exclude() %>%
     arrange(factor(get(key), levels = get(key))) %>%
-    dplyr:::rename_with(~str_replace(.,"_", ".")) %>%
-    dplyr:::rename_with(~str_replace(.," ", "."))
+    dplyr:::rename_with(~str_replace_all(.,"_", ".")) %>%
+    dplyr:::rename_with(~str_replace_all(.," ", "."))
   
   common <- Reduce(intersect, list(deconv_data[[key]],
                    true_subset_[[key]]))
@@ -184,6 +184,8 @@ benchmark_corrplots <- function(deconv_data, true_estimates, dict, key, title){
   # Correlate predictions to ground truth
   to_corr <- inner_join(true_subset, deconv_subset_summary) %>% dplyr::select(-any_of(key))
   ct_corrplots <- list()
+  
+  ## Build matrix to store correlations 
   store_corrs <- tibble(measure1 = character(),
                           measure2 = character(),
                           r = numeric(),
@@ -468,7 +470,6 @@ dict_Nakamura2018[["CBSX_sigmatrix_HNSCC_Fig2cd"]] <- list(CD4 = c("T.cells.CD4"
 dict_Nakamura2018[["Quantiseq"]] <- list(CD4 = c("T.cell.CD4+.(non-regulatory)"), # "T.cell.regulatory(Tregs)"
                                    CD8 = c("T.cell.CD8+"),
                                    NK = c("NK.cell"))
-
 ```
 ## Corrplot
 
@@ -509,7 +510,7 @@ dict_Vanderbilt[["BPRNACan"]] <- list(`B cells` = c("B"),
                                       `Endothelial cells` = c(),
                                       Cancer = c("cancer"),
                                       Fibroblasts = c(),
-                                      `M1 Macrophages` = c("M1"),
+                                      `M1 macrophages` = c("M1"),
                                       `M2 macrophages` = c("M2"),
                                       `Mast cells` = c(),
                                       `Mural cells` = c(),
@@ -528,7 +529,7 @@ dict_Vanderbilt[["CBSX_Fig2ab-NSCLC_PBMCs_scRNAseq_sigmatrix"]] <- list(`B cells
                                       `Endothelial cells` = c(),
                                       Cancer = c(),
                                       Fibroblasts = c(),
-                                      `M1 Macrophages` = c(),
+                                      `M1 macrophages` = c(),
                                       `M2 macrophages` = c(),
                                       `Mast cells` = c(),
                                       `Mural cells` = c(),
@@ -544,7 +545,7 @@ dict_Vanderbilt[["CBSX_LM22"]] <- list(`B cells` = c("B.cells.memory", "B.cells.
                                       `Endothelial cells` = c(),
                                       Cancer = c(),
                                       Fibroblasts = c(),
-                                      `M1 Macrophages` = c("Macrophages.M1"),
+                                      `M1 macrophages` = c("Macrophages.M1"),
                                       `M2 macrophages` = c("Macrophages.M2"),
                                       `Mast cells` = c("Mast.cells.activated", "Mast.cells.resting"),
                                       `Mural cells` = c(),
@@ -562,7 +563,7 @@ dict_Vanderbilt[["CBSX_scRNA-Seq_melanoma_Tirosh_sigmatrix_SuppFig_3-b"]] <- lis
                                       `Endothelial cells` = c("Endothelial.cells"),
                                       Cancer = c("Malignant"),
                                       Fibroblasts = c("CAF"),
-                                      `M1 Macrophages` = c(),
+                                      `M1 macrophages` = c(),
                                       `M2 macrophages` = c(),
                                       `Mast cells` = c(),
                                       `Mural cells` = c(),
@@ -572,22 +573,6 @@ dict_Vanderbilt[["CBSX_scRNA-Seq_melanoma_Tirosh_sigmatrix_SuppFig_3-b"]] <- lis
                                       `T helper cells` = c(),
                                       `T reg. cells` = c()) # Missing Macrophages
 
-list(`B cells` = c(),
-                                      CD4 = c(),
-                                      CD8 = c(),
-                                      `Endothelial cells` = c(),
-                                      Cancer = c(),
-                                      Fibroblasts = c(),
-                                      `M1 Macrophages` = c(),
-                                      `M2 macrophages` = c(),
-                                      `Mast cells` = c(),
-                                      `Mural cells` = c(),
-                                      NK = c(), 
-                                      `Plasma B cells` = c(),
-                                      `T cells proliferative` = c(),
-                                      `T helper cells` = c(),
-                                      `T reg. cells` = c())
-
 
 dict_Vanderbilt[["CBSX_sigmatrix_HNSCC_Fig2cd"]] <- list(`B cells` = c("B.cells"),
                                       CD4 = c("T.cells.CD4"),
@@ -595,7 +580,7 @@ dict_Vanderbilt[["CBSX_sigmatrix_HNSCC_Fig2cd"]] <- list(`B cells` = c("B.cells"
                                       `Endothelial cells` = c(),
                                       Cancer = c("Malignant.cells"),
                                       Fibroblasts = c("CAFs"),
-                                      `M1 Macrophages` = c(),
+                                      `M1 macrophages` = c(),
                                       `M2 macrophages` = c(),
                                       `Mast cells` = c("Mast.cells"),
                                       `Mural cells` = c(),
@@ -611,7 +596,7 @@ dict_Vanderbilt[["Quantiseq"]] <- list(`B cells` = c("B_cell"),
                                       `Endothelial cells` = c(),
                                       Cancer = c(),
                                       Fibroblasts = c(),
-                                      `M1 Macrophages` = c("Macrophage_M1"),
+                                      `M1 macrophages` = c("Macrophage_M1"),
                                       `M2 macrophages` = c("Macrophage_M2"),
                                       `Mast cells` = c(),
                                       `Mural cells` = c(),
@@ -621,10 +606,6 @@ dict_Vanderbilt[["Quantiseq"]] <- list(`B cells` = c("B_cell"),
                                       `T helper cells` = c(),
                                       `T reg. cells` = c("T_cell_regulatory_(Tregs)")) # Missing Monocyte Myeloid_dendritic_cell Neutrophil uncharacterized_cell
 
-
-dict_Vanderbilt[["Quantiseq"]] <- list(CD4 = c("T.cell.CD4+.(non-regulatory)"), # "T.cell.regulatory(Tregs)"
-                                   CD8 = c("T.cell.CD8+"),
-                                   NK = c("NK.cell"))
 
 ```
 ## Corrplot
