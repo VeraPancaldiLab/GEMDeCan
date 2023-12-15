@@ -197,7 +197,7 @@ benchmark_corrplots <- function(deconv_data, true_estimates, dict, key, title){
   
     for (ct in unique(dplyr::select(true_subset, -any_of(key)) %>% names())){
       
-      substring_remove <- c(paste0("_",ct,"$"),
+      substring_remove <- c(paste0("_",unique(dplyr::select(true_subset, -any_of(key)) %>% names()),"$"),
       "_Tirosh_sigmatrix_SuppFig_3.b",
       "_scRNA.Seq",
       "Fig2ab.",
@@ -492,7 +492,7 @@ deconv_Vanderbilt <- read_tsv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Data/deconvolutio
 
 
 truth_Vanderbilt <- read_csv("/mnt/SERVER-CRCT-STORAGE/CRCT21/Data/deconvolution_for_gemdecan/Vanderbilt_08122023/Cell_proportions.csv") %>%
-  rename(Samples = "...1")
+  rename(Samples = "...1", `Plasma cells` = `Plasma B cells`)
 
 ```
 
@@ -515,7 +515,7 @@ dict_Vanderbilt[["BPRNACan"]] <- list(`B cells` = c("B"),
                                       `Mast cells` = c(),
                                       `Mural cells` = c(),
                                       NK = c("NK"),
-                                      `Plasma B cells` = c(),
+                                      `Plasma cells` = c(),
                                       `T cells proliferative` = c(),
                                       `T helper cells` = c(),
                                       `T reg. cells` = c()) # Missing Monocytes, M0 and Neutrophils
@@ -534,7 +534,7 @@ dict_Vanderbilt[["CBSX_Fig2ab-NSCLC_PBMCs_scRNAseq_sigmatrix"]] <- list(`B cells
                                       `Mast cells` = c(),
                                       `Mural cells` = c(),
                                       NK = c("NK"), # NKT.cells?
-                                      `Plasma B cells` = c(),
+                                      `Plasma cells` = c(),
                                       `T cells proliferative` = c(),
                                       `T helper cells` = c(),
                                       `T reg. cells` = c()) # Missing Monocytes and NKT.cells
@@ -550,7 +550,7 @@ dict_Vanderbilt[["CBSX_LM22"]] <- list(`B cells` = c("B.cells.memory", "B.cells.
                                       `Mast cells` = c("Mast.cells.activated", "Mast.cells.resting"),
                                       `Mural cells` = c(),
                                       NK = c("NK.cells.activated", "NK.cells.resting"), 
-                                      `Plasma B cells` = c("Plasma.cells"),
+                                      `Plasma cells` = c("Plasma.cells"),
                                       `T cells proliferative` = c(),
                                       `T helper cells` = c("T.cells.follicular.helper"),
                                       `T reg. cells` = c("T.cells.regulatory..Tregs.")) # Missing Dendritic.cells.activated, Dendritic.cells.resting, Eosinophils, Macrophages.M0, , Monocytes, Neutrophils
@@ -568,7 +568,7 @@ dict_Vanderbilt[["CBSX_scRNA-Seq_melanoma_Tirosh_sigmatrix_SuppFig_3-b"]] <- lis
                                       `Mast cells` = c(),
                                       `Mural cells` = c(),
                                       NK = c("NK.cells"), 
-                                      `Plasma B cells` = c(),
+                                      `Plasma cells` = c(),
                                       `T cells proliferative` = c(),
                                       `T helper cells` = c(),
                                       `T reg. cells` = c()) # Missing Macrophages
@@ -585,7 +585,7 @@ dict_Vanderbilt[["CBSX_sigmatrix_HNSCC_Fig2cd"]] <- list(`B cells` = c("B.cells"
                                       `Mast cells` = c("Mast.cells"),
                                       `Mural cells` = c(),
                                       NK = c(), 
-                                      `Plasma B cells` = c(),
+                                      `Plasma cells` = c(),
                                       `T cells proliferative` = c(),
                                       `T helper cells` = c(),
                                       `T reg. cells` = c()) # Missing Dendritic.cells Macrophages
@@ -601,7 +601,7 @@ dict_Vanderbilt[["Quantiseq"]] <- list(`B cells` = c("B_cell"),
                                       `Mast cells` = c(),
                                       `Mural cells` = c(),
                                       NK = c("NK_cell"), 
-                                      `Plasma B cells` = c(),
+                                      `Plasma cells` = c(),
                                       `T cells proliferative` = c(),
                                       `T helper cells` = c(),
                                       `T reg. cells` = c("T_cell_regulatory_(Tregs)")) # Missing Monocyte Myeloid_dendritic_cell Neutrophil uncharacterized_cell
